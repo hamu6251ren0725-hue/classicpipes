@@ -1,24 +1,48 @@
 package jagm.classicpipes;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(ClassicPipes.MOD_ID)
 public class NeoForgeEntrypoint {
 
-    static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ClassicPipes.MOD_ID);
-    static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ClassicPipes.MOD_ID);
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ClassicPipes.MOD_ID);
-
     public NeoForgeEntrypoint(IEventBus eventBus) {
-        ClassicPipes.ITEMS.forEach(ITEMS::register);
-        ClassicPipes.BLOCKS.forEach(BLOCKS::register);
-        ITEMS.register(eventBus);
-        BLOCKS.register(eventBus);
-        BLOCK_ENTITY_TYPES.register(eventBus);
+
+    }
+
+    @EventBusSubscriber(modid = ClassicPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+    public static class ModEventHandler {
+
+        @SubscribeEvent
+        public static void onRegister(RegisterEvent event) {
+            event.register(Registries.BLOCK,helper -> {
+                ClassicPipes.BLOCKS.forEach((name, blockSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), blockSupplier.get()));
+            });
+            event.register(Registries.ITEM, helper -> {
+                ClassicPipes.ITEMS.forEach((name, itemSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), itemSupplier.get()));
+            });
+            event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
+                ClassicPipes.BLOCK_ENTITIES.forEach((name, blockEntitySupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), blockEntitySupplier.get()));
+            });
+        }
+
+    }
+
+    @EventBusSubscriber(value = Dist.CLIENT, modid = ClassicPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+    public static class ClientModEventHandler {
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            //ClassicPipes.TRANSPARENT_BLOCKS.forEach(block -> ItemBlockRenderTypes.setRenderLayer(block, RenderType.cutout()));
+        }
+
     }
 
 }

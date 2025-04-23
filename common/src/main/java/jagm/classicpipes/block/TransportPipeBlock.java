@@ -30,7 +30,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class TransportPipeBlock extends Block implements SimpleWaterloggedBlock, EntityBlock {
+public abstract class TransportPipeBlock extends TransparentBlock implements SimpleWaterloggedBlock, EntityBlock {
 
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;

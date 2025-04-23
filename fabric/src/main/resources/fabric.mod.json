@@ -17,6 +17,9 @@
     "entrypoints": {
         "main": [
             "jagm.classicpipes.FabricEntrypoint"
+        ],
+        "client": [
+            "jagm.classicpipes.client.FabricClientEntrypoint"
         ]
     },
     "mixins": [

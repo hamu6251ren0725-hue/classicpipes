@@ -14,6 +14,7 @@ public class ItemInPipe {
     public static final int PIPE_LENGTH = 64;
     public static final int HALFWAY = PIPE_LENGTH / 2;
     public static final int DEFAULT_SPEED = 2;
+    public static final int SPEED_LIMIT = HALFWAY;
 
     private ItemStack stack;
     private int speed;
@@ -39,7 +40,12 @@ public class ItemInPipe {
         this(stack, DEFAULT_SPEED, 0, fromDirection, toDirection, ejecting);
     }
 
-    public void move() {
+    public void move(int targetSpeed, int acceleration) {
+        if (this.speed < targetSpeed) {
+            this.speed = Math.min(this.speed + acceleration, Math.min(targetSpeed, SPEED_LIMIT));
+        } else if (this.speed > targetSpeed) {
+            this.speed = Math.max(this.speed - acceleration, Math.max(targetSpeed, 1));
+        }
         this.progress += this.speed;
     }
 
@@ -68,8 +74,9 @@ public class ItemInPipe {
         return this.progress;
     }
 
-    public void resetProgress() {
+    public void resetProgress(Direction direction) {
         this.progress -= PIPE_LENGTH;
+        this.fromDirection = direction;
     }
 
     public boolean isEjecting() {

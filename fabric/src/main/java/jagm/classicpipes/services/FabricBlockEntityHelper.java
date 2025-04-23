@@ -1,11 +1,8 @@
 package jagm.classicpipes.services;
 
-import jagm.classicpipes.ClassicPipes;
+import com.google.common.base.Supplier;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -16,12 +13,8 @@ import java.util.function.BiFunction;
 public class FabricBlockEntityHelper implements BlockEntityHelper{
 
     @Override
-    public <T extends BlockEntity> BlockEntityType<T> registerBlockEntityType(String name, BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
-        return Registry.register(
-                BuiltInRegistries.BLOCK_ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name),
-                FabricBlockEntityTypeBuilder.create(blockEntitySupplier::apply, validBlocks).build()
-        );
+    public <T extends BlockEntity> Supplier<BlockEntityType<? extends BlockEntity>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
+        return () -> FabricBlockEntityTypeBuilder.create(blockEntitySupplier::apply, validBlocks).build();
     }
 
 }

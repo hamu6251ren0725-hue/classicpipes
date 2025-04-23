@@ -1,6 +1,6 @@
 package jagm.classicpipes.services;
 
-import jagm.classicpipes.ForgeEntrypoint;
+import com.google.common.base.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,8 +13,8 @@ import java.util.function.BiFunction;
 public class ForgeBlockEntityHelper implements BlockEntityHelper {
 
     @Override
-    public <T extends BlockEntity> BlockEntityType<T> registerBlockEntityType(String name, BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
-        return ForgeEntrypoint.BLOCK_ENTITY_TYPES.register(name, () -> new BlockEntityType<>(blockEntitySupplier::apply, Set.of(validBlocks))).get();
+    public <T extends BlockEntity> Supplier<BlockEntityType<? extends BlockEntity>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
+        return () -> new BlockEntityType<>(blockEntitySupplier::apply, Set.of(validBlocks));
     }
 
 }

@@ -1,5 +1,6 @@
 package jagm.classicpipes.services;
 
+import com.google.common.base.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -10,6 +11,6 @@ import java.util.function.BiFunction;
 
 public interface BlockEntityHelper {
 
-    <T extends BlockEntity> BlockEntityType<T> registerBlockEntityType(String name, BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks);
+    <T extends BlockEntity> Supplier<BlockEntityType<? extends BlockEntity>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks);
 
 }

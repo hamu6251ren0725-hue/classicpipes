@@ -22,7 +22,7 @@ public class WoodenPipeBlock extends TransportPipeBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY ? WoodenPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY.get() ? WoodenPipeEntity::tick : null;
     }
 
 }
