@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -27,6 +28,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -54,15 +56,15 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
                 .setValue(DOWN, false)
                 .setValue(WATERLOGGED, false)
         );
-        float apothem = 8.0F;
-        Map<Direction, VoxelShape> map = Shapes.rotateAll(Block.boxZ(apothem, 0.0, 8.0));
-        this.shapes = this.getShapeForEachState((state) -> {
+        Map<Direction, VoxelShape> map = Shapes.rotateAll(Block.boxZ(8.0F, 0.0F, 8.0F));
+        this.shapes = this.getShapeForEachState(state -> {
+            VoxelShape shape = Block.cube(8.0F);
             for (Map.Entry<Direction, BooleanProperty> entry : PROPERTY_BY_DIRECTION.entrySet()) {
                 if (state.getValue(entry.getValue())) {
-                    return Shapes.or(map.get(entry.getKey()), Block.cube(apothem));
+                    shape = Shapes.or(map.get(entry.getKey()), shape);
                 }
             }
-            return Block.cube(apothem);
+            return shape;
         });
     }
 

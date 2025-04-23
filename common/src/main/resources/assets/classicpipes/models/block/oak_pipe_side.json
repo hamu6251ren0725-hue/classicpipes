@@ -13,7 +13,16 @@
       "faces": {
         "down":  { "texture": "#texture" },
         "up":    { "texture": "#texture" },
-        "north": { "texture": "#texture" },
+        "west":  { "texture": "#texture" },
+        "east":  { "texture": "#texture" }
+      }
+    },
+    {
+      "from": [ 12, 12, 4 ],
+      "to": [ 4, 4, 0 ],
+      "faces": {
+        "down":  { "texture": "#texture" },
+        "up":    { "texture": "#texture" },
         "west":  { "texture": "#texture" },
         "east":  { "texture": "#texture" }
       }

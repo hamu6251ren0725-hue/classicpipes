@@ -76,7 +76,7 @@ public class ClassicPipes {
     }
 
     private static Supplier<Block> createPipeSupplier(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props) {
-        Supplier<Block> pipeSupplier = createBlockSupplier(name, factory, props);
+        Supplier<Block> pipeSupplier = createBlockSupplier(name, factory, props.noOcclusion());
         TRANSPARENT_BLOCKS.add(pipeSupplier.get());
         return pipeSupplier;
     }
