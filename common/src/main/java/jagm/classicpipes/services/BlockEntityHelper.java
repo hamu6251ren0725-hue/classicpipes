@@ -1,6 +1,5 @@
 package jagm.classicpipes.services;
 
-import com.google.common.base.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;

@@ -13,7 +13,7 @@ public class NeoForgeEntrypoint {
     static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ClassicPipes.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ClassicPipes.MOD_ID);
 
-    public NeoForgeEntrypoint(IEventBus eventBus){
+    public NeoForgeEntrypoint(IEventBus eventBus) {
         ClassicPipes.ITEMS.forEach(ITEMS::register);
         ClassicPipes.BLOCKS.forEach(BLOCKS::register);
         ITEMS.register(eventBus);

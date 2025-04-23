@@ -2,23 +2,19 @@ package jagm.classicpipes.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.TransportPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -70,35 +66,71 @@ public abstract class TransportPipeBlock extends Block implements SimpleWaterlog
         });
     }
 
-    protected boolean canConnect(Container container){
-        if(container != null){
-            if(container instanceof TransportPipeEntity pipeEntity){
-                return this.canConnectToPipe(pipeEntity);
+    protected boolean canConnect(Container container, Direction direction) {
+        if (container != null) {
+            if (container instanceof TransportPipeEntity pipe) {
+                return this.canConnectToPipe(pipe);
+            } else if (container instanceof WorldlyContainer worldlyContainer) {
+                return worldlyContainer.getSlotsForFace(direction.getOpposite()).length > 0;
+            } else {
+                return true;
             }
-            return true;
         }
         return false;
     }
 
-    protected boolean canConnectToPipe(TransportPipeEntity pipeEntity){
+    protected boolean canConnectToPipe(TransportPipeEntity pipe){
         return true;
+    }
+
+    private static Container getBlockContainer(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+        if (block instanceof WorldlyContainerHolder) {
+            return ((WorldlyContainerHolder)block).getContainer(state, level, pos);
+        } else {
+            if (state.hasBlockEntity()) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof Container container) {
+                    if (container instanceof ChestBlockEntity && block instanceof ChestBlock) {
+                        container = ChestBlock.getContainer((ChestBlock)block, state, level, pos, true);
+                    }
+                    return container;
+                }
+            }
+            return null;
+        }
+    }
+
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        if (level.getBlockEntity(pos) instanceof TransportPipeEntity pipe && level instanceof ServerLevel serverLevel) {
+            pipe.dropItems(serverLevel, pos);
+        }
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .trySetValue(NORTH, this.canConnect(HopperBlockEntity.getContainerAt(context.getLevel(), context.getClickedPos().north())))
-                .trySetValue(EAST, this.canConnect(HopperBlockEntity.getContainerAt(context.getLevel(), context.getClickedPos().east())))
-                .trySetValue(SOUTH, this.canConnect(HopperBlockEntity.getContainerAt(context.getLevel(), context.getClickedPos().south())))
-                .trySetValue(WEST, this.canConnect(HopperBlockEntity.getContainerAt(context.getLevel(), context.getClickedPos().west())))
-                .trySetValue(UP, this.canConnect(HopperBlockEntity.getContainerAt(context.getLevel(), context.getClickedPos().above())))
-                .trySetValue(DOWN, this.canConnect(HopperBlockEntity.getContainerAt(context.getLevel(), context.getClickedPos().below())))
+                .trySetValue(NORTH, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().north()), Direction.NORTH))
+                .trySetValue(EAST, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().east()), Direction.EAST))
+                .trySetValue(SOUTH, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().south()), Direction.SOUTH))
+                .trySetValue(WEST, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().west()), Direction.WEST))
+                .trySetValue(UP, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().above()), Direction.UP))
+                .trySetValue(DOWN, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().below()), Direction.DOWN))
                 .trySetValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
     }
 
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        return state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.canConnect(HopperBlockEntity.getContainerAt((Level) level, neighborPos)));
+        if (state.getValue(WATERLOGGED)) {
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        BlockState newState = state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.canConnect(getBlockContainer((Level) level, neighborPos), direction));
+        if (level.getBlockEntity(pos) instanceof TransportPipeEntity pipe) {
+            pipe.update((Level) level, state, pos, direction);
+        }
+        return newState;
     }
 
     @Override

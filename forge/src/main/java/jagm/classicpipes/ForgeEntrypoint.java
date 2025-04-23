@@ -16,7 +16,7 @@ public class ForgeEntrypoint {
     static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ClassicPipes.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ClassicPipes.MOD_ID);
 
-    public ForgeEntrypoint(FMLJavaModLoadingContext context){
+    public ForgeEntrypoint(FMLJavaModLoadingContext context) {
         IEventBus eventBus = context.getModEventBus();
         ClassicPipes.ITEMS.forEach(ITEMS::register);
         ClassicPipes.BLOCKS.forEach(BLOCKS::register);

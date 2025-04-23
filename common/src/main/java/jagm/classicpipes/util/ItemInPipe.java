@@ -1,6 +1,5 @@
 package jagm.classicpipes.util;
 
-import jagm.classicpipes.ClassicPipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -22,97 +21,86 @@ public class ItemInPipe {
     private Direction fromDirection;
     private Direction targetDirection;
     private boolean ejecting;
-    private boolean destroyed;
 
-    public ItemInPipe(ItemStack stack, int speed, int progress, Direction fromDirection, Direction targetDirection, boolean ejecting){
+    public ItemInPipe(ItemStack stack, int speed, int progress, Direction fromDirection, Direction targetDirection, boolean ejecting) {
         this.stack = stack;
         this.speed = Math.min(speed, HALFWAY);
         this.progress = progress;
         this.fromDirection = fromDirection;
         this.targetDirection = targetDirection;
         this.ejecting = ejecting;
-        this.destroyed = false;
     }
 
-    public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection){
+    public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection) {
         this(stack, fromDirection, toDirection, false);
     }
 
-    public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection, boolean ejecting){
+    public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection, boolean ejecting) {
         this(stack, DEFAULT_SPEED, 0, fromDirection, toDirection, ejecting);
     }
 
-    public void move(){
+    public void move() {
         this.progress += this.speed;
     }
 
-    public void drop(ServerLevel level, BlockPos pos){
-        if(!this.stack.isEmpty()){
-            ClassicPipes.LOGGER.info("Dropping {}x {}!", this.getStack().getCount(), this.getStack().getDisplayName().getString());
-            Direction currentDirection = this.progress < HALFWAY ? fromDirection : targetDirection;
+    public void drop(ServerLevel level, BlockPos pos) {
+        if (!this.stack.isEmpty()) {
+            Direction currentDirection = this.progress < HALFWAY ? this.fromDirection : this.targetDirection;
             int absolutePosition = HALFWAY + Math.abs(HALFWAY - this.progress);
-            float xOffset = currentDirection.equals(Direction.EAST) ? absolutePosition : (currentDirection.equals(Direction.WEST) ? -absolutePosition : HALFWAY) / (float) PIPE_LENGTH;
-            float yOffset = currentDirection.equals(Direction.UP) ? absolutePosition : (currentDirection.equals(Direction.DOWN) ? -absolutePosition : HALFWAY) / (float) PIPE_LENGTH;
-            float zOffset = currentDirection.equals(Direction.SOUTH) ? absolutePosition : (currentDirection.equals(Direction.NORTH) ? -absolutePosition : HALFWAY) / (float) PIPE_LENGTH;
-            ItemEntity droppedItem = new ItemEntity(level, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, this.stack);
+            float xOffset = (currentDirection.equals(Direction.EAST) ? absolutePosition : (currentDirection.equals(Direction.WEST) ? -absolutePosition : HALFWAY)) / (float) PIPE_LENGTH;
+            float yOffset = (currentDirection.equals(Direction.UP) ? absolutePosition : (currentDirection.equals(Direction.DOWN) ? -absolutePosition : HALFWAY)) / (float) PIPE_LENGTH;
+            float zOffset = (currentDirection.equals(Direction.SOUTH) ? absolutePosition : (currentDirection.equals(Direction.NORTH) ? -absolutePosition : HALFWAY)) / (float) PIPE_LENGTH;
+            ItemEntity droppedItem = new ItemEntity(level, pos.getX() + xOffset, pos.getY() + yOffset, pos.getZ() + zOffset, this.stack);
             droppedItem.setDefaultPickUpDelay();
             level.addFreshEntity(droppedItem);
         }
     }
 
-    public ItemStack getStack(){
+    public ItemStack getStack() {
         return this.stack;
     }
 
-    public void setStack(ItemStack stack){
+    public void setStack(ItemStack stack) {
         this.stack = stack;
     }
 
-    public int getProgress(){
+    public int getProgress() {
         return this.progress;
     }
 
-    public void resetProgress(){
+    public void resetProgress() {
         this.progress -= PIPE_LENGTH;
     }
 
-    public void eject(){
-        this.ejecting = true;
+    public boolean isEjecting() {
+        return this.ejecting;
     }
 
-    public void uneject(){
-        this.ejecting = false;
+    public void setEjecting(boolean ejecting) {
+        this.ejecting = ejecting;
     }
 
-    public boolean isEjecting(){
-        return ejecting;
-    }
-
-    public Direction getFromDirection(){
+    public Direction getFromDirection() {
         return fromDirection;
     }
 
-    public Direction getTargetDirection(){
+    public Direction getTargetDirection() {
         return targetDirection;
     }
 
-    public void setFromDirection(Direction direction){
+    public void setFromDirection(Direction direction) {
         this.fromDirection = direction;
     }
 
-    public void setTargetDirection(Direction direction){
+    public void setTargetDirection(Direction direction) {
         this.targetDirection = direction;
     }
 
-    public void destroy(){
-        this.destroyed = true;
+    public int getSpeed() {
+        return this.speed;
     }
 
-    public boolean isDestroyed(){
-        return this.destroyed;
-    }
-
-    public Tag save(HolderLookup.Provider levelRegistry){
+    public Tag save(HolderLookup.Provider levelRegistry) {
         CompoundTag tag = new CompoundTag();
         tag.put("item", this.stack.save(levelRegistry));
         tag.putByte("speed", (byte) this.speed);
@@ -123,11 +111,11 @@ public class ItemInPipe {
         return tag;
     }
 
-    public static ItemInPipe parse(CompoundTag tag, HolderLookup.Provider levelRegistry){
+    public static ItemInPipe parse(CompoundTag tag, HolderLookup.Provider levelRegistry) {
         return ItemStack.parse(levelRegistry, tag.getCompoundOrEmpty("item")).map(stack -> new ItemInPipe(
                 stack,
                 tag.getByteOr("speed", (byte) DEFAULT_SPEED),
-                tag.getByteOr("progress", (byte) (PIPE_LENGTH / 2)),
+                tag.getByteOr("progress", (byte) HALFWAY),
                 Direction.from3DDataValue(tag.getByteOr("from_direction", (byte) 0)),
                 Direction.from3DDataValue(tag.getByteOr("target_direction", (byte) 0)).getOpposite(),
                 tag.getBooleanOr("ejecting", true)

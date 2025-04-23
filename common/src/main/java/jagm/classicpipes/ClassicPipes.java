@@ -18,7 +18,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
 
 public class ClassicPipes {
@@ -30,33 +32,48 @@ public class ClassicPipes {
     public static final HashMap<String, Supplier<Item>> ITEMS = new HashMap<>();
     public static final HashMap<String, Supplier<Block>> BLOCKS = new HashMap<>();
 
-    public static final Supplier<Block> WOODEN_PIPE = createBlockSupplier(
-            "wooden_pipe",
-            WoodenPipeBlock::new,
-            BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING)
-    );
+    private static final List<Block> WOODEN_PIPES = new ArrayList<>();
+
+    public static final Supplier<Block> OAK_PIPE = createWoodenPipeSupplier("oak_pipe");
+    /*
+    public static final Supplier<Block> SPRUCE_PIPE = createWoodenPipeSupplier("spruce_pipe");
+    public static final Supplier<Block> BIRCH_PIPE = createWoodenPipeSupplier("birch_pipe");
+    public static final Supplier<Block> JUNGLE_PIPE = createWoodenPipeSupplier("jungle_pipe");
+    public static final Supplier<Block> ACACIA_PIPE = createWoodenPipeSupplier("acacia_pipe");
+    public static final Supplier<Block> DARK_OAK_PIPE = createWoodenPipeSupplier("dark_oak_pipe");
+    public static final Supplier<Block> MANGROVE_PIPE = createWoodenPipeSupplier("mangrove_pipe");
+    public static final Supplier<Block> CHERRY_PIPE = createWoodenPipeSupplier("cherry_pipe");
+    public static final Supplier<Block> PALE_OAK_PIPE = createWoodenPipeSupplier("pale_oak_pipe");
+    public static final Supplier<Block> BAMBOO_PIPE = createWoodenPipeSupplier("bamboo_pipe");
+    public static final Supplier<Block> CRIMSON_PIPE = createWoodenPipeSupplier("crimson_pipe");
+    public static final Supplier<Block> WARPED_PIPE = createWoodenPipeSupplier("warped_pipe");
+     */
 
     public static final BlockEntityType<WoodenPipeEntity> WOODEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.registerBlockEntityType(
-            "wooden_pipe",
-            WoodenPipeEntity::new,
-            WOODEN_PIPE.get()
+            "wooden_pipe", WoodenPipeEntity::new, WOODEN_PIPES.toArray(new Block[0])
     );
 
-    private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name){
+    private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name) {
         return ResourceKey.create(registry, ResourceLocation.fromNamespaceAndPath(MOD_ID, name));
     }
 
-    private static Supplier<Item> createItemSupplier(String name, Function<Item.Properties, Item> factory, Item.Properties props){
+    private static Supplier<Item> createItemSupplier(String name, Function<Item.Properties, Item> factory, Item.Properties props) {
         Supplier<Item> itemSupplier = Suppliers.memoize(() -> factory.apply(props.setId(makeKey(Registries.ITEM, name))));
         ITEMS.put(name, itemSupplier);
         return itemSupplier;
     }
 
-    private static Supplier<Block> createBlockSupplier(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props){
+    private static Supplier<Block> createBlockSupplier(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props) {
         Supplier<Block> blockSupplier = Suppliers.memoize(() -> factory.apply(props.setId(makeKey(Registries.BLOCK, name))));
         BLOCKS.put(name, blockSupplier);
         createItemSupplier(name, itemProps -> new BlockItem(blockSupplier.get(), itemProps), new Item.Properties());
         return blockSupplier;
+    }
+
+    private static Supplier<Block> createWoodenPipeSupplier(String name) {
+        Supplier<Block> woodenPipeSupplier = createBlockSupplier(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING));
+        WOODEN_PIPES.add(woodenPipeSupplier.get());
+        return woodenPipeSupplier;
     }
 
 }

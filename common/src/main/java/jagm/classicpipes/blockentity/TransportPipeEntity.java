@@ -9,7 +9,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
@@ -35,175 +34,225 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
-        if(blockEntity instanceof TransportPipeEntity pipeEntity && level instanceof ServerLevel serverLevel){
-            List<ItemInPipe> toRemove = new ArrayList<>();
-            List<ItemInPipe> toAdd = new ArrayList<>();
-            for(ItemInPipe pipeItem : pipeEntity.contents){
-                if(pipeItem.getStack().isEmpty() || pipeItem.isDestroyed()){
-                    toRemove.add(pipeItem);
-                    continue;
-                }
-                pipeItem.move();
-                boolean fromDisconnected = !pipeEntity.isPipeConnected(pipeItem.getFromDirection());
-                boolean targetDisconnected = !pipeEntity.isPipeConnected(pipeItem.getTargetDirection());
-                if(targetDisconnected && !pipeItem.isEjecting() && pipeItem.getProgress() < ItemInPipe.HALFWAY){
-                    ClassicPipes.LOGGER.info("Pipe disconnected! Rerouting {}x {}.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                    toAdd.addAll(pipeEntity.routeItem(pipeItem));
-                }
-                if(targetDisconnected && !pipeItem.isEjecting() && pipeItem.getProgress() >= ItemInPipe.HALFWAY){
-                    ClassicPipes.LOGGER.info("Pipe disconnected! Setting {}x {} to eject.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                    pipeItem.eject();
-                }
-                boolean timeToEject = pipeItem.isEjecting() && pipeItem.getProgress() >= ItemInPipe.HALFWAY;
-                if(timeToEject || (fromDisconnected && pipeItem.getProgress() < ItemInPipe.HALFWAY)){
-                    ClassicPipes.LOGGER.info("Ejecting {}x {}!", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                    pipeItem.drop(serverLevel, pos);
-                    pipeItem.destroy();
-                }
-                else if (pipeItem.getProgress() >= ItemInPipe.PIPE_LENGTH){
-                    Container container = HopperBlockEntity.getContainerAt(serverLevel, pos.relative(pipeItem.getTargetDirection()));
-                    if (container == null) {
-                        ClassicPipes.LOGGER.info("Bouncing {}x {}.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                        pipeItem.resetProgress();
-                        pipeItem.setFromDirection(pipeItem.getTargetDirection());
-                        toAdd.addAll(pipeEntity.routeItem(pipeItem));
-                    }
-                    else if(container instanceof TransportPipeEntity neighborPipe){
-                        ClassicPipes.LOGGER.info("Passing {}x {} to next pipe.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                        pipeItem.resetProgress();
-                        pipeItem.setFromDirection(pipeItem.getTargetDirection().getOpposite());
-                        neighborPipe.contents.addAll(neighborPipe.routeItem(pipeItem));
-                        neighborPipe.contents.add(pipeItem);
-                        toRemove.add(pipeItem);
-                    } else {
-                        ClassicPipes.LOGGER.info("Attempting to insert {}x {} into container.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                        ItemStack stack = HopperBlockEntity.addItem(pipeEntity, container, pipeItem.getStack(), pipeItem.getTargetDirection().getOpposite());
-                        if (stack.isEmpty()) {
-                            ClassicPipes.LOGGER.info("Successfully inserted {}x {} into container.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                            pipeItem.destroy();
+        if (blockEntity instanceof TransportPipeEntity pipe) {
+            if (!pipe.isEmpty()) {
+                // Avoid concurrent modification.
+                List<ItemInPipe> toAdd = new ArrayList<>();
+                List<ItemInPipe> toRemove = new ArrayList<>();
+                for (ItemInPipe item : pipe.contents) {
+                    item.move();
+                    if (item.isEjecting() && item.getProgress() >= ItemInPipe.HALFWAY) {
+                        ClassicPipes.LOGGER.info("Ejecting {}x {}.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                        if (level instanceof ServerLevel serverLevel) {
+                            item.drop(serverLevel, pos);
+                        }
+                        toRemove.add(item);
+                    } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
+                        // The item should be removed even if it remains in this pipe because it will be re-added when routeItem is called.
+                        toRemove.add(item);
+                        Container container = HopperBlockEntity.getContainerAt(level, pos.relative(item.getTargetDirection()));
+                        if (container == null) {
+                            // Bounce the item backwards.
+                            ClassicPipes.LOGGER.info("Bouncing {}x {} from null container.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                            item.resetProgress();
+                            item.setFromDirection(item.getTargetDirection());
+                            toAdd.addAll(pipe.routeItem(state, item));
+                        } else if (container instanceof TransportPipeEntity nextPipe) {
+                            // Pass the item to the next pipe.
+                            ClassicPipes.LOGGER.info("Passing {}x {} to next pipe.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                            item.resetProgress();
+                            item.setFromDirection(item.getTargetDirection().getOpposite());
+                            nextPipe.contents.addAll(nextPipe.routeItem(item));
+                            nextPipe.setChanged();
                         } else {
-                            pipeItem.setStack(stack);
-                            ClassicPipes.LOGGER.info("Leftover {}x {}.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-                            pipeItem.resetProgress();
-                            pipeItem.setFromDirection(pipeItem.getTargetDirection());
-                            toAdd.addAll(pipeEntity.routeItem(pipeItem));
+                            // HopperBlockEntity.addItem returns the stack of items that was not able to be added to the container.
+                            ClassicPipes.LOGGER.info("Inserting {}x {} into container.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                            ItemStack stack = HopperBlockEntity.addItem(pipe, container, item.getStack(), item.getTargetDirection().getOpposite());
+                            if (!stack.isEmpty()) {
+                                // Bounce the remaining items backwards.
+                                ClassicPipes.LOGGER.info("Bouncing {}x {} rejected by container.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                                item.setStack(stack);
+                                item.resetProgress();
+                                item.setFromDirection(item.getTargetDirection());
+                                toAdd.addAll(pipe.routeItem(state, item));
+                            }
                         }
                     }
                 }
+                pipe.contents.removeAll(toRemove);
+                pipe.contents.addAll(toAdd);
+                pipe.setChanged();
             }
-            pipeEntity.contents.removeAll(toRemove);
-            pipeEntity.contents.addAll(toAdd);
         }
     }
 
-    public List<ItemInPipe> routeItem(ItemInPipe pipeItem){
-        RandomSource random = this.level.getRandom();
+    // routeItem should never return ItemInPipe instances with empty item stacks, and should always explicitly set each ItemInPipe to be ejecting or not ejecting.
+    public List<ItemInPipe> routeItem(BlockState state, ItemInPipe item) {
         List<ItemInPipe> outputs = new ArrayList<>();
-        for(Direction direction : Direction.values()){
-            if(isPipeConnected(direction) && !direction.equals(pipeItem.getFromDirection())){
-                outputs.add(new ItemInPipe(pipeItem.getStack().copyWithCount(0), pipeItem.getFromDirection(), direction));
+        for (Direction direction : Direction.values()) {
+            if (this.isPipeConnected(state, direction) && !direction.equals(item.getFromDirection())) {
+                // Create an empty copy of the item for each valid output direction.
+                outputs.add(new ItemInPipe(item.getStack().copyWithCount(0), item.getSpeed(), item.getProgress(), item.getFromDirection(), direction, false));
             }
         }
         if(outputs.isEmpty()){
-            ClassicPipes.LOGGER.info("Setting {}x {} to eject.", pipeItem.getStack().getCount(), pipeItem.getStack().getDisplayName().getString());
-            pipeItem.setTargetDirection(pipeItem.getFromDirection().getOpposite());
-            pipeItem.eject();
-        }else{
-            for(int i = 0; i < pipeItem.getStack().getCount(); i++){
-                outputs.get(random.nextInt(outputs.size())).getStack().grow(1);
+            // Set the item to eject because there were no valid output directions.
+            ClassicPipes.LOGGER.info("Setting {}x {} to eject.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+            item.setTargetDirection(item.getFromDirection().getOpposite());
+            item.setEjecting(true);
+            outputs.add(item);
+        } else {
+            // Randomly distribute the items in a stack to the outputs.
+            ClassicPipes.LOGGER.info("Distributing {}x {} randomly between outputs.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+            for(int i = 0; i < item.getStack().getCount(); i++){
+                if (this.level != null) {
+                    outputs.get(this.level.getRandom().nextInt(outputs.size())).getStack().grow(1);
+                }
             }
-            pipeItem.destroy();
+            // Get rid of ItemInPipe instances with empty stacks.
+            outputs.removeIf(outputItem -> outputItem.getStack().isEmpty());
         }
         return outputs;
     }
 
-    protected boolean isPipeConnected(Direction direction){
-        return this.getBlockState().getValue(TransportPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
+    public final List<ItemInPipe> routeItem(ItemInPipe item) {
+        return routeItem(this.getBlockState(), item);
+    }
+
+    protected boolean isPipeConnected(BlockState state, Direction direction) {
+        return state.getValue(TransportPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
+    }
+
+    public void update(Level level, BlockState state, BlockPos pos, Direction direction) {
+        if (!this.isEmpty()) {
+            // Avoid concurrent modification.
+            List<ItemInPipe> toRemove = new ArrayList<>();
+            List<ItemInPipe> toAdd = new ArrayList<>();
+            for (ItemInPipe item : this.contents) {
+                if (!this.isPipeConnected(state, direction)) {
+                    if (direction.equals(item.getFromDirection()) && item.getProgress() < ItemInPipe.HALFWAY) {
+                        // A connection was severed while the item was entering the pipe from that direction.
+                        ClassicPipes.LOGGER.info("Dropping {}x {} from severed entry connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                        toRemove.add(item);
+                        if (level instanceof ServerLevel serverLevel) {
+                            item.drop(serverLevel, pos);
+                        }
+                    } else if (direction.equals(item.getTargetDirection())) {
+                        toRemove.add(item);
+                        if (item.getProgress() >= ItemInPipe.HALFWAY) {
+                            // A connection was severed while the item was leaving the pipe in that direction.
+                            ClassicPipes.LOGGER.info("Dropping {}x {} from severed target connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                            if (level instanceof ServerLevel serverLevel) {
+                                item.drop(serverLevel, pos);
+                            }
+                        } else {
+                            // A connection was severed while the item was entering from a different direction, so its target needs to be recalculated.
+                            ClassicPipes.LOGGER.info("Rerouting {}x {} due to severed connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                            toAdd.addAll(this.routeItem(state, item));
+                        }
+                    }
+                } else if (item.getProgress() < ItemInPipe.HALFWAY) {
+                    // A new connection was established while the item was entering the pipe, so its target needs to be recalculated in case it should go that way.
+                    ClassicPipes.LOGGER.info("Rerouting {}x {} due to new connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                    toRemove.add(item);
+                    toAdd.addAll(this.routeItem(state, item));
+                }
+                // If the item is already leaving the pipe then it doesn't care about new or missing connections except the one it's in.
+            }
+            this.contents.removeAll(toRemove);
+            this.contents.addAll(toAdd);
+            this.setChanged();
+        }
+    }
+
+    public void dropItems(ServerLevel serverLevel, BlockPos pos) {
+        for (ItemInPipe item : this.contents) {
+            item.drop(serverLevel, pos);
+        }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry){
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
         super.loadAdditional(tag, levelRegistry);
-        ListTag pipeItemsList = tag.getListOrEmpty("items");
-        for(int i = 0; i < pipeItemsList.size(); i++){
-            CompoundTag pipeItemTag = pipeItemsList.getCompoundOrEmpty(i);
-            ItemInPipe pipeItem = ItemInPipe.parse(pipeItemTag, levelRegistry);
-            if(pipeItem != null){
-                if(!pipeItem.getStack().isEmpty()){
-                    contents.add(pipeItem);
+        ListTag items = tag.getListOrEmpty("items");
+        for (int i = 0; i < items.size(); i++) {
+            CompoundTag itemTag = items.getCompoundOrEmpty(i);
+            ItemInPipe item = ItemInPipe.parse(itemTag, levelRegistry);
+            if (item != null) {
+                if (!item.getStack().isEmpty()) {
+                    contents.add(item);
                 }
             }
         }
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry){
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
         super.saveAdditional(tag, levelRegistry);
-        ListTag pipeItemsList = new ListTag();
-        for(ItemInPipe pipeItem : this.contents){
-            if(!pipeItem.getStack().isEmpty()) {
-                pipeItemsList.add(pipeItem.save(levelRegistry));
+        ListTag items = new ListTag();
+        for (ItemInPipe item : this.contents) {
+            if (!item.getStack().isEmpty()) {
+                items.add(item.save(levelRegistry));
             }
         }
-        tag.put("items", pipeItemsList);
+        tag.put("items", items);
     }
 
     @Override
-    public int[] getSlotsForFace(Direction direction){
-        return new int[]{direction.get3DDataValue()};
+    public int[] getSlotsForFace(Direction direction) {
+        return new int[] {direction.get3DDataValue()};
     }
 
     @Override
-    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction){
-        if(direction != null){
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        if (direction != null) {
             return slot == direction.get3DDataValue() && this.canPlaceItem(slot, stack);
         }
         return false;
     }
 
     @Override
-    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction){
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
         return false;
     }
 
     @Override
-    public int getContainerSize(){
+    public int getContainerSize() {
         return 6;
     }
 
     @Override
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return this.contents.isEmpty();
     }
 
     @Override
-    public ItemStack getItem(int slot){
+    public ItemStack getItem(int slot) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack removeItem(int slot, int amount){
+    public ItemStack removeItem(int slot, int amount) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack removeItemNoUpdate(int slot){
+    public ItemStack removeItemNoUpdate(int slot) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public void setItem(int slot, ItemStack stack){
-        ClassicPipes.LOGGER.info("Adding {}x {} to pipe.", stack.getCount(), stack.getDisplayName().getString());
+    public void setItem(int slot, ItemStack stack) {
+        ClassicPipes.LOGGER.info("Received {}x {} into pipe.", stack.getCount(), stack.getDisplayName().getString());
         Direction direction = Direction.from3DDataValue(slot);
-        ItemInPipe pipeItem = new ItemInPipe(stack, direction, direction.getOpposite());
-        this.contents.addAll(this.routeItem(pipeItem));
-        this.contents.add(pipeItem);
+        ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
+        this.contents.addAll(this.routeItem(item));
         this.setChanged();
     }
 
     @Override
-    public boolean canPlaceItem(int slot, ItemStack stack){
-        return isPipeConnected(Direction.from3DDataValue(slot));
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return this.isPipeConnected(this.getBlockState(), Direction.from3DDataValue(slot));
     }
 
     @Override
@@ -212,12 +261,12 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
     }
 
     @Override
-    public Iterator<ItemStack> iterator(){
+    public Iterator<ItemStack> iterator() {
         return new TransportPipeIterator(this.contents);
     }
 
     @Override
-    public void clearContent(){
+    public void clearContent() {
         this.contents.clear();
     }
 
@@ -231,13 +280,13 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         private final List<ItemInPipe> contents;
         private int index;
 
-        public TransportPipeIterator(List<ItemInPipe> contents){
+        public TransportPipeIterator(List<ItemInPipe> contents) {
             this.contents = contents;
         }
 
         @Override
         public boolean hasNext() {
-            return this.index < contents.size();
+            return this.index < this.contents.size();
         }
 
         @Override
