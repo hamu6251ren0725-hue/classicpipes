@@ -1,5 +1,6 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.client.TransportPipeRenderer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -8,6 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(ClassicPipes.MOD_ID)
@@ -39,8 +41,8 @@ public class NeoForgeEntrypoint {
     public static class ClientModEventHandler {
 
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            //ClassicPipes.TRANSPARENT_BLOCKS.forEach(block -> ItemBlockRenderTypes.setRenderLayer(block, RenderType.cutout()));
+        public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), TransportPipeRenderer::new);
         }
 
     }

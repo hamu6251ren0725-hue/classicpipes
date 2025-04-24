@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 public class ForgeBlockEntityHelper implements BlockEntityHelper {
 
     @Override
-    public <T extends BlockEntity> Supplier<BlockEntityType<? extends BlockEntity>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
+    public <T extends BlockEntity> Supplier<BlockEntityType<T>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
         return () -> new BlockEntityType<>(blockEntitySupplier::apply, Set.of(validBlocks));
     }
 

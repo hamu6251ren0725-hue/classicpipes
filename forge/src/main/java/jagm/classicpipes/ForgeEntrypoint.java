@@ -1,6 +1,8 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.client.TransportPipeRenderer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -38,7 +40,13 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            // Forge model file render types don't seem to be working at the moment, the below code will prevent the pipe blocks from being rendered black.
             //ClassicPipes.TRANSPARENT_BLOCKS.forEach(block -> ItemBlockRenderTypes.setRenderLayer(block, RenderType.cutout()));
+        }
+
+        @SubscribeEvent
+        public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), TransportPipeRenderer::new);
         }
 
     }
