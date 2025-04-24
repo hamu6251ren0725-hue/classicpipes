@@ -85,7 +85,7 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
         return true;
     }
 
-    private static Container getBlockContainer(Level level, BlockPos pos) {
+    public static Container getBlockContainer(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof WorldlyContainerHolder) {

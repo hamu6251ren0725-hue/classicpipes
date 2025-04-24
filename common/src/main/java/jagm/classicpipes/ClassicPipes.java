@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import jagm.classicpipes.block.WoodenPipeBlock;
+import jagm.classicpipes.blockentity.TransportPipeEntity;
 import jagm.classicpipes.blockentity.WoodenPipeEntity;
 import jagm.classicpipes.services.Services;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -34,7 +35,6 @@ public class ClassicPipes {
 
     public static final HashMap<String, Supplier<Item>> ITEMS = new HashMap<>();
     public static final HashMap<String, Supplier<Block>> BLOCKS = new HashMap<>();
-    public static final HashMap<String, Supplier<BlockEntityType<? extends BlockEntity>>> BLOCK_ENTITIES = new HashMap<>();
 
     public static final List<Block> TRANSPARENT_BLOCKS = new ArrayList<>();
     private static final List<Block> WOODEN_PIPES = new ArrayList<>();
@@ -54,7 +54,7 @@ public class ClassicPipes {
     public static final Supplier<Block> WARPED_PIPE = createWoodenPipeSupplier("warped_pipe");
      */
 
-    public static final Supplier<BlockEntityType<? extends BlockEntity>> WOODEN_PIPE_ENTITY = Suppliers.memoize(Services.BLOCK_ENTITY_HELPER.getBlockEntitySupplier(
+    public static final Supplier<BlockEntityType<WoodenPipeEntity>> WOODEN_PIPE_ENTITY = Suppliers.memoize(Services.BLOCK_ENTITY_HELPER.getBlockEntitySupplier(
             WoodenPipeEntity::new, WOODEN_PIPES.toArray(new Block[0])
     ));
 
@@ -85,10 +85,6 @@ public class ClassicPipes {
         Supplier<Block> woodenPipeSupplier = createPipeSupplier(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING));
         WOODEN_PIPES.add(woodenPipeSupplier.get());
         return woodenPipeSupplier;
-    }
-
-    static {
-        BLOCK_ENTITIES.put("wooden_pipe", WOODEN_PIPE_ENTITY);
     }
 
 }

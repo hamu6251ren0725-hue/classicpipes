@@ -29,7 +29,7 @@ public class NeoForgeEntrypoint {
                 ClassicPipes.ITEMS.forEach((name, itemSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), itemSupplier.get()));
             });
             event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
-                ClassicPipes.BLOCK_ENTITIES.forEach((name, blockEntitySupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), blockEntitySupplier.get()));
+                helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "wooden_pipe"), ClassicPipes.WOODEN_PIPE_ENTITY.get());
             });
         }
 

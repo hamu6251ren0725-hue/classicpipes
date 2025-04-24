@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 public class FabricBlockEntityHelper implements BlockEntityHelper{
 
     @Override
-    public <T extends BlockEntity> Supplier<BlockEntityType<? extends BlockEntity>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
+    public <T extends BlockEntity> Supplier<BlockEntityType<T>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
         return () -> FabricBlockEntityTypeBuilder.create(blockEntitySupplier::apply, validBlocks).build();
     }
 

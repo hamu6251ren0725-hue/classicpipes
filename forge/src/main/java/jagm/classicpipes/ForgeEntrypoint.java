@@ -27,7 +27,7 @@ public class ForgeEntrypoint {
                 ClassicPipes.ITEMS.forEach((name, itemSupplier) -> helper.register(name, itemSupplier.get()));
             });
             event.register(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, helper -> {
-                ClassicPipes.BLOCK_ENTITIES.forEach((name, blockEntitySupplier) -> helper.register(name, blockEntitySupplier.get()));
+                helper.register("wooden_pipe", ClassicPipes.WOODEN_PIPE_ENTITY.get());
             });
         }
 

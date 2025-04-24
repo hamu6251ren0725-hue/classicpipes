@@ -8,6 +8,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
@@ -19,10 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public abstract class TransportPipeEntity extends BlockEntity implements WorldlyContainer {
 
@@ -36,59 +36,80 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
         if (blockEntity instanceof TransportPipeEntity pipe) {
             if (!pipe.isEmpty()) {
-                // Avoid concurrent modification.
-                List<ItemInPipe> toAdd = new ArrayList<>();
-                List<ItemInPipe> toRemove = new ArrayList<>();
-                for (ItemInPipe item : pipe.contents) {
-                    pipe.tickItem(item, level, pos, state, toAdd, toRemove);
+                ListIterator<ItemInPipe> iterator = pipe.contents.listIterator();
+                boolean hasChanged = false;
+                while (iterator.hasNext()) {
+                    hasChanged = pipe.tickItem(iterator.next(), level, pos, state, iterator);
                 }
-                pipe.contents.removeAll(toRemove);
-                pipe.contents.addAll(toAdd);
-                pipe.setChanged();
+                if (hasChanged) {
+                    pipe.setChanged();
+                    if (level instanceof ServerLevel serverLevel){
+                        serverLevel.sendBlockUpdated(pos, state, state, 2);
+                    }
+                }
             }
         }
     }
 
-    public void tickItem(ItemInPipe item, Level level, BlockPos pos, BlockState state, List<ItemInPipe> toAdd, List<ItemInPipe> toRemove) {
+    private void debug (String message, ItemInPipe item) {
+        if (this.getLevel() != null){
+            ClassicPipes.LOGGER.info("({}) {} {}x {}.", this.getLevel().isClientSide ? "Client" : "Server", message, item.getStack().getCount(), item.getStack().getDisplayName().getString());
+        }
+    }
+
+    public boolean tickItem(ItemInPipe item, Level level, BlockPos pos, BlockState state, ListIterator<ItemInPipe> iterator) {
+        boolean hasChanged = false;
         item.move(this.getTargetSpeed(), this.getAcceleration());
         if (item.isEjecting() && item.getProgress() >= ItemInPipe.HALFWAY) {
-            ClassicPipes.LOGGER.info("Ejecting {}x {}.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+            hasChanged = true;
+            iterator.remove();
+            debug("Ejecting", item);
             if (level instanceof ServerLevel serverLevel) {
                 item.drop(serverLevel, pos);
             }
-            toRemove.add(item);
         } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
             // The item should be removed even if it remains in this pipe because it will be re-added when routeItem is called.
-            toRemove.add(item);
-            Container container = HopperBlockEntity.getContainerAt(level, pos.relative(item.getTargetDirection()));
-            if (container == null) {
-                // Bounce the item backwards.
-                ClassicPipes.LOGGER.info("Bouncing {}x {} from null container.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                item.resetProgress(item.getTargetDirection());
-                toAdd.addAll(this.routeItem(state, item));
-            } else if (container instanceof TransportPipeEntity nextPipe) {
-                // Pass the item to the next pipe.
-                ClassicPipes.LOGGER.info("Passing {}x {} to next pipe.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                item.resetProgress(item.getTargetDirection().getOpposite());
-                nextPipe.contents.addAll(nextPipe.routeItem(item));
-                nextPipe.setChanged();
-            } else {
-                // HopperBlockEntity.addItem returns the stack of items that was not able to be added to the container.
-                ClassicPipes.LOGGER.info("Inserting {}x {} into container.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                ItemStack stack = HopperBlockEntity.addItem(this, container, item.getStack(), item.getTargetDirection().getOpposite());
-                if (!stack.isEmpty()) {
-                    // Bounce the remaining items backwards.
-                    ClassicPipes.LOGGER.info("Bouncing {}x {} rejected by container.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                    item.setStack(stack);
+            iterator.remove();
+            hasChanged = true;
+            debug("Handling exit of", item);
+            if (level instanceof ServerLevel serverLevel) {
+                Container container = TransportPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
+                if (container == null) {
+                    // Bounce the item backwards.
+                    debug("Bouncing from null container", item);
                     item.resetProgress(item.getTargetDirection());
-                    toAdd.addAll(this.routeItem(state, item));
+                    List<ItemInPipe> toRoute = this.routeItem(state, item);
+                    toRoute.forEach(iterator::add);
+                } else if (container instanceof TransportPipeEntity nextPipe) {
+                    // Pass the item to the next pipe.
+                    debug("Passing to next pipe", item);
+                    item.resetProgress(item.getTargetDirection().getOpposite());
+                    List<ItemInPipe> toRoute = nextPipe.routeItem(item);
+                    nextPipe.contents.addAll(toRoute);
+                    nextPipe.setChanged();
+                    serverLevel.sendBlockUpdated(nextPipe.worldPosition, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
+                } else {
+                    // HopperBlockEntity.addItem returns the stack of items that was not able to be added to the container.
+                    debug("Inserting into container", item);
+                    ItemStack stack = HopperBlockEntity.addItem(this, container, item.getStack(), item.getTargetDirection().getOpposite());
+                    if (!stack.isEmpty()) {
+                        // Bounce the remaining items backwards.
+                        debug("Rejected by container", item);
+                        item.setStack(stack);
+                        item.resetProgress(item.getTargetDirection());
+                        List<ItemInPipe> toRoute = this.routeItem(state, item);
+                        toRoute.forEach(iterator::add);
+                    }
                 }
             }
+
         }
+        return hasChanged;
     }
 
     // routeItem should never return ItemInPipe instances with empty item stacks, and should always explicitly set each ItemInPipe to be ejecting or not ejecting.
     public List<ItemInPipe> routeItem(BlockState state, ItemInPipe item) {
+        debug("Routing", item);
         List<ItemInPipe> outputs = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             if (this.isPipeConnected(state, direction) && !direction.equals(item.getFromDirection())) {
@@ -98,13 +119,12 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         }
         if(outputs.isEmpty()){
             // Set the item to eject because there were no valid output directions.
-            ClassicPipes.LOGGER.info("Setting {}x {} to eject.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+            debug("Setting to eject", item);
             item.setTargetDirection(item.getFromDirection().getOpposite());
             item.setEjecting(true);
             outputs.add(item);
         } else {
             // Randomly distribute the items in a stack to the outputs.
-            ClassicPipes.LOGGER.info("Distributing {}x {} randomly between outputs.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
             for(int i = 0; i < item.getStack().getCount(); i++){
                 if (this.level != null) {
                     outputs.get(this.level.getRandom().nextInt(outputs.size())).getStack().grow(1);
@@ -125,45 +145,49 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
     }
 
     public final void update(Level level, BlockState state, BlockPos pos, Direction direction) {
-        if (!this.isEmpty()) {
-            // Avoid concurrent modification.
-            List<ItemInPipe> toRemove = new ArrayList<>();
-            List<ItemInPipe> toAdd = new ArrayList<>();
-            for (ItemInPipe item : this.contents) {
+        /*if (!this.isEmpty() && !state.equals(this.getBlockState())) {
+            ListIterator<ItemInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                ItemInPipe item = iterator.next();
                 if (!this.isPipeConnected(state, direction)) {
                     if (direction.equals(item.getFromDirection()) && item.getProgress() < ItemInPipe.HALFWAY) {
                         // A connection was severed while the item was entering the pipe from that direction.
-                        ClassicPipes.LOGGER.info("Dropping {}x {} from severed entry connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                        toRemove.add(item);
+                        debug("Dropping from severed entry connection", item);
+                        iterator.remove();
                         if (level instanceof ServerLevel serverLevel) {
                             item.drop(serverLevel, pos);
                         }
                     } else if (direction.equals(item.getTargetDirection())) {
-                        toRemove.add(item);
+                        iterator.remove();
                         if (item.getProgress() >= ItemInPipe.HALFWAY) {
                             // A connection was severed while the item was leaving the pipe in that direction.
-                            ClassicPipes.LOGGER.info("Dropping {}x {} from severed target connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
+                            debug("Dropping from severed target connection", item);
                             if (level instanceof ServerLevel serverLevel) {
                                 item.drop(serverLevel, pos);
                             }
                         } else {
                             // A connection was severed while the item was entering from a different direction, so its target needs to be recalculated.
-                            ClassicPipes.LOGGER.info("Rerouting {}x {} due to severed connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                            toAdd.addAll(this.routeItem(state, item));
+                            debug("Rerouting due to severed connection", item);
+                            if (level instanceof ServerLevel) {
+                                this.routeItem(state, item).forEach(iterator::add);
+                            }
                         }
                     }
                 } else if (item.getProgress() < ItemInPipe.HALFWAY) {
                     // A new connection was established while the item was entering the pipe, so its target needs to be recalculated in case it should go that way.
-                    ClassicPipes.LOGGER.info("Rerouting {}x {} due to new connection.", item.getStack().getCount(), item.getStack().getDisplayName().getString());
-                    toRemove.add(item);
-                    toAdd.addAll(this.routeItem(state, item));
+                    debug("Rerouting due to new connection", item);
+                    iterator.remove();
+                    if (level instanceof ServerLevel) {
+                        this.routeItem(state, item).forEach(iterator::add);
+                    }
                 }
                 // If the item is already leaving the pipe then it doesn't care about new or missing connections except the one it's in.
             }
-            this.contents.removeAll(toRemove);
-            this.contents.addAll(toAdd);
             this.setChanged();
-        }
+            if (level instanceof ServerLevel serverLevel) {
+                serverLevel.sendBlockUpdated(pos, state, state, 2);
+            }
+        }*/
     }
 
     public void dropItems(ServerLevel serverLevel, BlockPos pos) {
@@ -178,6 +202,10 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
 
     public int getAcceleration() {
         return 1;
+    }
+
+    public List<ItemInPipe> getContents() {
+        return this.contents;
     }
 
     @Override
@@ -205,6 +233,18 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
             }
         }
         tag.put("items", items);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider levelRegistry) {
+        CompoundTag tag = super.getUpdateTag(levelRegistry);
+        this.saveAdditional(tag, levelRegistry);
+        return tag;
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
@@ -258,9 +298,13 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        ClassicPipes.LOGGER.info("Received {}x {} into pipe.", stack.getCount(), stack.getDisplayName().getString());
+        debug("Received into pipe", new ItemInPipe(stack, Direction.UP, Direction.UP));
         Direction direction = Direction.from3DDataValue(slot);
-        this.contents.addAll(this.routeItem(new ItemInPipe(stack, direction, direction.getOpposite())));
+        if (level instanceof ServerLevel serverLevel) {
+            List<ItemInPipe> toRoute = this.routeItem(new ItemInPipe(stack, direction, direction.getOpposite()));
+            this.contents.addAll(toRoute);
+            serverLevel.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
+        }
         this.setChanged();
     }
 
@@ -276,7 +320,7 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
 
     @Override
     public Iterator<ItemStack> iterator() {
-        return new TransportPipeIterator(this.contents);
+        return new ItemStackIterator(this.contents);
     }
 
     @Override
@@ -284,12 +328,12 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         return Container.stillValidBlockEntity(this, player);
     }
 
-    public static class TransportPipeIterator implements Iterator<ItemStack> {
+    public static class ItemStackIterator implements Iterator<ItemStack> {
 
         private final List<ItemInPipe> contents;
         private int index;
 
-        public TransportPipeIterator(List<ItemInPipe> contents) {
+        public ItemStackIterator(List<ItemInPipe> contents) {
             this.contents = contents;
         }
 

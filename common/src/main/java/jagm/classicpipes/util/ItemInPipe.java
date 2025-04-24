@@ -8,6 +8,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public class ItemInPipe {
 
@@ -51,15 +52,21 @@ public class ItemInPipe {
 
     public void drop(ServerLevel level, BlockPos pos) {
         if (!this.stack.isEmpty()) {
-            Direction currentDirection = this.progress < HALFWAY ? this.fromDirection : this.targetDirection;
-            int absolutePosition = HALFWAY + Math.abs(HALFWAY - this.progress);
-            float xOffset = (currentDirection.equals(Direction.EAST) ? absolutePosition : (currentDirection.equals(Direction.WEST) ? -absolutePosition : HALFWAY)) / (float) PIPE_LENGTH;
-            float yOffset = (currentDirection.equals(Direction.UP) ? absolutePosition : (currentDirection.equals(Direction.DOWN) ? -absolutePosition : HALFWAY)) / (float) PIPE_LENGTH;
-            float zOffset = (currentDirection.equals(Direction.SOUTH) ? absolutePosition : (currentDirection.equals(Direction.NORTH) ? -absolutePosition : HALFWAY)) / (float) PIPE_LENGTH;
-            ItemEntity droppedItem = new ItemEntity(level, pos.getX() + xOffset, pos.getY() + yOffset, pos.getZ() + zOffset, this.stack);
+            Vec3 offset = this.getRenderPosition(0.0F);
+            ItemEntity droppedItem = new ItemEntity(level, pos.getX() + offset.x, pos.getY() + offset.y, pos.getZ() + offset.z, this.stack);
             droppedItem.setDefaultPickUpDelay();
             level.addFreshEntity(droppedItem);
         }
+    }
+
+    public Vec3 getRenderPosition(float partialTicks){
+        float p = partialTicks * (float) this.speed / PIPE_LENGTH + (float) this.progress / PIPE_LENGTH;
+        Direction direction = this.progress < HALFWAY ? this.fromDirection : this.targetDirection;
+        return new Vec3(
+                direction == Direction.WEST ? p : (direction == Direction.EAST ? 1.0F - p : 0.5F),
+                direction == Direction.DOWN ? p : (direction == Direction.UP ? 1.0F - p : 0.5F),
+                direction == Direction.NORTH ? p : (direction == Direction.SOUTH ? 1.0F - p : 0.5F)
+        );
     }
 
     public ItemStack getStack() {
