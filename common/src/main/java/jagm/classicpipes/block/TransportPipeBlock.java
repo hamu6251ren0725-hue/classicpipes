@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -28,7 +27,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -128,9 +126,11 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
         if (state.getValue(WATERLOGGED)) {
             scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        BlockState newState = state.setValue(PROPERTY_BY_DIRECTION.get(direction), this.canConnect(getBlockContainer((Level) level, neighborPos), direction));
-        if (level.getBlockEntity(pos) instanceof TransportPipeEntity pipe) {
-            pipe.update((Level) level, state, pos, direction);
+        boolean isConnected = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
+        boolean canConnect = this.canConnect(getBlockContainer((Level) level, neighborPos), direction);
+        BlockState newState = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnect);
+        if (isConnected != canConnect && level.getBlockEntity(pos) instanceof TransportPipeEntity pipe) {
+            pipe.update((Level) level, newState, pos, direction);
         }
         return newState;
     }

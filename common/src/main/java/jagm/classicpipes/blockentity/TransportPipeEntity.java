@@ -1,6 +1,5 @@
 package jagm.classicpipes.blockentity;
 
-import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.TransportPipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
@@ -45,6 +44,7 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
                 } else {
                     pipe.tickClient(level, pos, state);
                 }
+                pipe.setChanged();
             }
         }
     }
@@ -63,15 +63,12 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
                 iterator.remove();
                 item.drop(level, pos);
                 level.sendBlockUpdated(pos, state, state, 2);
-                this.setChanged();
-                debug("Ejected", item);
             } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                 Container container = TransportPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
                 if (container == null) {
                     // Bounce the item backwards.
                     item.resetProgress(item.getTargetDirection());
                     this.routeItem(state, item);
-                    debug("Bounced from null container", item);
                 } else if (container instanceof TransportPipeEntity nextPipe) {
                     // Pass the item to the next pipe.
                     item.resetProgress(item.getTargetDirection().getOpposite());
@@ -81,58 +78,32 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
                     iterator.remove();
                     level.sendBlockUpdated(nextPipe.worldPosition, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
                     nextPipe.setChanged();
-                    debug("Passed to next pipe", item);
                 } else {
                     // HopperBlockEntity.addItem returns the stack of items that was not able to be added to the container.
                     ItemStack stack = HopperBlockEntity.addItem(this, container, item.getStack(), item.getTargetDirection().getOpposite());
-                    debug("Inserted into container", item);
                     if (!stack.isEmpty()) {
                         // Bounce the remaining items backwards.
                         item.setStack(stack);
                         item.resetProgress(item.getTargetDirection());
                         this.routeItem(state, item);
-                        debug("Rejected by container", item);
                     } else {
                         iterator.remove();
                     }
                 }
                 level.sendBlockUpdated(pos, state, state, 2);
-                this.setChanged();
-                debug("Handled exit of", item);
             }
         }
     }
 
     public void tickClient(Level level, BlockPos pos, BlockState state) {
-        ListIterator<ItemInPipe> iterator = this.contents.listIterator();
-        while (iterator.hasNext()) {
-            ItemInPipe item = iterator.next();
+        for (ItemInPipe item : this.contents) {
             item.move(this.getTargetSpeed(), this.getAcceleration());
-            if (item.isEjecting() && item.getProgress() > ItemInPipe.HALFWAY) {
-                iterator.remove();
-                this.setChanged();
-                debug("Ejected", item);
-            } else if (item.getProgress() > ItemInPipe.PIPE_LENGTH) {
-                Container container = TransportPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
-                if (container instanceof TransportPipeEntity nextPipe) {
-                    iterator.remove();
-                    debug("Passed to next pipe", item);
-                } else if (container != null) {
-                    ItemStack stack = HopperBlockEntity.addItem(this, container, item.getStack(), item.getTargetDirection().getOpposite());
-                    debug("Inserted into container", item);
-                    if (stack.isEmpty()) {
-                        iterator.remove();
-                    }
-                }
-                this.setChanged();
-                debug("Handled exit of", item);
-            }
         }
     }
 
     private void debug (String message, ItemInPipe item) {
         if (this.getLevel() != null){
-            ClassicPipes.LOGGER.info("({}) {} {}x {}.", this.getLevel().isClientSide ? "Client" : "Server", message, item.getStack().getCount(), item.getStack().getDisplayName().getString());
+            //ClassicPipes.LOGGER.info("({}) {} {}x {}.", this.getLevel().isClientSide ? "Client" : "Server", message, item.getStack().getCount(), item.getStack().getDisplayName().getString());
         }
     }
 
@@ -192,6 +163,12 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
     }
 
     public final void update(Level level, BlockState state, BlockPos pos, Direction direction) {
+        if (!this.isEmpty()) {
+            ListIterator<ItemInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                ItemInPipe item = iterator.next();
+            }
+        }
         /*if (!this.isEmpty() && !state.equals(this.getBlockState())) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
@@ -271,6 +248,7 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
+        this.clearContent();
         super.loadAdditional(tag, levelRegistry);
         ListTag items = tag.getListOrEmpty("items");
         for (int i = 0; i < items.size(); i++) {
@@ -296,14 +274,8 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider levelRegistry) {
-        CompoundTag tag = super.getUpdateTag(levelRegistry);
-        ListTag items = new ListTag();
-        for (ItemInPipe item : this.contents) {
-            if (!item.getStack().isEmpty()) {
-                items.add(item.save(levelRegistry));
-            }
-        }
-        tag.put("items", items);
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag, levelRegistry);
         return tag;
     }
 
