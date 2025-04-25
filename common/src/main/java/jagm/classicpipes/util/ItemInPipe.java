@@ -61,12 +61,19 @@ public class ItemInPipe {
 
     public Vec3 getRenderPosition(float partialTicks){
         float p = partialTicks * (float) this.speed / PIPE_LENGTH + (float) this.progress / PIPE_LENGTH;
-        Direction direction = this.progress < HALFWAY ? this.fromDirection : this.targetDirection;
-        return new Vec3(
-                direction == Direction.WEST ? p : (direction == Direction.EAST ? 1.0F - p : 0.5F),
-                direction == Direction.DOWN ? p : (direction == Direction.UP ? 1.0F - p : 0.5F),
-                direction == Direction.NORTH ? p : (direction == Direction.SOUTH ? 1.0F - p : 0.5F)
-        );
+        if (this.progress < HALFWAY) {
+            return new Vec3(
+                    this.fromDirection == Direction.WEST ? p : (this.fromDirection == Direction.EAST ? 1.0F - p : 0.5F),
+                    this.fromDirection == Direction.DOWN ? p : (this.fromDirection == Direction.UP ? 1.0F - p : 0.5F),
+                    this.fromDirection == Direction.NORTH ? p : (this.fromDirection == Direction.SOUTH ? 1.0F - p : 0.5F)
+            );
+        } else {
+            return new Vec3(
+                    this.targetDirection == Direction.EAST ? p : (this.targetDirection == Direction.WEST ? 1.0F - p : 0.5F),
+                    this.targetDirection == Direction.UP ? p : (this.targetDirection == Direction.DOWN ? 1.0F - p : 0.5F),
+                    this.targetDirection == Direction.SOUTH ? p : (this.targetDirection == Direction.NORTH ? 1.0F - p : 0.5F)
+            );
+        }
     }
 
     public ItemStack getStack() {
@@ -126,14 +133,15 @@ public class ItemInPipe {
     }
 
     public static ItemInPipe parse(CompoundTag tag, HolderLookup.Provider levelRegistry) {
-        return ItemStack.parse(levelRegistry, tag.getCompoundOrEmpty("item")).map(stack -> new ItemInPipe(
+        ItemStack stack = ItemStack.parse(levelRegistry, tag.getCompoundOrEmpty("item")).orElse(ItemStack.EMPTY);
+        return new ItemInPipe(
                 stack,
                 tag.getByteOr("speed", (byte) DEFAULT_SPEED),
                 tag.getByteOr("progress", (byte) HALFWAY),
                 Direction.from3DDataValue(tag.getByteOr("from_direction", (byte) 0)),
-                Direction.from3DDataValue(tag.getByteOr("target_direction", (byte) 0)).getOpposite(),
+                Direction.from3DDataValue(tag.getByteOr("target_direction", (byte) 0)),
                 tag.getBooleanOr("ejecting", true)
-        )).orElse(null);
+        );
     }
 
 }
