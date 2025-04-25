@@ -101,15 +101,8 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         }
     }
 
-    private void debug (String message, ItemInPipe item) {
-        if (this.getLevel() != null){
-            //ClassicPipes.LOGGER.info("({}) {} {}x {}.", this.getLevel().isClientSide ? "Client" : "Server", message, item.getStack().getCount(), item.getStack().getDisplayName().getString());
-        }
-    }
-
     // routeItem should never return ItemInPipe instances with empty item stacks, and should always explicitly set each ItemInPipe to be ejecting or not ejecting.
     public void routeItem(BlockState state, ItemInPipe item) {
-        debug("Routing", item);
         List<Direction> validDirections = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             if (this.isPipeConnected(state, direction) && !direction.equals(item.getFromDirection())) {
@@ -117,7 +110,6 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
             }
         }
         if (validDirections.isEmpty()) {
-            debug("Setting to eject", item);
             item.setTargetDirection(item.getFromDirection().getOpposite());
             item.setEjecting(true);
         } else if (validDirections.size() == 1) {
@@ -162,56 +154,32 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         return state.getValue(TransportPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
     }
 
-    public final void update(Level level, BlockState state, BlockPos pos, Direction direction) {
+    public final void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 ItemInPipe item = iterator.next();
-            }
-        }
-        /*if (!this.isEmpty() && !state.equals(this.getBlockState())) {
-            ListIterator<ItemInPipe> iterator = this.contents.listIterator();
-            while (iterator.hasNext()) {
-                ItemInPipe item = iterator.next();
-                if (!this.isPipeConnected(state, direction)) {
-                    if (direction.equals(item.getFromDirection()) && item.getProgress() < ItemInPipe.HALFWAY) {
-                        // A connection was severed while the item was entering the pipe from that direction.
-                        debug("Dropping from severed entry connection", item);
+                if (!wasConnected) {
+                    this.routeItem(state, item);
+                } else {
+                    if (item.getFromDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY) {
                         iterator.remove();
-                        if (level instanceof ServerLevel serverLevel) {
-                            item.drop(serverLevel, pos);
-                        }
-                    } else if (direction.equals(item.getTargetDirection())) {
-                        iterator.remove();
-                        if (item.getProgress() >= ItemInPipe.HALFWAY) {
-                            // A connection was severed while the item was leaving the pipe in that direction.
-                            debug("Dropping from severed target connection", item);
-                            if (level instanceof ServerLevel serverLevel) {
-                                item.drop(serverLevel, pos);
-                            }
+                        item.drop(level, pos);
+                    } else if (item.getTargetDirection() == direction) {
+                        if (item.getProgress() < ItemInPipe.HALFWAY) {
+                            this.routeItem(state, item);
                         } else {
-                            // A connection was severed while the item was entering from a different direction, so its target needs to be recalculated.
-                            debug("Rerouting due to severed connection", item);
-                            if (level instanceof ServerLevel) {
-                                this.routeItem(state, item).forEach(iterator::add);
-                            }
+                            iterator.remove();
+                            item.drop(level, pos);
                         }
-                    }
-                } else if (item.getProgress() < ItemInPipe.HALFWAY) {
-                    // A new connection was established while the item was entering the pipe, so its target needs to be recalculated in case it should go that way.
-                    debug("Rerouting due to new connection", item);
-                    iterator.remove();
-                    if (level instanceof ServerLevel) {
-                        this.routeItem(state, item).forEach(iterator::add);
+
                     }
                 }
-                // If the item is already leaving the pipe then it doesn't care about new or missing connections except the one it's in.
             }
+            this.addQueuedItems();
             this.setChanged();
-            if (level instanceof ServerLevel serverLevel) {
-                serverLevel.sendBlockUpdated(pos, state, state, 2);
-            }
-        }*/
+            level.sendBlockUpdated(pos, state, state, 2);
+        }
     }
 
     public void dropItems(ServerLevel serverLevel, BlockPos pos) {
@@ -234,7 +202,6 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        debug("Received into pipe", new ItemInPipe(stack, Direction.UP, Direction.UP));
         if (level instanceof ServerLevel serverLevel && !stack.isEmpty()) {
             Direction direction = Direction.from3DDataValue(slot);
             ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
