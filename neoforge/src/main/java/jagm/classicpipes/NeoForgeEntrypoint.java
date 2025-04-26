@@ -31,6 +31,7 @@ public class NeoForgeEntrypoint {
             });
             event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
                 helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "wooden_pipe"), ClassicPipes.WOODEN_PIPE_ENTITY.get());
+                helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY.get());
             });
         }
 
@@ -42,6 +43,7 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY.get(), PipeRenderer::new);
         }
 
     }

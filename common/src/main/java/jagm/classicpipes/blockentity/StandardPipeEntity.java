@@ -5,6 +5,7 @@ import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -16,6 +17,10 @@ public class StandardPipeEntity extends AbstractPipeEntity {
 
     public StandardPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.WOODEN_PIPE_ENTITY.get(), pos, state);
+    }
+
+    public StandardPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
+        super(blockEntityType, pos, state);
     }
 
     @Override
@@ -68,7 +73,7 @@ public class StandardPipeEntity extends AbstractPipeEntity {
     }
 
     public int getAcceleration() {
-        return 1;
+        return ItemInPipe.DEFAULT_ACCELERATION;
     }
 
 }

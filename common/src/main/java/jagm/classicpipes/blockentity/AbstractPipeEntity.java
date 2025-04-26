@@ -1,6 +1,6 @@
 package jagm.classicpipes.blockentity;
 
-import jagm.classicpipes.block.TransportPipeBlock;
+import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -58,7 +58,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 item.drop(level, pos);
                 level.sendBlockUpdated(pos, state, state, 2);
             } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
-                Container container = TransportPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
+                Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
                 if (container == null) {
                     // Bounce the item backwards.
                     item.resetProgress(item.getTargetDirection());
@@ -107,7 +107,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     protected final boolean isPipeConnected(BlockState state, Direction direction) {
-        return state.getValue(TransportPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
+        return state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
     }
 
     public final void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {

@@ -1,6 +1,7 @@
 {
   "render_type": "minecraft:cutout",
   "ambientocclusion": false,
+  "gui_light": "front",
   "display": {
     "gui": {
       "rotation": [30, 45, 0],

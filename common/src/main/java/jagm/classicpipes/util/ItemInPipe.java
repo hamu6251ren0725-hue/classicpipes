@@ -12,9 +12,10 @@ import net.minecraft.world.phys.Vec3;
 
 public class ItemInPipe {
 
-    public static final int PIPE_LENGTH = 64;
+    public static final int PIPE_LENGTH = 2048;
     public static final int HALFWAY = PIPE_LENGTH / 2;
-    public static final int DEFAULT_SPEED = 2;
+    public static final int DEFAULT_SPEED = 64;
+    public static final int DEFAULT_ACCELERATION = 1;
     public static final int SPEED_LIMIT = HALFWAY;
 
     private ItemStack stack;
@@ -61,19 +62,14 @@ public class ItemInPipe {
 
     public Vec3 getRenderPosition(float partialTicks){
         float p = (float) this.progress / (float) PIPE_LENGTH + partialTicks * (float) this.speed / (float) PIPE_LENGTH;
-        if (this.progress < HALFWAY) {
-            return new Vec3(
-                    this.fromDirection == Direction.WEST ? p : (this.fromDirection == Direction.EAST ? 1.0F - p : 0.5F),
-                    this.fromDirection == Direction.DOWN ? p : (this.fromDirection == Direction.UP ? 1.0F - p : 0.5F),
-                    this.fromDirection == Direction.NORTH ? p : (this.fromDirection == Direction.SOUTH ? 1.0F - p : 0.5F)
-            );
-        } else {
-            return new Vec3(
-                    this.targetDirection == Direction.EAST ? p : (this.targetDirection == Direction.WEST ? 1.0F - p : 0.5F),
-                    this.targetDirection == Direction.UP ? p : (this.targetDirection == Direction.DOWN ? 1.0F - p : 0.5F),
-                    this.targetDirection == Direction.SOUTH ? p : (this.targetDirection == Direction.NORTH ? 1.0F - p : 0.5F)
-            );
-        }
+        float q = 1.0F - p;
+        boolean h = this.progress < HALFWAY;
+        Direction d = h ? this.fromDirection : this.targetDirection;
+        return new Vec3(
+                d == Direction.WEST ? (h ? p : q) : (d == Direction.EAST ? (h ? q : p) : 0.5F),
+                d == Direction.DOWN ? (h ? p : q) : (d == Direction.UP ? (h ? q : p) : 0.5F),
+                d == Direction.NORTH ? (h ? p : q) : (d == Direction.SOUTH ? (h ? q : p) : 0.5F)
+        );
     }
 
     public ItemStack getStack() {
@@ -109,10 +105,6 @@ public class ItemInPipe {
         return targetDirection;
     }
 
-    public void setFromDirection(Direction direction) {
-        this.fromDirection = direction;
-    }
-
     public void setTargetDirection(Direction direction) {
         this.targetDirection = direction;
     }
@@ -124,8 +116,8 @@ public class ItemInPipe {
     public Tag save(HolderLookup.Provider levelRegistry) {
         CompoundTag tag = new CompoundTag();
         tag.put("item", this.stack.save(levelRegistry));
-        tag.putByte("speed", (byte) this.speed);
-        tag.putByte("progress", (byte) this.progress);
+        tag.putInt("speed", this.speed);
+        tag.putInt("progress", this.progress);
         tag.putByte("from_direction", (byte) this.fromDirection.get3DDataValue());
         tag.putByte("target_direction", (byte) this.targetDirection.get3DDataValue());
         tag.putBoolean("ejecting", this.ejecting);
@@ -136,8 +128,8 @@ public class ItemInPipe {
         ItemStack stack = ItemStack.parse(levelRegistry, tag.getCompoundOrEmpty("item")).orElse(ItemStack.EMPTY);
         return new ItemInPipe(
                 stack,
-                tag.getByteOr("speed", (byte) DEFAULT_SPEED),
-                tag.getByteOr("progress", (byte) HALFWAY),
+                tag.getIntOr("speed", DEFAULT_SPEED),
+                tag.getIntOr("progress", HALFWAY),
                 Direction.from3DDataValue(tag.getByteOr("from_direction", (byte) 0)),
                 Direction.from3DDataValue(tag.getByteOr("target_direction", (byte) 0)),
                 tag.getBooleanOr("ejecting", true)

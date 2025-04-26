@@ -12,6 +12,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
     public void onInitializeClient() {
         ClassicPipes.TRANSPARENT_BLOCKS.forEach(block -> BlockRenderLayerMap.INSTANCE.putBlock(block, RenderType.cutout()));
         BlockEntityRenderers.register(ClassicPipes.WOODEN_PIPE_ENTITY.get(), PipeRenderer::new);
+        BlockEntityRenderers.register(ClassicPipes.GOLDEN_PIPE_ENTITY.get(), PipeRenderer::new);
     }
 
 }
