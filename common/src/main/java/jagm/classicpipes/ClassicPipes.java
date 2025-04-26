@@ -3,7 +3,7 @@ package jagm.classicpipes;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import jagm.classicpipes.block.WoodenPipeBlock;
-import jagm.classicpipes.blockentity.WoodenPipeEntity;
+import jagm.classicpipes.blockentity.StandardPipeEntity;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -50,8 +50,8 @@ public class ClassicPipes {
     public static final Supplier<Block> WARPED_PIPE = createWoodenPipeSupplier("warped_pipe");
      */
 
-    public static final Supplier<BlockEntityType<WoodenPipeEntity>> WOODEN_PIPE_ENTITY = Suppliers.memoize(Services.BLOCK_ENTITY_HELPER.getBlockEntitySupplier(
-            WoodenPipeEntity::new, WOODEN_PIPES.toArray(new Block[0])
+    public static final Supplier<BlockEntityType<StandardPipeEntity>> WOODEN_PIPE_ENTITY = Suppliers.memoize(Services.BLOCK_ENTITY_HELPER.getBlockEntitySupplier(
+            StandardPipeEntity::new, WOODEN_PIPES.toArray(new Block[0])
     ));
 
     private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name) {

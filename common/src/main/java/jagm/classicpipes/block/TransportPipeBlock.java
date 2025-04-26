@@ -2,7 +2,7 @@ package jagm.classicpipes.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import jagm.classicpipes.blockentity.TransportPipeEntity;
+import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -69,7 +69,7 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
 
     protected boolean canConnect(Container container, Direction direction) {
         if (container != null) {
-            if (container instanceof TransportPipeEntity pipe) {
+            if (container instanceof AbstractPipeEntity pipe) {
                 return this.canConnectToPipe(pipe);
             } else if (container instanceof WorldlyContainer worldlyContainer) {
                 return worldlyContainer.getSlotsForFace(direction.getOpposite()).length > 0;
@@ -80,7 +80,7 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
         return false;
     }
 
-    protected boolean canConnectToPipe(TransportPipeEntity pipe){
+    protected boolean canConnectToPipe(AbstractPipeEntity pipe){
         return true;
     }
 
@@ -123,7 +123,7 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
         boolean wasConnected = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
         boolean willConnect = this.canConnect(getBlockContainer((Level) level, neighborPos), direction);
         BlockState newState = state.setValue(PROPERTY_BY_DIRECTION.get(direction), willConnect);
-        if (wasConnected != willConnect && level.getBlockEntity(pos) instanceof TransportPipeEntity pipe && level instanceof ServerLevel serverLevel) {
+        if (wasConnected != willConnect && level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe && level instanceof ServerLevel serverLevel) {
             pipe.update(serverLevel, newState, pos, direction, wasConnected);
         }
         return newState;
@@ -158,7 +158,7 @@ public abstract class TransportPipeBlock extends TransparentBlock implements Sim
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (level instanceof ServerLevel serverLevel) {
             BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-            if (blockEntity instanceof TransportPipeEntity pipe) {
+            if (blockEntity instanceof AbstractPipeEntity pipe) {
                 pipe.dropItems(serverLevel, pos);
             }
         }

@@ -11,7 +11,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
@@ -24,19 +23,19 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
-public abstract class TransportPipeEntity extends BlockEntity implements WorldlyContainer {
+public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyContainer {
 
     protected final List<ItemInPipe> contents;
     protected final List<ItemInPipe> queued;
 
-    public TransportPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public AbstractPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.contents = new ArrayList<>();
         this.queued = new ArrayList<>();
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
-        if (blockEntity instanceof TransportPipeEntity pipe) {
+        if (blockEntity instanceof AbstractPipeEntity pipe) {
             if (!pipe.isEmpty()) {
                 if (level instanceof ServerLevel serverLevel) {
                     pipe.tickServer(serverLevel, pos, state);
@@ -47,11 +46,6 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
                 pipe.setChanged();
             }
         }
-    }
-
-    protected void addQueuedItems() {
-        this.contents.addAll(this.queued);
-        this.queued.clear();
     }
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
@@ -69,7 +63,7 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
                     // Bounce the item backwards.
                     item.resetProgress(item.getTargetDirection());
                     this.routeItem(state, item);
-                } else if (container instanceof TransportPipeEntity nextPipe) {
+                } else if (container instanceof AbstractPipeEntity nextPipe) {
                     // Pass the item to the next pipe.
                     item.resetProgress(item.getTargetDirection().getOpposite());
                     nextPipe.queued.add(item);
@@ -101,50 +95,12 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         }
     }
 
-    // routeItem should never return ItemInPipe instances with empty item stacks, and should always explicitly set each ItemInPipe to be ejecting or not ejecting.
-    public void routeItem(BlockState state, ItemInPipe item) {
-        List<Direction> validDirections = new ArrayList<>();
-        for (Direction direction : Direction.values()) {
-            if (this.isPipeConnected(state, direction) && !direction.equals(item.getFromDirection())) {
-                validDirections.add(direction);
-            }
-        }
-        if (validDirections.isEmpty()) {
-            item.setTargetDirection(item.getFromDirection().getOpposite());
-            item.setEjecting(true);
-        } else if (validDirections.size() == 1) {
-            item.setTargetDirection(validDirections.getFirst());
-            item.setEjecting(false);
-        } else if (this.level != null) {
-            int count = item.getStack().getCount();
-            RandomSource random = this.level.getRandom();
-            if (count == 1) {
-                item.setTargetDirection(validDirections.get(random.nextInt(validDirections.size())));
-                item.setEjecting(false);
-            } else {
-                Map<Direction, Integer> map = new HashMap<>();
-                validDirections.forEach(direction -> map.put(direction, 0));
-                for (int i = 0; i < count; i++) {
-                    Direction randomDirection = validDirections.get(random.nextInt(validDirections.size()));
-                    map.put(randomDirection, map.get(randomDirection) + 1);
-                }
-                boolean inputRouted = false;
-                for (Direction direction : validDirections) {
-                    int randomCount = map.get(direction);
-                    if (randomCount > 0) {
-                        if (!inputRouted) {
-                            inputRouted = true;
-                            item.setStack(item.getStack().copyWithCount(randomCount));
-                            item.setTargetDirection(direction);
-                            item.setEjecting(false);
-                        } else {
-                            this.queued.add(new ItemInPipe(item.getStack().copyWithCount(randomCount), item.getSpeed(), item.getProgress(), item.getFromDirection(), direction, false));
-                        }
-                    }
-                }
-            }
-        }
+    protected void addQueuedItems() {
+        this.contents.addAll(this.queued);
+        this.queued.clear();
     }
+
+    public abstract void routeItem(BlockState state, ItemInPipe item);
 
     public final void routeItem(ItemInPipe item) {
         routeItem(this.getBlockState(), item);
@@ -188,13 +144,9 @@ public abstract class TransportPipeEntity extends BlockEntity implements Worldly
         }
     }
 
-    public int getTargetSpeed() {
-        return ItemInPipe.DEFAULT_SPEED;
-    }
+    public abstract int getTargetSpeed();
 
-    public int getAcceleration() {
-        return 1;
-    }
+    public abstract int getAcceleration();
 
     public List<ItemInPipe> getContents() {
         return this.contents;

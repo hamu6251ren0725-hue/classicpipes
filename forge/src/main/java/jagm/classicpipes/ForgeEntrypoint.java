@@ -1,6 +1,6 @@
 package jagm.classicpipes;
 
-import jagm.classicpipes.client.TransportPipeRenderer;
+import jagm.classicpipes.client.PipeRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,7 +46,7 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), TransportPipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), PipeRenderer::new);
         }
 
     }

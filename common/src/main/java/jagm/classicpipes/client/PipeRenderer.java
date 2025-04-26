@@ -2,7 +2,7 @@ package jagm.classicpipes.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import jagm.classicpipes.blockentity.TransportPipeEntity;
+import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -11,16 +11,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
 
-public class TransportPipeRenderer implements BlockEntityRenderer<TransportPipeEntity> {
+public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
 
     private final BlockEntityRendererProvider.Context context;
 
-    public TransportPipeRenderer(BlockEntityRendererProvider.Context context) {
+    public PipeRenderer(BlockEntityRendererProvider.Context context) {
         this.context = context;
     }
 
     @Override
-    public void render(TransportPipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 vec3) {
+    public void render(AbstractPipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 vec3) {
         if (!pipe.isEmpty()){
             for (ItemInPipe item : pipe.getContents()) {
                 Direction direction = item.getProgress() < ItemInPipe.HALFWAY ? item.getFromDirection() : item.getTargetDirection();

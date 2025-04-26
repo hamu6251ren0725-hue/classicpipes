@@ -1,0 +1,54 @@
+{
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "display": {
+    "gui": {
+      "rotation": [30, 45, 0],
+      "scale": [0.75, 0.75, 0.75]
+    },
+    "ground": {
+      "scale": [0.25, 0.25, 0.25]
+    },
+    "fixed": {
+      "scale": [0.75, 0.75, 0.75]
+    },
+    "thirdperson_lefthand": {
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "thirdperson_righthand": {
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "firstperson_lefthand": {
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "firstperson_righthand": {
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "head": {
+      "rotation": [0, 0, 90],
+      "scale": [2, 2, 2]
+    }
+  },
+  "elements": [
+    {
+      "from": [ 4, 0, 4 ],
+      "to": [ 12, 16, 12 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 12, 16, 12 ],
+      "to": [ 4, 0, 4 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    }
+  ]
+}

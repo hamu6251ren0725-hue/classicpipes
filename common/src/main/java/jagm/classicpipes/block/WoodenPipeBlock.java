@@ -1,7 +1,7 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.WoodenPipeEntity;
+import jagm.classicpipes.blockentity.StandardPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,12 +17,12 @@ public class WoodenPipeBlock extends TransportPipeBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new WoodenPipeEntity(pos, state);
+        return new StandardPipeEntity(pos, state);
     }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY.get() ? WoodenPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY.get() ? StandardPipeEntity::tick : null;
     }
 
 }
