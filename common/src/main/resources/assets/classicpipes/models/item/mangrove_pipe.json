@@ -1,0 +1,7 @@
+{
+  "parent": "classicpipes:item/pipe",
+  "textures": {
+    "texture": "classicpipes:block/mangrove_pipe",
+    "particle": "classicpipes:block/mangrove_pipe"
+  }
+}

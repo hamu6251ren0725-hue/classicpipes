@@ -36,7 +36,6 @@ public class ClassicPipes {
     private static final List<Block> WOODEN_PIPES = new ArrayList<>();
 
     public static final Supplier<Block> OAK_PIPE = createWoodenPipeSupplier("oak_pipe");
-    /*
     public static final Supplier<Block> SPRUCE_PIPE = createWoodenPipeSupplier("spruce_pipe");
     public static final Supplier<Block> BIRCH_PIPE = createWoodenPipeSupplier("birch_pipe");
     public static final Supplier<Block> JUNGLE_PIPE = createWoodenPipeSupplier("jungle_pipe");
@@ -48,7 +47,6 @@ public class ClassicPipes {
     public static final Supplier<Block> BAMBOO_PIPE = createWoodenPipeSupplier("bamboo_pipe");
     public static final Supplier<Block> CRIMSON_PIPE = createWoodenPipeSupplier("crimson_pipe");
     public static final Supplier<Block> WARPED_PIPE = createWoodenPipeSupplier("warped_pipe");
-     */
 
     public static final Supplier<BlockEntityType<StandardPipeEntity>> WOODEN_PIPE_ENTITY = Suppliers.memoize(Services.BLOCK_ENTITY_HELPER.getBlockEntitySupplier(
             StandardPipeEntity::new, WOODEN_PIPES.toArray(new Block[0])

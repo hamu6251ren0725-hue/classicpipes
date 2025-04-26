@@ -1,0 +1,7 @@
+{
+  "parent": "classicpipes:block/pipe_side",
+  "textures": {
+    "texture": "classicpipes:block/bamboo_pipe",
+    "particle": "classicpipes:block/bamboo_pipe"
+  }
+}
