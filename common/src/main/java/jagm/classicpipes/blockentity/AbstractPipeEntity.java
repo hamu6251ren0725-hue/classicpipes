@@ -1,5 +1,6 @@
 package jagm.classicpipes.blockentity;
 
+import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
@@ -11,8 +12,10 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
@@ -55,7 +59,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             item.move(this.getTargetSpeed(), this.getAcceleration());
             if (item.isEjecting() && item.getProgress() >= ItemInPipe.HALFWAY) {
                 iterator.remove();
-                item.drop(level, pos);
+                this.eject(level, pos, item);
                 level.sendBlockUpdated(pos, state, state, 2);
             } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                 Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
@@ -128,13 +132,32 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                             iterator.remove();
                             item.drop(level, pos);
                         }
-
                     }
                 }
             }
             this.addQueuedItems();
             this.setChanged();
             level.sendBlockUpdated(pos, state, state, 2);
+        }
+    }
+
+    public void eject(ServerLevel level, BlockPos pos, ItemInPipe item) {
+        if (!item.getStack().isEmpty()) {
+            Vec3 offset = new Vec3(
+                    item.getTargetDirection() == Direction.WEST ? 0.125F : (item.getTargetDirection() == Direction.EAST ? 0.875F : 0.5F),
+                    item.getTargetDirection() == Direction.DOWN ? 0.0F : (item.getTargetDirection() == Direction.UP ? 0.75F : 0.375F),
+                    item.getTargetDirection() == Direction.NORTH ? 0.125F : (item.getTargetDirection() == Direction.SOUTH ? 0.875F : 0.5F)
+            );
+            ItemEntity ejectedItem = new ItemEntity(level, pos.getX() + offset.x, pos.getY() + offset.y, pos.getZ() + offset.z, item.getStack());
+            float v = (float) item.getSpeed() / ItemInPipe.PIPE_LENGTH;
+            ejectedItem.setDeltaMovement(
+                    item.getTargetDirection() == Direction.WEST ? -v : (item.getTargetDirection() == Direction.EAST ? v : 0.0F),
+                    item.getTargetDirection() == Direction.DOWN ? -v : (item.getTargetDirection() == Direction.UP ? v : 0.0F),
+                    item.getTargetDirection() == Direction.NORTH ? -v : (item.getTargetDirection() == Direction.SOUTH ? v : 0.0F)
+            );
+            ejectedItem.setDefaultPickUpDelay();
+            level.addFreshEntity(ejectedItem);
+            level.playSound(ejectedItem, pos, ClassicPipes.PIPE_EJECT_SOUND.get(), SoundSource.BLOCKS);
         }
     }
 

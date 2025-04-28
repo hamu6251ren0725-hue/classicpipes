@@ -61,9 +61,9 @@ public class ItemInPipe {
     }
 
     public Vec3 getRenderPosition(float partialTicks){
-        float p = (float) this.progress / (float) PIPE_LENGTH + partialTicks * (float) this.speed / (float) PIPE_LENGTH;
+        float p = (float) this.progress / PIPE_LENGTH + partialTicks * (float) this.speed / PIPE_LENGTH;
         float q = 1.0F - p;
-        boolean h = this.progress < HALFWAY;
+        boolean h = p < 0.5F;
         Direction d = h ? this.fromDirection : this.targetDirection;
         return new Vec3(
                 d == Direction.WEST ? (h ? p : q) : (d == Direction.EAST ? (h ? q : p) : 0.5F),

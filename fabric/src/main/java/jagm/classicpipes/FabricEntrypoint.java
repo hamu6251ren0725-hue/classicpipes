@@ -16,6 +16,7 @@ public class FabricEntrypoint implements ModInitializer {
         ClassicPipes.BLOCKS.forEach((name, blockSupplier) -> Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), blockSupplier.get()));
         registerBlockEntity("wooden_pipe", ClassicPipes.WOODEN_PIPE_ENTITY);
         registerBlockEntity("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
+        ClassicPipes.SOUNDS.forEach((name, soundSupplier) -> Registry.register(BuiltInRegistries.SOUND_EVENT, ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), soundSupplier.get()));
     }
 
     private static <T extends BlockEntity> void registerBlockEntity(String name, Supplier<BlockEntityType<T>> supplier) {

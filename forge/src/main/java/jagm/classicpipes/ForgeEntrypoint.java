@@ -32,6 +32,9 @@ public class ForgeEntrypoint {
                 helper.register("wooden_pipe", ClassicPipes.WOODEN_PIPE_ENTITY.get());
                 helper.register("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY.get());
             });
+            event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
+                ClassicPipes.SOUNDS.forEach((name, soundSupplier) -> helper.register(name, soundSupplier.get()));
+            });
         }
 
     }

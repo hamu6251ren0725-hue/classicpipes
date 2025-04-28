@@ -33,6 +33,9 @@ public class NeoForgeEntrypoint {
                 helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "wooden_pipe"), ClassicPipes.WOODEN_PIPE_ENTITY.get());
                 helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY.get());
             });
+            event.register(Registries.SOUND_EVENT, helper -> {
+                ClassicPipes.SOUNDS.forEach((name, soundSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), soundSupplier.get()));
+            });
         }
 
     }

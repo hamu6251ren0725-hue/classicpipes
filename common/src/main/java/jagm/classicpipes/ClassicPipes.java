@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -33,6 +34,7 @@ public class ClassicPipes {
 
     public static final HashMap<String, Supplier<Item>> ITEMS = new HashMap<>();
     public static final HashMap<String, Supplier<Block>> BLOCKS = new HashMap<>();
+    public static final HashMap<String, Supplier<SoundEvent>> SOUNDS = new HashMap<>();
 
     public static final List<Block> TRANSPARENT_BLOCKS = new ArrayList<>();
     private static final List<Block> WOODEN_PIPES = new ArrayList<>();
@@ -58,6 +60,8 @@ public class ClassicPipes {
     public static final Supplier<BlockEntityType<StandardPipeEntity>> GOLDEN_PIPE_ENTITY = Suppliers.memoize(Services.BLOCK_ENTITY_HELPER.getBlockEntitySupplier(
             GoldenPipeEntity::new, GOLDEN_PIPE.get()
     ));
+
+    public static final Supplier<SoundEvent> PIPE_EJECT_SOUND = createSoundEventSupplier("pipe_eject");
 
     private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name) {
         return ResourceKey.create(registry, ResourceLocation.fromNamespaceAndPath(MOD_ID, name));
@@ -86,6 +90,12 @@ public class ClassicPipes {
         Supplier<Block> woodenPipeSupplier = createPipeSupplier(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING));
         WOODEN_PIPES.add(woodenPipeSupplier.get());
         return woodenPipeSupplier;
+    }
+
+    private static Supplier<SoundEvent> createSoundEventSupplier (String name) {
+        Supplier<SoundEvent> soundEventSupplier = Suppliers.memoize(() -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MOD_ID, name)));
+        SOUNDS.put(name, soundEventSupplier);
+        return soundEventSupplier;
     }
 
 }

@@ -1,0 +1,16 @@
+{
+  "item.acacia_pipe.name": "Acacia Pipe",
+  "item.bamboo_pipe.name": "Bamboo Pipe",
+  "item.birch_pipe.name": "Birch Pipe",
+  "item.cherry_pipe.name": "Cherry Pipe",
+  "item.crimson_pipe.name": "Crimson Pipe",
+  "item.dark_oak_pipe.name": "Dark Oak Pipe",
+  "item.jungle_pipe.name": "Jungle Pipe",
+  "item.mangrove_pipe.name": "Mangrove Pipe",
+  "item.oak_pipe.name": "Oak Pipe",
+  "item.pale_oak_pipe.name": "Pale Oak Pipe",
+  "item.spruce_pipe.name": "Spruce Pipe",
+  "item.warped_pipe.name": "Warped Pipe",
+  "item.golden_pipe.name": "Golden Pipe",
+  "classicpipes.subtitle.pipe_eject": "Item falls out of pipe"
+}
