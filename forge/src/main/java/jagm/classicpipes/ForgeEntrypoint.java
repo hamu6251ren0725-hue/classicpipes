@@ -23,17 +23,17 @@ public class ForgeEntrypoint {
         @SubscribeEvent
         public static void onRegister(RegisterEvent event) {
             event.register(ForgeRegistries.Keys.BLOCKS, helper -> {
-                ClassicPipes.BLOCKS.forEach((name, blockSupplier) -> helper.register(name, blockSupplier.get()));
+                ClassicPipes.BLOCKS.forEach(helper::register);
             });
             event.register(ForgeRegistries.Keys.ITEMS, helper -> {
-                ClassicPipes.ITEMS.forEach((name, itemSupplier) -> helper.register(name, itemSupplier.get()));
+                ClassicPipes.ITEMS.forEach(helper::register);
             });
             event.register(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, helper -> {
-                helper.register("wooden_pipe", ClassicPipes.WOODEN_PIPE_ENTITY.get());
-                helper.register("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY.get());
+                helper.register("wooden_pipe", ClassicPipes.WOODEN_PIPE_ENTITY);
+                helper.register("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
             });
             event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
-                ClassicPipes.SOUNDS.forEach((name, soundSupplier) -> helper.register(name, soundSupplier.get()));
+                ClassicPipes.SOUNDS.forEach(helper::register);
             });
         }
 
@@ -50,8 +50,8 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), PipeRenderer::new);
-            event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY.get(), PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY, PipeRenderer::new);
         }
 
     }

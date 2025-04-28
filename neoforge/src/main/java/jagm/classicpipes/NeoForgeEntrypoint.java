@@ -1,8 +1,8 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -24,17 +24,17 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegister(RegisterEvent event) {
             event.register(Registries.BLOCK,helper -> {
-                ClassicPipes.BLOCKS.forEach((name, blockSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), blockSupplier.get()));
+                ClassicPipes.BLOCKS.forEach((name, block) -> helper.register(MiscUtil.resourceLocation(name), block));
             });
             event.register(Registries.ITEM, helper -> {
-                ClassicPipes.ITEMS.forEach((name, itemSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), itemSupplier.get()));
+                ClassicPipes.ITEMS.forEach((name, item) -> helper.register(MiscUtil.resourceLocation(name), item));
             });
             event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
-                helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "wooden_pipe"), ClassicPipes.WOODEN_PIPE_ENTITY.get());
-                helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, "golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY.get());
+                helper.register(MiscUtil.resourceLocation("wooden_pipe"), ClassicPipes.WOODEN_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY);
             });
             event.register(Registries.SOUND_EVENT, helper -> {
-                ClassicPipes.SOUNDS.forEach((name, soundSupplier) -> helper.register(ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name), soundSupplier.get()));
+                ClassicPipes.SOUNDS.forEach((name, soundEvent) -> helper.register(MiscUtil.resourceLocation(name), soundEvent));
             });
         }
 
@@ -45,8 +45,8 @@ public class NeoForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY.get(), PipeRenderer::new);
-            event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY.get(), PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY, PipeRenderer::new);
         }
 
     }

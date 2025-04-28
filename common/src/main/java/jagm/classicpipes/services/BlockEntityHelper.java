@@ -11,6 +11,6 @@ import java.util.function.BiFunction;
 
 public interface BlockEntityHelper {
 
-    <T extends BlockEntity> Supplier<BlockEntityType<T>> getBlockEntitySupplier(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks);
+    <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks);
 
 }

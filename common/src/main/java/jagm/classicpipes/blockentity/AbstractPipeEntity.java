@@ -157,7 +157,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             );
             ejectedItem.setDefaultPickUpDelay();
             level.addFreshEntity(ejectedItem);
-            level.playSound(ejectedItem, pos, ClassicPipes.PIPE_EJECT_SOUND.get(), SoundSource.BLOCKS);
+            level.playSound(ejectedItem, pos, ClassicPipes.PIPE_EJECT_SOUND, SoundSource.BLOCKS);
         }
     }
 

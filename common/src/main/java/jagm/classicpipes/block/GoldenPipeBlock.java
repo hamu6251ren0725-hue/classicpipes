@@ -22,7 +22,7 @@ public class GoldenPipeBlock extends AbstractPipeBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.GOLDEN_PIPE_ENTITY.get() ? GoldenPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.GOLDEN_PIPE_ENTITY ? GoldenPipeEntity::tick : null;
     }
 
 }

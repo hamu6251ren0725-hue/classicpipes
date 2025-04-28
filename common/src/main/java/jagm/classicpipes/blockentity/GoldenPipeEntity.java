@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class GoldenPipeEntity extends StandardPipeEntity {
 
     public GoldenPipeEntity(BlockPos pos, BlockState state) {
-        super(ClassicPipes.GOLDEN_PIPE_ENTITY.get(), pos, state);
+        super(ClassicPipes.GOLDEN_PIPE_ENTITY, pos, state);
     }
 
     @Override

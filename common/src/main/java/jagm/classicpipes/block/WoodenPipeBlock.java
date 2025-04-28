@@ -24,7 +24,7 @@ public class WoodenPipeBlock extends AbstractPipeBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY.get() ? StandardPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY ? StandardPipeEntity::tick : null;
     }
 
     @Override

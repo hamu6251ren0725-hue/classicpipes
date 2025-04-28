@@ -16,7 +16,7 @@ import java.util.Map;
 public class StandardPipeEntity extends AbstractPipeEntity {
 
     public StandardPipeEntity(BlockPos pos, BlockState state) {
-        super(ClassicPipes.WOODEN_PIPE_ENTITY.get(), pos, state);
+        super(ClassicPipes.WOODEN_PIPE_ENTITY, pos, state);
     }
 
     public StandardPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
