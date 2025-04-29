@@ -1,0 +1,124 @@
+package jagm.classicpipes.block;
+
+import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.CopperPipeEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.Orientation;
+
+public class CopperPipeBlock extends AbstractPipeBlock {
+
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
+    public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
+
+    public CopperPipeBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.defaultBlockState()
+                .setValue(FACING, Direction.DOWN)
+                .setValue(ATTACHED, false)
+                .setValue(ENABLED, false)
+        );
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new CopperPipeEntity(pos, state);
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return blockEntityType == ClassicPipes.COPPER_PIPE_ENTITY ? CopperPipeEntity::tick : null;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(FACING, ATTACHED, ENABLED);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction directionWithContainer = Direction.DOWN;
+        boolean attached = false;
+        for (Direction direction : Direction.values()) {
+            Container container = getBlockContainer(context.getLevel(), context.getClickedPos().relative(direction));
+            if (container != null) {
+                if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, direction)) {
+                    directionWithContainer = direction;
+                    attached = true;
+                    break;
+                }
+            }
+        }
+        BlockState superState = super.getStateForPlacement(context);
+        if (superState != null) {
+            return superState
+                .trySetValue(FACING, directionWithContainer)
+                .trySetValue(ATTACHED, attached)
+                .trySetValue(ENABLED, false);
+        }
+        return this.defaultBlockState();
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        if (state.getValue(FACING) == direction) {
+            Container container = getBlockContainer((Level) level, neighborPos);
+            if (container == null || !this.canConnect(container, direction) || container instanceof AbstractPipeEntity) {
+                Direction directionWithContainer = Direction.DOWN;
+                boolean attached = false;
+                for (Direction d : Direction.values()) {
+                    Container c = getBlockContainer((Level) level, pos.relative(d));
+                    if (c != null) {
+                        if (!(c instanceof AbstractPipeEntity) && this.canConnect(c, d)) {
+                            directionWithContainer = d;
+                            attached = true;
+                            break;
+                        }
+                    }
+                }
+                state.setValue(FACING, directionWithContainer);
+                state.setValue(ATTACHED, attached);
+            }
+        }
+        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        if (!oldState.is(state.getBlock())) {
+            this.checkPoweredState(level, pos, state);
+        }
+    }
+
+    private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
+        if (state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.setValue(ENABLED, false), 2);
+        } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos) && state.getValue(ATTACHED)) {
+            level.setBlock(pos, state.setValue(ENABLED, true), 2);
+        }
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, Orientation orientation, boolean b) {
+        this.checkPoweredState(level, pos, state);
+    }
+
+}

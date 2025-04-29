@@ -40,19 +40,18 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
         if (blockEntity instanceof AbstractPipeEntity pipe) {
-            if (!pipe.isEmpty()) {
-                if (level instanceof ServerLevel serverLevel) {
-                    pipe.tickServer(serverLevel, pos, state);
-                    pipe.addQueuedItems();
-                } else {
-                    pipe.tickClient(level, pos, state);
-                }
-                pipe.setChanged();
+            if (level instanceof ServerLevel serverLevel) {
+                pipe.tickServer(serverLevel, pos, state);
+            } else {
+                pipe.tickClient(level, pos, state);
             }
         }
     }
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        if (this.isEmpty()) {
+            return;
+        }
         ListIterator<ItemInPipe> iterator = this.contents.listIterator();
         while (iterator.hasNext()) {
             ItemInPipe item = iterator.next();
@@ -91,11 +90,16 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 level.sendBlockUpdated(pos, state, state, 2);
             }
         }
+        this.setChanged();
+        this.addQueuedItems();
     }
 
     public void tickClient(Level level, BlockPos pos, BlockState state) {
-        for (ItemInPipe item : this.contents) {
-            item.move(this.getTargetSpeed(), this.getAcceleration());
+        if (!this.isEmpty()) {
+            for (ItemInPipe item : this.contents) {
+                item.move(this.getTargetSpeed(), this.getAcceleration());
+            }
+            this.setChanged();
         }
     }
 
