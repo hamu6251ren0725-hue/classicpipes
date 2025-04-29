@@ -3,7 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.block.GoldenPipeBlock;
 import jagm.classicpipes.block.WoodenPipeBlock;
 import jagm.classicpipes.blockentity.GoldenPipeEntity;
-import jagm.classicpipes.blockentity.StandardPipeEntity;
+import jagm.classicpipes.blockentity.RoundRobinPipeEntity;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.Registry;
@@ -52,8 +52,8 @@ public class ClassicPipes {
 
     public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
 
-    public static final BlockEntityType<StandardPipeEntity> WOODEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(StandardPipeEntity::new, WOODEN_PIPES.toArray(new Block[0]));
-    public static final BlockEntityType<StandardPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
+    public static final BlockEntityType<RoundRobinPipeEntity> WOODEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, WOODEN_PIPES.toArray(new Block[0]));
+    public static final BlockEntityType<RoundRobinPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
 

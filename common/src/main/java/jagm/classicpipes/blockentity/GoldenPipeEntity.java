@@ -5,7 +5,7 @@ import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class GoldenPipeEntity extends StandardPipeEntity {
+public class GoldenPipeEntity extends RoundRobinPipeEntity {
 
     public GoldenPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.GOLDEN_PIPE_ENTITY, pos, state);
@@ -13,7 +13,7 @@ public class GoldenPipeEntity extends StandardPipeEntity {
 
     @Override
     public int getTargetSpeed() {
-        return ItemInPipe.DEFAULT_SPEED * 16;
+        return ItemInPipe.DEFAULT_SPEED * 8;
     }
 
     @Override

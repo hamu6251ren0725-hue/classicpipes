@@ -2,7 +2,7 @@ package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
-import jagm.classicpipes.blockentity.StandardPipeEntity;
+import jagm.classicpipes.blockentity.RoundRobinPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -19,12 +19,12 @@ public class WoodenPipeBlock extends AbstractPipeBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new StandardPipeEntity(pos, state);
+        return new RoundRobinPipeEntity(pos, state);
     }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY ? StandardPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.WOODEN_PIPE_ENTITY ? RoundRobinPipeEntity::tick : null;
     }
 
     @Override

@@ -114,7 +114,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         return state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
     }
 
-    public final void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
+    public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
