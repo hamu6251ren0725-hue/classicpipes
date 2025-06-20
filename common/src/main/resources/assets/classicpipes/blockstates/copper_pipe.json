@@ -5,18 +5,17 @@
         "model": "classicpipes:block/copper_pipe_side"
       },
       "when": {
-        "north": "true",
-        "facing": "east|south|west|up|down"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/copper_pipe_side"
-      },
-      "when": {
-        "north": "true",
-        "facing": "north",
-        "attached": "false"
+        "OR" : [
+          {
+            "north": "true",
+            "facing": "east|south|west|up|down"
+          },
+          {
+            "north": "true",
+            "facing": "north",
+            "attached": "false"
+          }
+        ]
       }
     },
     {
@@ -56,20 +55,17 @@
         "y": 90
       },
       "when": {
-        "east": "true",
-        "facing": "north|south|west|up|down"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
-        "uvlock": true,
-        "y": 90
-      },
-      "when": {
-        "east": "true",
-        "facing": "east",
-        "attached": "false"
+        "OR" : [
+          {
+            "east": "true",
+            "facing": "north|south|west|up|down"
+          },
+          {
+            "east": "true",
+            "facing": "east",
+            "attached": "false"
+          }
+        ]
       }
     },
     {
@@ -115,20 +111,17 @@
         "y": 180
       },
       "when": {
-        "south": "true",
-        "facing": "north|east|west|up|down"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
-        "uvlock": true,
-        "y": 180
-      },
-      "when": {
-        "south": "true",
-        "facing": "south",
-        "attached": "false"
+        "OR": [
+          {
+            "south": "true",
+            "facing": "north|east|west|up|down"
+          },
+          {
+            "south": "true",
+            "facing": "south",
+            "attached": "false"
+          }
+        ]
       }
     },
     {
@@ -174,20 +167,17 @@
         "y": 270
       },
       "when": {
-        "west": "true",
-        "facing": "north|east|south|up|down"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
-        "uvlock": true,
-        "y": 270
-      },
-      "when": {
-        "west": "true",
-        "facing": "west",
-        "attached": "false"
+        "OR": [
+          {
+            "west": "true",
+            "facing": "north|east|south|up|down"
+          },
+          {
+            "west": "true",
+            "facing": "west",
+            "attached": "false"
+          }
+        ]
       }
     },
     {
@@ -233,20 +223,17 @@
         "x": 270
       },
       "when": {
-        "up": "true",
-        "facing": "north|east|south|west|down"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
-        "uvlock": true,
-        "x": 270
-      },
-      "when": {
-        "up": "true",
-        "facing": "up",
-        "attached": "false"
+        "OR": [
+          {
+            "up": "true",
+            "facing": "north|east|south|west|down"
+          },
+          {
+            "up": "true",
+            "facing": "up",
+            "attached": "false"
+          }
+        ]
       }
     },
     {
@@ -292,20 +279,17 @@
         "x": 90
       },
       "when": {
-        "down": "true",
-        "facing": "north|east|south|west|up"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
-        "uvlock": true,
-        "x": 90
-      },
-      "when": {
-        "down": "true",
-        "facing": "down",
-        "attached": "false"
+        "OR": [
+          {
+            "down": "true",
+            "facing": "north|east|south|west|up"
+          },
+          {
+            "down": "true",
+            "facing": "down",
+            "attached": "false"
+          }
+        ]
       }
     },
     {

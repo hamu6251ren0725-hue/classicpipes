@@ -1,0 +1,418 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side"
+      },
+      "when": {
+        "AND": [
+          {
+            "north": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "east|south|west|up|down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north",
+                "enabled": "false"
+              },
+              {
+                "secondary": "east|south|west|up|down",
+                "enabled": "true"
+              },
+              {
+                "primary": "north",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side_facing"
+      },
+      "when": {
+        "AND": [
+          {
+            "north": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "north",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_middle"
+      },
+      "when": {
+        "north": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "east": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "north|south|west|up|down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "east",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north|south|west|up|down",
+                "enabled": "true"
+              },
+              {
+                "primary": "east",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side_facing",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "east": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "east",
+                "enabled": "false"
+              },
+              {
+                "secondary": "east",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_middle",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "south": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "north|east|west|up|down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "south",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north|east|west|up|down",
+                "enabled": "true"
+              },
+              {
+                "primary": "south",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side_facing",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "south": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "south",
+                "enabled": "false"
+              },
+              {
+                "secondary": "south",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_middle",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "west": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "north|east|south|up|down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "west",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north|east|south|up|down",
+                "enabled": "true"
+              },
+              {
+                "primary": "west",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side_facing",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "west": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "west",
+                "enabled": "false"
+              },
+              {
+                "secondary": "west",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_middle",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "up": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "north|east|south|west|down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "up",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north|east|south|west|down",
+                "enabled": "true"
+              },
+              {
+                "primary": "up",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side_facing",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "up": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "up",
+                "enabled": "false"
+              },
+              {
+                "secondary": "up",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_middle",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "down": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "north|east|south|west|up",
+                "enabled": "false"
+              },
+              {
+                "secondary": "down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "north|east|south|west|up",
+                "enabled": "true"
+              },
+              {
+                "primary": "down",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_side_facing",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "down": "true"
+          },
+          {
+            "OR": [
+              {
+                "primary": "down",
+                "enabled": "false"
+              },
+              {
+                "secondary": "down",
+                "enabled": "true"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/iron_pipe_middle",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "false"
+      }
+    }
+  ]
+}

@@ -1,34 +1,34 @@
 {
   "parent": "classicpipes:item/pipe",
   "textures": {
-    "texture": "classicpipes:block/copper_pipe",
-    "enabled": "classicpipes:block/copper_pipe_enabled",
-    "particle": "classicpipes:block/copper_pipe"
+    "texture": "classicpipes:block/iron_pipe",
+    "enabled": "classicpipes:block/iron_pipe_facing",
+    "particle": "classicpipes:block/iron_pipe"
   },
   "elements": [
     {
-      "from": [ 4, 4, 4 ],
-      "to": [ 12, 16, 12 ],
-      "faces": {
-        "north": { "texture": "#texture"},
-        "south": { "texture": "#texture"},
-        "east": { "texture": "#texture"},
-        "west": { "texture": "#texture"}
-      }
-    },
-    {
-      "from": [ 12, 16, 12 ],
-      "to": [ 4, 4, 4 ],
-      "faces": {
-        "north": { "texture": "#texture"},
-        "south": { "texture": "#texture"},
-        "east": { "texture": "#texture"},
-        "west": { "texture": "#texture"}
-      }
-    },
-    {
       "from": [ 4, 0, 4 ],
-      "to": [ 12, 4, 12 ],
+      "to": [ 12, 12, 12 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 12, 12, 12 ],
+      "to": [ 4, 0, 4 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 4, 12, 4 ],
+      "to": [ 12, 16, 12 ],
       "faces": {
         "north": { "texture": "#enabled"},
         "south": { "texture": "#enabled"},
@@ -37,8 +37,8 @@
       }
     },
     {
-      "from": [ 12, 4, 12 ],
-      "to": [ 4, 0, 4 ],
+      "from": [ 12, 16, 12 ],
+      "to": [ 4, 12, 4 ],
       "faces": {
         "north": { "texture": "#texture"},
         "south": { "texture": "#texture"},

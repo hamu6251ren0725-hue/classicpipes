@@ -5,8 +5,6 @@ import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.CopperPipeBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;

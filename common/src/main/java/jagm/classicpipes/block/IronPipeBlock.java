@@ -1,15 +1,13 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
-import jagm.classicpipes.blockentity.CopperPipeEntity;
+import jagm.classicpipes.blockentity.IronPipeEntity;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -28,93 +26,94 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class CopperPipeBlock extends AbstractPipeBlock {
+public class IronPipeBlock extends AbstractPipeBlock {
 
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
-    public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
+    public static final EnumProperty<Direction> FACING_PRIMARY = EnumProperty.create("primary", Direction.class, new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN});
+    public static final EnumProperty<Direction> FACING_SECONDARY = EnumProperty.create("secondary", Direction.class, new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN});
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
-    public CopperPipeBlock(Properties properties) {
+    public IronPipeBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
-                .setValue(FACING, Direction.DOWN)
-                .setValue(ATTACHED, false)
+                .setValue(FACING_PRIMARY, Direction.DOWN)
+                .setValue(FACING_SECONDARY, Direction.UP)
                 .setValue(ENABLED, false)
         );
     }
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CopperPipeEntity(pos, state);
+        return new IronPipeEntity(pos, state);
     }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.COPPER_PIPE_ENTITY ? CopperPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.IRON_PIPE_ENTITY ? IronPipeEntity::tick : null;
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING, ATTACHED, ENABLED);
+        builder.add(FACING_PRIMARY, FACING_SECONDARY, ENABLED);
+    }
+
+    private static Direction getSecondaryDirection(Direction primaryDirection, BlockState state) {
+        if (state.getValue(PROPERTY_BY_DIRECTION.get(primaryDirection.getOpposite()))) {
+            return primaryDirection.getOpposite();
+        } else {
+            Direction direction = primaryDirection;
+            for (int i = 0; i < 5; i++) {
+                direction = MiscUtil.nextDirection(direction);
+                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
+                    return direction;
+                }
+            }
+        }
+        return primaryDirection;
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction directionWithContainer = Direction.DOWN;
-        boolean attached = false;
-        for (Direction direction : Direction.values()) {
-            Container container = getBlockContainer(context.getLevel(), context.getClickedPos().relative(direction));
-            if (container != null) {
-                if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, direction)) {
-                    directionWithContainer = direction;
-                    attached = true;
-                    break;
+        BlockState state = super.getStateForPlacement(context);
+        if (state != null) {
+            for (Direction direction : Direction.values()) {
+                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
+                    state = state.setValue(FACING_PRIMARY, direction);
+                    state = state.setValue(FACING_SECONDARY, getSecondaryDirection(direction, state));
+                    return state;
                 }
             }
-        }
-        BlockState superState = super.getStateForPlacement(context);
-        if (superState != null) {
-            return superState
-                .trySetValue(FACING, directionWithContainer)
-                .trySetValue(ATTACHED, attached)
-                .trySetValue(ENABLED, false);
         }
         return this.defaultBlockState();
     }
 
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        Direction d = state.getValue(FACING);
+        BlockState superState = super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+        Direction d = superState.getValue(FACING_PRIMARY);
         for (int i = 0; i < 6; i++) {
-            Container container = getBlockContainer((Level) level, pos.relative(d));
-            if (container != null) {
-                if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, d)) {
-                    BlockState newState = state.setValue(FACING, d).setValue(ATTACHED, true);
-                    return super.updateShape(newState, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-                }
+            if (superState.getValue(PROPERTY_BY_DIRECTION.get(d))) {
+                superState = superState.setValue(FACING_PRIMARY, d);
+                superState = superState.setValue(FACING_SECONDARY, getSecondaryDirection(d, superState));
+                return superState;
             }
             d = MiscUtil.nextDirection(d);
         }
-        BlockState newState = state.setValue(FACING, Direction.DOWN).setValue(ATTACHED, false);
-        return super.updateShape(newState, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+        return superState;
     }
 
-    @Override
+        @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (player.getAbilities().mayBuild) {
-            Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
+            Direction direction = MiscUtil.nextDirection(state.getValue(FACING_PRIMARY));
             for (int i = 0; i < 5; i++) {
-                Container container = getBlockContainer(level, pos.relative(direction));
-                if (container != null) {
-                    if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, direction)) {
-                        BlockState newState = state.setValue(FACING, direction).setValue(ATTACHED, true);
-                        level.setBlock(pos, newState, 3);
-                        if (level instanceof ServerLevel serverLevel) {
-                            serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
-                        }
-                        return InteractionResult.SUCCESS;
+                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
+                    BlockState newState = state.setValue(FACING_PRIMARY, direction).setValue(FACING_SECONDARY, getSecondaryDirection(direction, state));
+                    level.setBlock(pos, newState, 3);
+                    if (level instanceof ServerLevel serverLevel) {
+                        serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
+                    return InteractionResult.SUCCESS;
                 }
                 direction = MiscUtil.nextDirection(direction);
             }
@@ -132,7 +131,7 @@ public class CopperPipeBlock extends AbstractPipeBlock {
     private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
         if (state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.setValue(ENABLED, false), 2);
-        } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos) && state.getValue(ATTACHED)) {
+        } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.setValue(ENABLED, true), 2);
         }
     }

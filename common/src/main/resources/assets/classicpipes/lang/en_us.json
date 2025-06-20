@@ -13,6 +13,7 @@
   "item.classicpipes.warped_pipe": "Warped Pipe",
   "item.classicpipes.golden_pipe": "Golden Pipe",
   "item.classicpipes.copper_pipe": "Copper Pipe",
+  "item.classicpipes.iron_pipe": "Iron Pipe",
   "itemGroup.classicpipes.pipes": "Classic Pipes",
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
   "subtitle.classicpipes.pipe_adjust": "Pipe adjusted"

@@ -33,6 +33,7 @@ public class ForgeEntrypoint {
                 helper.register("wooden_pipe", ClassicPipes.WOODEN_PIPE_ENTITY);
                 helper.register("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
                 helper.register("copper_pipe", ClassicPipes.COPPER_PIPE_ENTITY);
+                helper.register("iron_pipe", ClassicPipes.IRON_PIPE_ENTITY);
             });
             event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
                 ClassicPipes.SOUNDS.forEach(helper::register);
@@ -52,6 +53,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.COPPER_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.IRON_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
