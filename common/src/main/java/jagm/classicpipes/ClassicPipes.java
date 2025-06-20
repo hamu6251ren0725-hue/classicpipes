@@ -60,6 +60,7 @@ public class ClassicPipes {
     public static final BlockEntityType<CopperPipeEntity> COPPER_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(CopperPipeEntity::new, COPPER_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
+    public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
 
     private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name) {
         return ResourceKey.create(registry, MiscUtil.resourceLocation(name));

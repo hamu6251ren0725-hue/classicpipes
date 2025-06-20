@@ -3,10 +3,14 @@ package jagm.classicpipes.block;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.CopperPipeEntity;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -21,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class CopperPipeBlock extends AbstractPipeBlock {
 
@@ -79,29 +84,42 @@ public class CopperPipeBlock extends AbstractPipeBlock {
 
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        if (state.getValue(FACING) == direction) {
-            Container container = getBlockContainer((Level) level, neighborPos);
-            if (container == null || !this.canConnect(container, direction) || container instanceof AbstractPipeEntity) {
-                Direction directionWithContainer = Direction.DOWN;
-                boolean attached = false;
-                for (Direction d : Direction.values()) {
-                    Container c = getBlockContainer((Level) level, pos.relative(d));
-                    if (c != null) {
-                        if (!(c instanceof AbstractPipeEntity) && this.canConnect(c, d)) {
-                            directionWithContainer = d;
-                            attached = true;
-                            break;
-                        }
-                    }
+        Direction d = state.getValue(FACING);
+        for (int i = 0; i < 6; i++) {
+            Container container = getBlockContainer((Level) level, pos.relative(d));
+            if (container != null) {
+                if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, d)) {
+                    BlockState newState = state.setValue(FACING, d).setValue(ATTACHED, true);
+                    return super.updateShape(newState, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
                 }
-                state.setValue(FACING, directionWithContainer);
-                state.setValue(ATTACHED, attached);
             }
+            d = MiscUtil.nextDirection(d);
         }
-        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+        BlockState newState = state.setValue(FACING, Direction.DOWN).setValue(ATTACHED, false);
+        return super.updateShape(newState, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (player.getAbilities().mayBuild) {
+            Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
+            for (int i = 0; i < 5; i++) {
+                Container container = getBlockContainer(level, pos.relative(direction));
+                if (container != null) {
+                    if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, direction)) {
+                        BlockState newState = state.setValue(FACING, direction).setValue(ATTACHED, true);
+                        level.setBlock(pos, newState, 3);
+                        level.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+                direction = MiscUtil.nextDirection(direction);
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
+        @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         if (!oldState.is(state.getBlock())) {
             this.checkPoweredState(level, pos, state);

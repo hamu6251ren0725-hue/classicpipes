@@ -2,6 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -31,7 +32,7 @@ public class RoundRobinPipeEntity extends AbstractPipeEntity {
     protected void updateRoundRobin(List<Direction> validDirections) {
         if (!validDirections.isEmpty()) {
             do {
-                this.nextDirection = Direction.from3DDataValue((this.nextDirection.get3DDataValue() + 1) % 6);
+                this.nextDirection = MiscUtil.nextDirection(this.nextDirection);
             } while (!validDirections.contains(this.nextDirection));
         }
     }
