@@ -1,8 +1,10 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
+import net.minecraft.core.registries.Registries;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -35,6 +37,9 @@ public class ForgeEntrypoint {
             event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
                 ClassicPipes.SOUNDS.forEach(helper::register);
             });
+            event.register(Registries.CREATIVE_MODE_TAB, helper -> {
+                helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
+            });
         }
 
     }
@@ -47,6 +52,13 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.COPPER_PIPE_ENTITY, PipeRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void onFillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
+            if(event.getTabKey() == ClassicPipes.PIPES_TAB_KEY) {
+                ClassicPipes.ITEMS.forEach((name, item) -> event.accept(item));
+            }
         }
 
     }

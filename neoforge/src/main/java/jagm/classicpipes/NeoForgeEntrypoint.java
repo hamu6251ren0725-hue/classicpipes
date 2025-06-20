@@ -9,6 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 @Mod(ClassicPipes.MOD_ID)
@@ -37,6 +38,9 @@ public class NeoForgeEntrypoint {
             event.register(Registries.SOUND_EVENT, helper -> {
                 ClassicPipes.SOUNDS.forEach((name, soundEvent) -> helper.register(MiscUtil.resourceLocation(name), soundEvent));
             });
+            event.register(Registries.CREATIVE_MODE_TAB, helper -> {
+                helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
+            });
         }
 
     }
@@ -49,6 +53,13 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.WOODEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.COPPER_PIPE_ENTITY, PipeRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void onFillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
+            if(event.getTabKey() == ClassicPipes.PIPES_TAB_KEY) {
+                ClassicPipes.ITEMS.forEach((name, item) -> event.accept(item));
+            }
         }
 
     }

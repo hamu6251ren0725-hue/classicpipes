@@ -9,11 +9,15 @@ import jagm.classicpipes.blockentity.RoundRobinPipeEntity;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -62,6 +66,9 @@ public class ClassicPipes {
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
 
+    public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
+    public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), MiscUtil.resourceLocation("pipes"));
+
     private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name) {
         return ResourceKey.create(registry, MiscUtil.resourceLocation(name));
     }
@@ -91,7 +98,7 @@ public class ClassicPipes {
         return woodenPipe;
     }
 
-    private static SoundEvent createSoundEvent (String name) {
+    private static SoundEvent createSoundEvent(String name) {
         SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(MiscUtil.resourceLocation(name));
         SOUNDS.put(name, soundEvent);
         return soundEvent;
