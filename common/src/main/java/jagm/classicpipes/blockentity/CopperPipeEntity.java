@@ -13,6 +13,8 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class CopperPipeEntity extends RoundRobinPipeEntity {
 
@@ -94,15 +96,15 @@ public class CopperPipeEntity extends RoundRobinPipeEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
-        super.loadAdditional(tag, levelRegistry);
-        this.cooldown = tag.getByteOr("cooldown", DEFAULT_COOLDOWN);
+    protected void loadAdditional(ValueInput valueInput) {
+        super.loadAdditional(valueInput);
+        this.cooldown = valueInput.getByteOr("cooldown", DEFAULT_COOLDOWN);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
-        super.saveAdditional(tag, levelRegistry);
-        tag.putByte("cooldown", this.cooldown);
+    protected void saveAdditional(ValueOutput valueOutput) {
+        super.saveAdditional(valueOutput);
+        valueOutput.putByte("cooldown", this.cooldown);
     }
 
 }

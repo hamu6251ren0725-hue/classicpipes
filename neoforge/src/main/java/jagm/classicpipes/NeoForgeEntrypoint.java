@@ -18,7 +18,7 @@ public class NeoForgeEntrypoint {
 
     }
 
-    @EventBusSubscriber(modid = ClassicPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(modid = ClassicPipes.MOD_ID)
     public static class ModEventHandler {
 
         @SubscribeEvent
@@ -41,7 +41,7 @@ public class NeoForgeEntrypoint {
 
     }
 
-    @EventBusSubscriber(value = Dist.CLIENT, modid = ClassicPipes.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber(value = Dist.CLIENT, modid = ClassicPipes.MOD_ID)
     public static class ClientModEventHandler {
 
         @SubscribeEvent

@@ -7,12 +7,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -23,6 +23,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -193,35 +196,41 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
+    protected void loadAdditional(ValueInput valueInput) {
         this.clearContent();
-        super.loadAdditional(tag, levelRegistry);
-        ListTag items = tag.getListOrEmpty("items");
-        for (int i = 0; i < items.size(); i++) {
-            CompoundTag itemTag = items.getCompoundOrEmpty(i);
-            ItemInPipe item = ItemInPipe.parse(itemTag, levelRegistry);
-            if (!item.getStack().isEmpty()) {
-                contents.add(item);
-            }
-        }
+        super.loadAdditional(valueInput);
+        ValueInput.TypedInputList<ItemInPipe> itemsList = valueInput.listOrEmpty("items", ItemInPipe.CODEC);
+        itemsList.forEach(contents::add);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider levelRegistry) {
-        super.saveAdditional(tag, levelRegistry);
-        ListTag items = new ListTag();
+    protected void saveAdditional(ValueOutput valueOutput) {
+        super.saveAdditional(valueOutput);
+        ValueOutput.TypedOutputList<ItemInPipe> itemsList = valueOutput.list("items", ItemInPipe.CODEC);
         for (ItemInPipe item : this.contents) {
             if (!item.getStack().isEmpty()) {
-                items.add(item.save(levelRegistry));
+                itemsList.add(item);
             }
         }
-        tag.put("items", items);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider levelRegistry) {
-        CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag, levelRegistry);
+        ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(this.problemPath(), ClassicPipes.LOGGER);
+        CompoundTag tag;
+        try {
+            TagValueOutput valueOutput = TagValueOutput.createWithContext(scopedCollector, levelRegistry);
+            this.saveAdditional(valueOutput);
+            tag = valueOutput.buildResult();
+        } catch (Throwable error) {
+            try {
+                scopedCollector.close();
+            } catch (Throwable error2) {
+                error.addSuppressed(error2);
+            }
+            throw error;
+        }
+        scopedCollector.close();
         return tag;
     }
 

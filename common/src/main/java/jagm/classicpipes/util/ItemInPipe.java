@@ -1,10 +1,9 @@
 package jagm.classicpipes.util;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -17,6 +16,16 @@ public class ItemInPipe {
     public static final int DEFAULT_SPEED = 64;
     public static final int DEFAULT_ACCELERATION = 1;
     public static final int SPEED_LIMIT = HALFWAY;
+    public static final Codec<ItemInPipe> CODEC = RecordCodecBuilder.create(instance ->
+        instance.group(
+            ItemStack.CODEC.fieldOf("item").orElse(ItemStack.EMPTY).forGetter(ItemInPipe::getStack),
+            Codec.INT.fieldOf("speed").orElse(1).forGetter(ItemInPipe::getSpeed),
+            Codec.INT.fieldOf("progress").orElse(0).forGetter(ItemInPipe::getProgress),
+            Codec.BYTE.fieldOf("from_direction").orElse((byte) 0).forGetter(item -> (byte) item.getFromDirection().get3DDataValue()),
+            Codec.BYTE.fieldOf("target_direction").orElse((byte) 0).forGetter(item -> (byte) item.getTargetDirection().get3DDataValue()),
+            Codec.BOOL.fieldOf("ejecting").orElse(true).forGetter(ItemInPipe::isEjecting)
+        ).apply(instance, ItemInPipe::new)
+    );
 
     private ItemStack stack;
     private int speed;
@@ -27,7 +36,7 @@ public class ItemInPipe {
 
     public ItemInPipe(ItemStack stack, int speed, int progress, Direction fromDirection, Direction targetDirection, boolean ejecting) {
         this.stack = stack;
-        this.speed = Math.min(speed, HALFWAY);
+        this.speed = Math.min(speed, SPEED_LIMIT);
         this.progress = progress;
         this.fromDirection = fromDirection;
         this.targetDirection = targetDirection;
@@ -40,6 +49,10 @@ public class ItemInPipe {
 
     public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection, boolean ejecting) {
         this(stack, DEFAULT_SPEED, 0, fromDirection, toDirection, ejecting);
+    }
+
+    public ItemInPipe(ItemStack stack, int speed, int progress, byte fromDirection, byte targetDirection, boolean ejecting) {
+        this(stack, speed, progress, Direction.from3DDataValue(fromDirection), Direction.from3DDataValue(targetDirection), ejecting);
     }
 
     public void move(int targetSpeed, int acceleration) {
@@ -111,29 +124,6 @@ public class ItemInPipe {
 
     public int getSpeed() {
         return this.speed;
-    }
-
-    public Tag save(HolderLookup.Provider levelRegistry) {
-        CompoundTag tag = new CompoundTag();
-        tag.put("item", this.stack.save(levelRegistry));
-        tag.putInt("speed", this.speed);
-        tag.putInt("progress", this.progress);
-        tag.putByte("from_direction", (byte) this.fromDirection.get3DDataValue());
-        tag.putByte("target_direction", (byte) this.targetDirection.get3DDataValue());
-        tag.putBoolean("ejecting", this.ejecting);
-        return tag;
-    }
-
-    public static ItemInPipe parse(CompoundTag tag, HolderLookup.Provider levelRegistry) {
-        ItemStack stack = ItemStack.parse(levelRegistry, tag.getCompoundOrEmpty("item")).orElse(ItemStack.EMPTY);
-        return new ItemInPipe(
-                stack,
-                tag.getIntOr("speed", DEFAULT_SPEED),
-                tag.getIntOr("progress", HALFWAY),
-                Direction.from3DDataValue(tag.getByteOr("from_direction", (byte) 0)),
-                Direction.from3DDataValue(tag.getByteOr("target_direction", (byte) 0)),
-                tag.getBooleanOr("ejecting", true)
-        );
     }
 
 }
