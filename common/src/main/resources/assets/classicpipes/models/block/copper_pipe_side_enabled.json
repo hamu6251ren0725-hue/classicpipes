@@ -1,0 +1,7 @@
+{
+  "parent": "classicpipes:block/pipe_side",
+  "textures": {
+    "texture": "classicpipes:block/copper_pipe_enabled",
+    "particle": "classicpipes:block/copper_pipe_enabled"
+  }
+}
