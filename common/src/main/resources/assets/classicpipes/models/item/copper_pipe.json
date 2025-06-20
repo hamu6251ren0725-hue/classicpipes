@@ -2,6 +2,39 @@
   "parent": "classicpipes:item/pipe",
   "textures": {
     "texture": "classicpipes:block/copper_pipe",
+    "enabled": "classicpipes:block/copper_pipe_enabled",
     "particle": "classicpipes:block/copper_pipe"
-  }
+  },
+  "elements": [
+    {
+      "from": [ 4, 4, 4 ],
+      "to": [ 12, 16, 12 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 12, 16, 12 ],
+      "to": [ 4, 4, 4 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 4, 0, 4 ],
+      "to": [ 12, 4, 12 ],
+      "faces": {
+        "north": { "texture": "#enabled"},
+        "south": { "texture": "#enabled"},
+        "east": { "texture": "#enabled"},
+        "west": { "texture": "#enabled"}
+      }
+    }
+  ]
 }

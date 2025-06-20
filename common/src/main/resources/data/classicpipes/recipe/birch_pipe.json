@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:birch_planks",
+    "W": "minecraft:glass"
+  },
+  "pattern": [
+    "OWO"
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:birch_pipe"
+  }
+}

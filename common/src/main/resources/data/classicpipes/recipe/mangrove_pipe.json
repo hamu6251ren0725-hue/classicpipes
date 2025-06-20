@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:mangrove_planks",
+    "W": "minecraft:glass"
+  },
+  "pattern": [
+    "OWO"
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:mangrove_pipe"
+  }
+}
