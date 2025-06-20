@@ -165,4 +165,18 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
         return super.playerWillDestroy(level, pos, state, player);
     }
 
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof AbstractPipeEntity pipe) {
+            return Math.min(15, pipe.getContents().size());
+        }
+        return 0;
+    }
+
 }
