@@ -18,6 +18,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
         registerBlockEntity("copper_pipe", ClassicPipes.COPPER_PIPE_ENTITY);
         registerBlockEntity("iron_pipe", ClassicPipes.IRON_PIPE_ENTITY);
+        registerBlockEntity("diamond_pipe", ClassicPipes.DIAMOND_PIPE_ENTITY);
         ClassicPipes.SOUNDS.forEach((name, soundEvent) -> Registry.register(BuiltInRegistries.SOUND_EVENT, MiscUtil.resourceLocation(name), soundEvent));
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));

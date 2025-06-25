@@ -1,16 +1,9 @@
 package jagm.classicpipes;
 
-import jagm.classicpipes.block.CopperPipeBlock;
-import jagm.classicpipes.block.GoldenPipeBlock;
-import jagm.classicpipes.block.IronPipeBlock;
-import jagm.classicpipes.block.WoodenPipeBlock;
-import jagm.classicpipes.blockentity.CopperPipeEntity;
-import jagm.classicpipes.blockentity.GoldenPipeEntity;
-import jagm.classicpipes.blockentity.IronPipeEntity;
-import jagm.classicpipes.blockentity.RoundRobinPipeEntity;
+import jagm.classicpipes.block.*;
+import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -61,30 +54,27 @@ public class ClassicPipes {
     public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
     public static final Block COPPER_PIPE = createPipe("copper_pipe", CopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
     public static final Block IRON_PIPE = createPipe("iron_pipe", IronPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
+    public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB));
 
     public static final BlockEntityType<RoundRobinPipeEntity> WOODEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, WOODEN_PIPES.toArray(new Block[0]));
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
     public static final BlockEntityType<CopperPipeEntity> COPPER_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(CopperPipeEntity::new, COPPER_PIPE);
     public static final BlockEntityType<IronPipeEntity> IRON_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(IronPipeEntity::new, IRON_PIPE);
+    public static final BlockEntityType<DiamondPipeEntity> DIAMOND_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(DiamondPipeEntity::new, DIAMOND_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
 
     public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
-    public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = ResourceKey.create(BuiltInRegistries.CREATIVE_MODE_TAB.key(), MiscUtil.resourceLocation("pipes"));
+    public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
-    private static <T> ResourceKey<T> makeKey(ResourceKey<? extends Registry<T>> registry, String name) {
-        return ResourceKey.create(registry, MiscUtil.resourceLocation(name));
-    }
-
-    private static Item createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props) {
-        Item item = factory.apply(props.setId(makeKey(Registries.ITEM, name)));
+    private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props) {
+        Item item = factory.apply(props.setId(MiscUtil.makeKey(Registries.ITEM, name)));
         ITEMS.put(name, item);
-        return item;
     }
 
     private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props) {
-        Block block = factory.apply(props.setId(makeKey(Registries.BLOCK, name)));
+        Block block = factory.apply(props.setId(MiscUtil.makeKey(Registries.BLOCK, name)));
         BLOCKS.put(name, block);
         createItem(name, itemProps -> new BlockItem(block, itemProps), new Item.Properties());
         return block;

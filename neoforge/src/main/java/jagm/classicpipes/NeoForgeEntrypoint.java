@@ -35,6 +35,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("copper_pipe"), ClassicPipes.COPPER_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("iron_pipe"), ClassicPipes.IRON_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_ENTITY);
             });
             event.register(Registries.SOUND_EVENT, helper -> {
                 ClassicPipes.SOUNDS.forEach((name, soundEvent) -> helper.register(MiscUtil.resourceLocation(name), soundEvent));
@@ -55,6 +56,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.GOLDEN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.COPPER_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.IRON_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.DIAMOND_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
