@@ -15,6 +15,11 @@
   "item.classicpipes.copper_pipe": "Copper Pipe",
   "item.classicpipes.iron_pipe": "Iron Pipe",
   "item.classicpipes.diamond_pipe": "Diamond Pipe",
+  "item.classicpipes.wooden_pipe.desc": "Basic item transport pipe",
+  "item.classicpipes.golden_pipe.desc": "Accelerates items",
+  "item.classicpipes.copper_pipe.desc": "Extracts items from containers",
+  "item.classicpipes.iron_pipe.desc": "Routes items in a single direction",
+  "item.classicpipes.diamond_pipe.desc": "Sorts items",
   "itemGroup.classicpipes.pipes": "Classic Pipes",
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
   "subtitle.classicpipes.pipe_adjust": "Pipe adjusted"
