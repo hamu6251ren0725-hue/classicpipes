@@ -1,12 +1,15 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
+import jagm.classicpipes.client.screen.DiamondPipeScreen;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
@@ -42,6 +45,9 @@ public class ForgeEntrypoint {
             event.register(Registries.CREATIVE_MODE_TAB, helper -> {
                 helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
             });
+            event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
+                helper.register("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
+            });
         }
 
     }
@@ -63,6 +69,11 @@ public class ForgeEntrypoint {
             if(event.getTabKey() == ClassicPipes.PIPES_TAB_KEY) {
                 ClassicPipes.ITEMS.forEach((name, item) -> event.accept(item));
             }
+        }
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            event.enqueueWork(() -> MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new));
         }
 
     }

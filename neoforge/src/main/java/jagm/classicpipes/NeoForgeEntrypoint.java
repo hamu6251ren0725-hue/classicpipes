@@ -1,6 +1,7 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
+import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
@@ -9,6 +10,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
@@ -43,6 +45,9 @@ public class NeoForgeEntrypoint {
             event.register(Registries.CREATIVE_MODE_TAB, helper -> {
                 helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
             });
+            event.register(Registries.MENU, helper -> {
+                helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
+            });
         }
 
     }
@@ -64,6 +69,11 @@ public class NeoForgeEntrypoint {
             if(event.getTabKey() == ClassicPipes.PIPES_TAB_KEY) {
                 ClassicPipes.ITEMS.forEach((name, item) -> event.accept(item));
             }
+        }
+
+        @SubscribeEvent
+        public static void onRegisterScreens(RegisterMenuScreensEvent event) {
+            event.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
         }
 
     }

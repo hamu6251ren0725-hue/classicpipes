@@ -37,14 +37,21 @@ public class RoundRobinPipeEntity extends AbstractPipeEntity {
         }
     }
 
-    @Override
-    public void routeItem(BlockState state, ItemInPipe item) {
+    protected List<Direction> getValidDirections(BlockState state, ItemInPipe item) {
         List<Direction> validDirections = new ArrayList<>();
-        for (Direction direction : Direction.values()) {
-            if (this.isPipeConnected(state, direction) && !direction.equals(item.getFromDirection())) {
+        Direction direction = MiscUtil.nextDirection(item.getFromDirection());
+        for (int i = 0; i < 5; i++) {
+            if (this.isPipeConnected(state, direction)) {
                 validDirections.add(direction);
             }
+            direction = MiscUtil.nextDirection(direction);
         }
+        return validDirections;
+    }
+
+    @Override
+    public void routeItem(BlockState state, ItemInPipe item) {
+        List<Direction> validDirections = this.getValidDirections(state, item);
         if (validDirections.isEmpty()) {
             item.setTargetDirection(item.getFromDirection().getOpposite());
             item.setEjecting(true);
