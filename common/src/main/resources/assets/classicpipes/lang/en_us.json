@@ -22,5 +22,12 @@
   "item.classicpipes.diamond_pipe.desc": "Sorts items",
   "itemGroup.classicpipes.pipes": "Classic Pipes",
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
-  "subtitle.classicpipes.pipe_adjust": "Pipe adjusted"
+  "subtitle.classicpipes.pipe_adjust": "Pipe adjusted",
+  "container.classicpipes.diamond_pipe": "Item Routing",
+  "direction.classicpipes.north": "North",
+  "direction.classicpipes.east": "East",
+  "direction.classicpipes.south": "South",
+  "direction.classicpipes.west": "West",
+  "direction.classicpipes.up": "Up",
+  "direction.classicpipes.down": "Down"
 }

@@ -1,20 +1,50 @@
 package jagm.classicpipes.client.screen;
 
+import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.DiamondPipeMenu;
+import jagm.classicpipes.util.MiscUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> {
 
+    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/diamond_pipe.png");
+
     public DiamondPipeScreen(DiamondPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.imageWidth = 240;
+        this.imageHeight = 222;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
+    protected void init() {
+        super.init();
+        this.leftPos = (this.width - 176) / 2;
+    }
 
+    @Override
+    public void render(GuiGraphics graphics, int x, int y, float f) {
+        super.render(graphics, x, y, f);
+        for (int i = 0; i < 6; i++) {
+            Component text = Component.translatable("direction." + ClassicPipes.MOD_ID + "." + Direction.from3DDataValue(i).name().toLowerCase()).withStyle(ChatFormatting.BLACK);
+            graphics.drawString(this.font, text, this.leftPos - 30 + (35 - this.font.width(text)) / 2, this.topPos + 22 + 18 * i, -12566464, false);
+        }
+        this.renderTooltip(graphics, x, y);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics graphics, float f, int x, int y) {
+        int i = (this.width - 176) / 2 - 64;
+        int j = (this.height - this.imageHeight) / 2;
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, 6 * 18 + 17, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j + 6 * 18 + 17, 0.0F, 126.0F, this.imageWidth, 96, 256, 256);
     }
 
 }
