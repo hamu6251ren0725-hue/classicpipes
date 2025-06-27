@@ -1,0 +1,7 @@
+{
+  "parent": "classicpipes:block/pipe_side",
+  "textures": {
+    "texture": "classicpipes:block/flint_pipe",
+    "particle": "classicpipes:block/flint_pipe"
+  }
+}

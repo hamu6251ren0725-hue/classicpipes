@@ -58,12 +58,14 @@ public class ClassicPipes {
     public static final Block COPPER_PIPE = createPipe("copper_pipe", "copper_pipe", CopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
     public static final Block IRON_PIPE = createPipe("iron_pipe", "iron_pipe", IronPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
     public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", "diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB));
+    public static final Block FLINT_PIPE = createPipe("flint_pipe", "flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
 
     public static final BlockEntityType<RoundRobinPipeEntity> WOODEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, WOODEN_PIPES.toArray(new Block[0]));
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
     public static final BlockEntityType<CopperPipeEntity> COPPER_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(CopperPipeEntity::new, COPPER_PIPE);
     public static final BlockEntityType<IronPipeEntity> IRON_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(IronPipeEntity::new, IRON_PIPE);
     public static final BlockEntityType<DiamondPipeEntity> DIAMOND_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(DiamondPipeEntity::new, DIAMOND_PIPE);
+    public static final BlockEntityType<FlintPipeEntity> FLINT_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(FlintPipeEntity::new, FLINT_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");

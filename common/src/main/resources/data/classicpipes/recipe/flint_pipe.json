@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:flint",
+    "W": "minecraft:glass"
+  },
+  "pattern": [
+    "OWO"
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:flint_pipe"
+  }
+}
