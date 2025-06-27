@@ -35,7 +35,8 @@ public class CopperPipeEntity extends RoundRobinPipeEntity {
                 Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(direction));
                 if (container != null && !(container instanceof AbstractPipeEntity)) {
                     int[] slots = getSlots(container, direction.getOpposite());
-                    for (int slot = slots.length - 1; slot >= 0; slot--) {
+                    for (int i = slots.length - 1; i >= 0; i--) {
+                        int slot = slots[i];
                         ItemStack stack = container.getItem(slot);
                         if (!stack.isEmpty() && canTakeItemFromContainer(this, container, stack, slot, direction.getOpposite())) {
                             int count = stack.getCount();
