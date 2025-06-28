@@ -20,7 +20,7 @@ public class RoundRobinPipeEntity extends AbstractPipeEntity {
     protected Direction nextDirection;
 
     public RoundRobinPipeEntity(BlockPos pos, BlockState state) {
-        super(ClassicPipes.WOODEN_PIPE_ENTITY, pos, state);
+        super(ClassicPipes.BASIC_PIPE_ENTITY, pos, state);
         this.nextDirection = Direction.DOWN;
     }
 

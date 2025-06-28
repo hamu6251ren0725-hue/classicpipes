@@ -4,16 +4,17 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.RoundRobinPipeEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class WoodenPipeBlock extends AbstractPipeBlock {
+public class BrickPipeBlock extends AbstractPipeBlock {
 
-    public WoodenPipeBlock(Properties properties) {
+    public BrickPipeBlock(Properties properties) {
         super(properties);
     }
 
@@ -27,10 +28,13 @@ public class WoodenPipeBlock extends AbstractPipeBlock {
         return blockEntityType == ClassicPipes.BASIC_PIPE_ENTITY ? RoundRobinPipeEntity::tick : null;
     }
 
-    @Override
-    protected boolean canConnectToPipe(AbstractPipeEntity pipe){
-        Block block = pipe.getBlockState().getBlock();
-        return !(block instanceof WoodenPipeBlock) || block == this;
+    protected boolean canConnect(Container container, Direction direction) {
+        if (container != null) {
+            if (container instanceof AbstractPipeEntity pipe) {
+                return this.canConnectToPipe(pipe);
+            }
+        }
+        return false;
     }
 
 }

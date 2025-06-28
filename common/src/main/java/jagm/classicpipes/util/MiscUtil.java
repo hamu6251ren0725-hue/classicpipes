@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public class MiscUtil {
 
-    public static final int[] DIRECTION_COLOURS = { 0xFF00FF, 0x00FF00, 0xFFFF00, 0x0000FF, 0xFFFFFF, 0xFF0000 };
-
     public static ResourceLocation resourceLocation(String name) {
         return ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name);
     }
