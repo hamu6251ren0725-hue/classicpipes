@@ -19,7 +19,7 @@ public class ItemInPipe {
     public static final Codec<ItemInPipe> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             ItemStack.CODEC.fieldOf("item").orElse(ItemStack.EMPTY).forGetter(ItemInPipe::getStack),
-            Codec.INT.fieldOf("speed").orElse(1).forGetter(ItemInPipe::getSpeed),
+            Codec.INT.fieldOf("speed").orElse(DEFAULT_SPEED).forGetter(ItemInPipe::getSpeed),
             Codec.INT.fieldOf("progress").orElse(0).forGetter(ItemInPipe::getProgress),
             Codec.BYTE.fieldOf("from_direction").orElse((byte) 0).forGetter(item -> (byte) item.getFromDirection().get3DDataValue()),
             Codec.BYTE.fieldOf("target_direction").orElse((byte) 0).forGetter(item -> (byte) item.getTargetDirection().get3DDataValue()),
@@ -44,7 +44,7 @@ public class ItemInPipe {
     }
 
     public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection) {
-        this(stack, fromDirection, toDirection, false);
+        this(stack, fromDirection, toDirection, true);
     }
 
     public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection, boolean ejecting) {
@@ -100,6 +100,8 @@ public class ItemInPipe {
     public void resetProgress(Direction direction) {
         this.progress -= PIPE_LENGTH;
         this.fromDirection = direction;
+        this.targetDirection = direction.getOpposite();
+        this.setEjecting(true);
     }
 
     public boolean isEjecting() {

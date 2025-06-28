@@ -59,22 +59,15 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         while (iterator.hasNext()) {
             ItemInPipe item = iterator.next();
             item.move(this.getTargetSpeed(), this.getAcceleration());
-            if (item.isEjecting() && item.getProgress() >= ItemInPipe.HALFWAY) {
-                iterator.remove();
-                this.eject(level, pos, item);
-                level.sendBlockUpdated(pos, state, state, 2);
-            } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
+            if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                 Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
                 if (container == null) {
                     // Bounce the item backwards.
                     item.resetProgress(item.getTargetDirection());
-                    this.routeItem(state, item);
                 } else if (container instanceof AbstractPipeEntity nextPipe) {
                     // Pass the item to the next pipe.
                     item.resetProgress(item.getTargetDirection().getOpposite());
-                    nextPipe.queued.add(item);
-                    nextPipe.routeItem(item);
-                    nextPipe.addQueuedItems();
+                    nextPipe.contents.add(item);
                     iterator.remove();
                     level.sendBlockUpdated(nextPipe.worldPosition, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
                     nextPipe.setChanged();
@@ -85,12 +78,20 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                         // Bounce the remaining items backwards.
                         item.setStack(stack);
                         item.resetProgress(item.getTargetDirection());
-                        this.routeItem(state, item);
                     } else {
                         iterator.remove();
                     }
                 }
                 level.sendBlockUpdated(pos, state, state, 2);
+            } else if (item.getProgress() >= ItemInPipe.HALFWAY) {
+                if (item.isEjecting()) {
+                    this.routeItem(item);
+                    if (item.isEjecting()) {
+                        iterator.remove();
+                        this.eject(level, pos, item);
+                    }
+                    level.sendBlockUpdated(pos, state, state, 2);
+                }
             }
         }
         this.setChanged();
@@ -126,23 +127,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 ItemInPipe item = iterator.next();
-                if (!wasConnected) {
-                    this.routeItem(state, item);
-                } else {
-                    if (item.getFromDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY) {
+                if (wasConnected) {
+                    if ((item.getFromDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY) || (item.getTargetDirection() == direction && item.getProgress() >= ItemInPipe.HALFWAY)) {
                         iterator.remove();
                         item.drop(level, pos);
-                    } else if (item.getTargetDirection() == direction) {
-                        if (item.getProgress() < ItemInPipe.HALFWAY) {
-                            this.routeItem(state, item);
-                        } else {
-                            iterator.remove();
-                            item.drop(level, pos);
-                        }
                     }
                 }
             }
-            this.addQueuedItems();
             this.setChanged();
             level.sendBlockUpdated(pos, state, state, 2);
         }
@@ -187,9 +178,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         if (level instanceof ServerLevel serverLevel && !stack.isEmpty()) {
             Direction direction = Direction.from3DDataValue(slot);
             ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
-            this.queued.add(item);
-            this.routeItem(item);
-            this.addQueuedItems();
+            this.contents.add(item);
             serverLevel.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
         }
         this.setChanged();
