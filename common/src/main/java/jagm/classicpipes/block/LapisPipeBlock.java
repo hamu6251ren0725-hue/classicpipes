@@ -24,16 +24,18 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class LapisPipeBlock extends AbstractPipeBlock {
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
 
     public LapisPipeBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.DOWN));
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.DOWN).setValue(ATTACHED, false));
     }
 
     @Override
@@ -49,7 +51,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING);
+        builder.add(FACING, ATTACHED);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
         if (state != null) {
             for (Direction direction : Direction.values()) {
                 if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && isContainerAt(context.getLevel(), context.getClickedPos().relative(direction), direction)) {
-                    return state.setValue(FACING, direction);
+                    return state.setValue(FACING, direction).setValue(ATTACHED, true);
                 }
             }
         }
@@ -71,11 +73,11 @@ public class LapisPipeBlock extends AbstractPipeBlock {
         Direction d = superState.getValue(FACING);
         for (int i = 0; i < 6; i++) {
             if (superState.getValue(PROPERTY_BY_DIRECTION.get(d)) && isContainerAt((Level) level, pos.relative(d), d)) {
-                return superState.setValue(FACING, d);
+                return superState.setValue(FACING, d).setValue(ATTACHED, true);
             }
             d = MiscUtil.nextDirection(d);
         }
-        return superState;
+        return superState.setValue(ATTACHED, false);
     }
 
     @Override
@@ -84,7 +86,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
             for (int i = 0; i < 5; i++) {
                 if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && isContainerAt(level, pos.relative(direction), direction)) {
-                    BlockState newState = state.setValue(FACING, direction);
+                    BlockState newState = state.setValue(FACING, direction).setValue(ATTACHED, true);
                     level.setBlock(pos, newState, 3);
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
