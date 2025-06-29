@@ -22,9 +22,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -34,9 +32,9 @@ public class ClassicPipes {
     public static final String MOD_NAME = "Classic Pipes";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-    public static final HashMap<String, Item> ITEMS = new HashMap<>();
-    public static final HashMap<String, Block> BLOCKS = new HashMap<>();
-    public static final HashMap<String, SoundEvent> SOUNDS = new HashMap<>();
+    public static final Map<String, Item> ITEMS = new LinkedHashMap<>();
+    public static final Map<String, Block> BLOCKS = new LinkedHashMap<>();
+    public static final Map<String, SoundEvent> SOUNDS = new LinkedHashMap<>();
 
     public static final List<Block> TRANSPARENT_BLOCKS = new ArrayList<>();
     private static final List<Block> BASIC_PIPES = new ArrayList<>();
