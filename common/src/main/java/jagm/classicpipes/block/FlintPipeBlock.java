@@ -1,6 +1,7 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.FlintPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -23,6 +24,11 @@ public class FlintPipeBlock extends AbstractPipeBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return blockEntityType == ClassicPipes.FLINT_PIPE_ENTITY ? FlintPipeEntity::tick : null;
+    }
+
+    @Override
+    protected boolean canConnectToPipe(AbstractPipeEntity pipe){
+        return pipe.getBlockState().getBlock() != this;
     }
 
 }

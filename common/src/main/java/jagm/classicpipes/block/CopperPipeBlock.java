@@ -142,4 +142,9 @@ public class CopperPipeBlock extends AbstractPipeBlock {
         this.checkPoweredState(level, pos, state);
     }
 
+    @Override
+    protected boolean canConnectToPipe(AbstractPipeEntity pipe){
+        return pipe.getBlockState().getBlock() != this;
+    }
+
 }
