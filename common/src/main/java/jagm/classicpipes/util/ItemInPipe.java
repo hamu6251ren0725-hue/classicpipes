@@ -2,6 +2,7 @@ package jagm.classicpipes.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import jagm.classicpipes.ClassicPipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -66,7 +67,7 @@ public class ItemInPipe {
 
     public void move(Level level, int targetSpeed, int acceleration) {
         if (this.createdThisTick) {
-            if ((level.getGameTime() % 2 == 0) == evenTick) {
+            if (((level.getGameTime() % 2 == 0) == level.isClientSide()) != this.evenTick) {
                 return;
             } else {
                 this.createdThisTick = false;
