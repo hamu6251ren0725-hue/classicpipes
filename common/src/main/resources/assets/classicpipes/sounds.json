@@ -6,5 +6,9 @@
   "pipe_adjust": {
     "subtitle": "subtitle.classicpipes.pipe_adjust",
     "sounds": [ "classicpipes:wrench" ]
+  },
+  "obsidian_pipe_destroy_item": {
+    "subtitle": "subtitle.classicpipes.obsidian_pipe_destroy_item",
+    "sounds": [ "minecraft:random/glass1", "minecraft:random/glass2", "minecraft:random/glass3" ]
   }
 }

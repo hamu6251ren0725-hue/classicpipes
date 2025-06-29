@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ObsidianPipeEntity extends AbstractPipeEntity {
@@ -21,6 +22,7 @@ public class ObsidianPipeEntity extends AbstractPipeEntity {
 
     @Override
     public void eject(ServerLevel level, BlockPos pos, ItemInPipe item) {
+        level.playSound(null, pos, ClassicPipes.OBSIDIAN_PIPE_DESTROY_ITEM, SoundSource.BLOCKS, 0.25F, 4.0F);
         for (int i = 0; i < 4; i++) {
             level.sendParticles(
                     new ItemParticleOption(ParticleTypes.ITEM, item.getStack()),

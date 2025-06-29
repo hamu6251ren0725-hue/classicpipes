@@ -31,6 +31,7 @@
   "itemGroup.classicpipes.pipes": "Classic Pipes",
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
   "subtitle.classicpipes.pipe_adjust": "Pipe adjusted",
+  "subtitle.classicpipes.obsidian_pipe_destroy_item": "Item destroyed",
   "container.classicpipes.diamond_pipe": "Item Routing",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
