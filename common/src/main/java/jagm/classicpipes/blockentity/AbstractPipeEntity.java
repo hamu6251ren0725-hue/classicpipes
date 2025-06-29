@@ -67,7 +67,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 } else if (container instanceof AbstractPipeEntity nextPipe) {
                     // Pass the item to the next pipe.
                     item.resetProgress(item.getTargetDirection().getOpposite());
-                    nextPipe.contents.add(item);
+                    nextPipe.insertPipeItem(item);
                     iterator.remove();
                     level.sendBlockUpdated(nextPipe.worldPosition, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
                     nextPipe.setChanged();
@@ -105,6 +105,10 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             }
             this.setChanged();
         }
+    }
+
+    protected void insertPipeItem(ItemInPipe item) {
+        this.contents.add(item);
     }
 
     protected void addQueuedItems() {
@@ -178,7 +182,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         if (level instanceof ServerLevel serverLevel && !stack.isEmpty()) {
             Direction direction = Direction.from3DDataValue(slot);
             ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
-            this.contents.add(item);
+            this.insertPipeItem(item);
             serverLevel.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
         }
         this.setChanged();

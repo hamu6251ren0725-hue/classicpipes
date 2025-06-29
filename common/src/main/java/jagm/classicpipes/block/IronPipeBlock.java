@@ -28,8 +28,8 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class IronPipeBlock extends AbstractPipeBlock {
 
-    public static final EnumProperty<Direction> FACING_PRIMARY = EnumProperty.create("primary", Direction.class, new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN});
-    public static final EnumProperty<Direction> FACING_SECONDARY = EnumProperty.create("secondary", Direction.class, new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN});
+    public static final EnumProperty<Direction> FACING_PRIMARY = EnumProperty.create("primary", Direction.class, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN);
+    public static final EnumProperty<Direction> FACING_SECONDARY = EnumProperty.create("secondary", Direction.class, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN);
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
     public IronPipeBlock(Properties properties) {
@@ -84,7 +84,7 @@ public class IronPipeBlock extends AbstractPipeBlock {
                 }
             }
         }
-        return this.defaultBlockState();
+        return state;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class IronPipeBlock extends AbstractPipeBlock {
         return superState;
     }
 
-        @Override
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (player.getAbilities().mayBuild) {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING_PRIMARY));
