@@ -58,7 +58,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         ListIterator<ItemInPipe> iterator = this.contents.listIterator();
         while (iterator.hasNext()) {
             ItemInPipe item = iterator.next();
-            item.move(this.getTargetSpeed(), this.getAcceleration());
+            item.move(level, this.getTargetSpeed(), this.getAcceleration());
             if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                 Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
                 if (container == null) {
@@ -67,7 +67,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 } else if (container instanceof AbstractPipeEntity nextPipe) {
                     // Pass the item to the next pipe.
                     item.resetProgress(item.getTargetDirection().getOpposite());
-                    nextPipe.insertPipeItem(item);
+                    nextPipe.insertPipeItem(level, item);
                     iterator.remove();
                     level.sendBlockUpdated(nextPipe.worldPosition, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
                     nextPipe.setChanged();
@@ -101,13 +101,15 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     public void tickClient(Level level, BlockPos pos, BlockState state) {
         if (!this.isEmpty()) {
             for (ItemInPipe item : this.contents) {
-                item.move(this.getTargetSpeed(), this.getAcceleration());
+                item.move(level, this.getTargetSpeed(), this.getAcceleration());
             }
             this.setChanged();
         }
     }
 
-    protected void insertPipeItem(ItemInPipe item) {
+    protected void insertPipeItem(Level level, ItemInPipe item) {
+        item.setCreatedThisTick(true);
+        item.setEvenTick(level.getGameTime() % 2 == 0);
         this.contents.add(item);
     }
 
@@ -182,7 +184,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         if (level instanceof ServerLevel serverLevel && !stack.isEmpty()) {
             Direction direction = Direction.from3DDataValue(slot);
             ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
-            this.insertPipeItem(item);
+            this.insertPipeItem(serverLevel, item);
             serverLevel.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
         }
         this.setChanged();
