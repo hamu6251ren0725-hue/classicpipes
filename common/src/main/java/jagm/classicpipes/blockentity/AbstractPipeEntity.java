@@ -59,6 +59,16 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         while (iterator.hasNext()) {
             ItemInPipe item = iterator.next();
             item.move(level, this.getTargetSpeed(), this.getAcceleration());
+            if (item.getProgress() >= ItemInPipe.HALFWAY) {
+                if (item.isEjecting()) {
+                    this.routeItem(item);
+                    if (item.isEjecting()) {
+                        iterator.remove();
+                        this.eject(level, pos, item);
+                    }
+                    level.sendBlockUpdated(pos, state, state, 2);
+                }
+            }
             if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                 Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
                 if (container == null) {
@@ -83,15 +93,6 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                     }
                 }
                 level.sendBlockUpdated(pos, state, state, 2);
-            } else if (item.getProgress() >= ItemInPipe.HALFWAY) {
-                if (item.isEjecting()) {
-                    this.routeItem(item);
-                    if (item.isEjecting()) {
-                        iterator.remove();
-                        this.eject(level, pos, item);
-                    }
-                    level.sendBlockUpdated(pos, state, state, 2);
-                }
             }
         }
         this.setChanged();
