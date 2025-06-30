@@ -1,15 +1,14 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.CopperPipeEntity;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -61,60 +60,42 @@ public class CopperPipeBlock extends AbstractPipeBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction directionWithContainer = Direction.DOWN;
-        boolean attached = false;
-        for (Direction direction : Direction.values()) {
-            Container container = getBlockContainer(context.getLevel(), context.getClickedPos().relative(direction));
-            if (container != null) {
-                if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, direction)) {
-                    directionWithContainer = direction;
-                    attached = true;
-                    break;
-                }
-            }
-        }
         BlockState superState = super.getStateForPlacement(context);
         if (superState != null) {
-            return superState
-                .trySetValue(FACING, directionWithContainer)
-                .trySetValue(ATTACHED, attached)
-                .trySetValue(ENABLED, false);
+            for (Direction direction : Direction.values()) {
+                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer(context.getLevel(), context.getClickedPos().relative(direction), direction.getOpposite())) {
+                    return superState.trySetValue(FACING, direction).trySetValue(ATTACHED, true);
+                }
+            }
+            return superState.trySetValue(ATTACHED, false);
         }
         return this.defaultBlockState();
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        Direction d = state.getValue(FACING);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pipePos, Direction initialDirection, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        BlockState superState = super.updateShape(state, level, scheduledTickAccess, pipePos, initialDirection, neighborPos, neighborState, random);
+        Direction direction = state.getValue(FACING);
         for (int i = 0; i < 6; i++) {
-            Container container = getBlockContainer((Level) level, pos.relative(d));
-            if (container != null) {
-                if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, d)) {
-                    BlockState newState = state.setValue(FACING, d).setValue(ATTACHED, true);
-                    return super.updateShape(newState, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-                }
+            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer((Level) level, pipePos.relative(direction), direction.getOpposite())) {
+                return superState.setValue(FACING, direction).setValue(ATTACHED, true);
             }
-            d = MiscUtil.nextDirection(d);
+            direction = MiscUtil.nextDirection(direction);
         }
-        BlockState newState = state.setValue(FACING, Direction.DOWN).setValue(ATTACHED, false);
-        return super.updateShape(newState, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
+        return superState.setValue(ATTACHED, false);
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pipePos, Player player, BlockHitResult hitResult) {
         if (player.getAbilities().mayBuild) {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
             for (int i = 0; i < 5; i++) {
-                Container container = getBlockContainer(level, pos.relative(direction));
-                if (container != null) {
-                    if (!(container instanceof AbstractPipeEntity) && this.canConnect(container, direction)) {
-                        BlockState newState = state.setValue(FACING, direction).setValue(ATTACHED, true);
-                        level.setBlock(pos, newState, 3);
-                        if (level instanceof ServerLevel serverLevel) {
-                            serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
-                        }
-                        return InteractionResult.SUCCESS;
+                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer(level, pipePos.relative(direction), direction.getOpposite())) {
+                    level.setBlock(pipePos, state.setValue(FACING, direction).setValue(ATTACHED, true), 3);
+                    if (level instanceof ServerLevel serverLevel) {
+                        serverLevel.playSound(null, pipePos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
+                    return InteractionResult.SUCCESS;
                 }
                 direction = MiscUtil.nextDirection(direction);
             }
@@ -143,8 +124,8 @@ public class CopperPipeBlock extends AbstractPipeBlock {
     }
 
     @Override
-    protected boolean canConnectToPipe(AbstractPipeEntity pipe){
-        return pipe.getBlockState().getBlock() != this;
+    protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){
+        return pipeBlock != this;
     }
 
 }

@@ -3,19 +3,16 @@ package jagm.classicpipes.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -67,64 +64,40 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
         });
     }
 
-    protected boolean canConnect(Container container, Direction direction) {
-        if (container != null) {
-            if (container instanceof AbstractPipeEntity pipe) {
-                return this.canConnectToPipe(pipe);
-            } else if (container instanceof WorldlyContainer worldlyContainer) {
-                return worldlyContainer.getSlotsForFace(direction.getOpposite()).length > 0;
-            } else {
-                return true;
-            }
+    protected boolean canConnect(Level level, BlockPos pipePos, Direction direction) {
+        BlockPos neighbourPos = pipePos.relative(direction);
+        if (level.getBlockState(neighbourPos).getBlock() instanceof AbstractPipeBlock pipeBlock) {
+            return this.canConnectToPipe(pipeBlock);
         }
-        return false;
+        return Services.BLOCK_ENTITY_HELPER.canAccessContainer(level, neighbourPos, direction.getOpposite());
     }
 
-    protected boolean canConnectToPipe(AbstractPipeEntity pipe){
+    protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){
         return true;
-    }
-
-    public static Container getBlockContainer(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        Block block = state.getBlock();
-        if (block instanceof WorldlyContainerHolder) {
-            return ((WorldlyContainerHolder)block).getContainer(state, level, pos);
-        } else {
-            if (state.hasBlockEntity()) {
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                if (blockEntity instanceof Container container) {
-                    if (container instanceof ChestBlockEntity && block instanceof ChestBlock) {
-                        container = ChestBlock.getContainer((ChestBlock)block, state, level, pos, true);
-                    }
-                    return container;
-                }
-            }
-            return null;
-        }
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-                .trySetValue(NORTH, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().north()), Direction.NORTH))
-                .trySetValue(EAST, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().east()), Direction.EAST))
-                .trySetValue(SOUTH, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().south()), Direction.SOUTH))
-                .trySetValue(WEST, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().west()), Direction.WEST))
-                .trySetValue(UP, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().above()), Direction.UP))
-                .trySetValue(DOWN, this.canConnect(getBlockContainer(context.getLevel(), context.getClickedPos().below()), Direction.DOWN))
+                .trySetValue(NORTH, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.NORTH))
+                .trySetValue(EAST, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.EAST))
+                .trySetValue(SOUTH, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.SOUTH))
+                .trySetValue(WEST, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.WEST))
+                .trySetValue(UP, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.UP))
+                .trySetValue(DOWN, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.DOWN))
                 .trySetValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pipePos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         if (state.getValue(WATERLOGGED)) {
-            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            scheduledTickAccess.scheduleTick(pipePos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         boolean wasConnected = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
-        boolean willConnect = this.canConnect(getBlockContainer((Level) level, neighborPos), direction);
+        boolean willConnect = this.canConnect((Level) level, pipePos, direction);
         BlockState newState = state.setValue(PROPERTY_BY_DIRECTION.get(direction), willConnect);
-        if (wasConnected != willConnect && level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe && level instanceof ServerLevel serverLevel) {
-            pipe.update(serverLevel, newState, pos, direction, wasConnected);
+        if (wasConnected != willConnect && level.getBlockEntity(pipePos) instanceof AbstractPipeEntity pipe && level instanceof ServerLevel serverLevel) {
+            pipe.update(serverLevel, newState, pipePos, direction, wasConnected);
         }
         return newState;
     }

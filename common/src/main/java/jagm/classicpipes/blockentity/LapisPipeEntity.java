@@ -24,7 +24,7 @@ public class LapisPipeEntity extends RoundRobinPipeEntity {
     }
 
     @Override
-    protected void insertPipeItem(Level level, ItemInPipe item) {
+    public void insertPipeItem(Level level, ItemInPipe item) {
         this.entryDirection = item.getFromDirection();
         super.insertPipeItem(level, item);
     }

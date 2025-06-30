@@ -74,30 +74,27 @@ public class IronPipeBlock extends AbstractPipeBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        BlockState state = super.getStateForPlacement(context);
-        if (state != null) {
+        BlockState superState = super.getStateForPlacement(context);
+        if (superState != null) {
             for (Direction direction : Direction.values()) {
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
-                    state = state.setValue(FACING_PRIMARY, direction);
-                    state = state.setValue(FACING_SECONDARY, getSecondaryDirection(direction, state));
-                    return state;
+                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
+                    return superState.trySetValue(FACING_PRIMARY, direction).trySetValue(FACING_SECONDARY, getSecondaryDirection(direction, superState));
                 }
             }
+            return superState;
         }
-        return state;
+        return this.defaultBlockState();
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        BlockState superState = super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-        Direction d = superState.getValue(FACING_PRIMARY);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pipePos, Direction initialDirection, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        BlockState superState = super.updateShape(state, level, scheduledTickAccess, pipePos, initialDirection, neighborPos, neighborState, random);
+        Direction direction = superState.getValue(FACING_PRIMARY);
         for (int i = 0; i < 6; i++) {
-            if (superState.getValue(PROPERTY_BY_DIRECTION.get(d))) {
-                superState = superState.setValue(FACING_PRIMARY, d);
-                superState = superState.setValue(FACING_SECONDARY, getSecondaryDirection(d, superState));
-                return superState;
+            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
+                return superState.setValue(FACING_PRIMARY, direction).setValue(FACING_SECONDARY, getSecondaryDirection(direction, superState));
             }
-            d = MiscUtil.nextDirection(d);
+            direction = MiscUtil.nextDirection(direction);
         }
         return superState;
     }
@@ -108,8 +105,7 @@ public class IronPipeBlock extends AbstractPipeBlock {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING_PRIMARY));
             for (int i = 0; i < 5; i++) {
                 if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
-                    BlockState newState = state.setValue(FACING_PRIMARY, direction).setValue(FACING_SECONDARY, getSecondaryDirection(direction, state));
-                    level.setBlock(pos, newState, 3);
+                    level.setBlock(pos, state.setValue(FACING_PRIMARY, direction).setValue(FACING_SECONDARY, getSecondaryDirection(direction, state)), 3);
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }

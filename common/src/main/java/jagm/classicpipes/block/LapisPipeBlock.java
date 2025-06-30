@@ -1,17 +1,15 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.LapisPipeEntity;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -56,40 +54,40 @@ public class LapisPipeBlock extends AbstractPipeBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        BlockState state = super.getStateForPlacement(context);
-        if (state != null) {
+        BlockState superState = super.getStateForPlacement(context);
+        if (superState != null) {
             for (Direction direction : Direction.values()) {
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && isContainerAt(context.getLevel(), context.getClickedPos().relative(direction), direction)) {
-                    return state.setValue(FACING, direction).setValue(ATTACHED, true);
+                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer(context.getLevel(), context.getClickedPos().relative(direction), direction.getOpposite())) {
+                    return superState.trySetValue(FACING, direction).trySetValue(ATTACHED, true);
                 }
             }
+            return superState.trySetValue(FACING, Direction.DOWN).trySetValue(ATTACHED, false);
         }
-        return state;
+        return this.defaultBlockState();
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
-        BlockState superState = super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, random);
-        Direction d = superState.getValue(FACING);
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pipePos, Direction initialDirection, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
+        BlockState superState = super.updateShape(state, level, scheduledTickAccess, pipePos, initialDirection, neighborPos, neighborState, random);
+        Direction direction = superState.getValue(FACING);
         for (int i = 0; i < 6; i++) {
-            if (superState.getValue(PROPERTY_BY_DIRECTION.get(d)) && isContainerAt((Level) level, pos.relative(d), d)) {
-                return superState.setValue(FACING, d).setValue(ATTACHED, true);
+            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer((Level) level, pipePos.relative(direction), direction.getOpposite())) {
+                return superState.setValue(FACING, direction).setValue(ATTACHED, true);
             }
-            d = MiscUtil.nextDirection(d);
+            direction = MiscUtil.nextDirection(direction);
         }
         return superState.setValue(ATTACHED, false);
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pipePos, Player player, BlockHitResult hitResult) {
         if (player.getAbilities().mayBuild) {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
             for (int i = 0; i < 5; i++) {
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && isContainerAt(level, pos.relative(direction), direction)) {
-                    BlockState newState = state.setValue(FACING, direction).setValue(ATTACHED, true);
-                    level.setBlock(pos, newState, 3);
+                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer(level, pipePos.relative(direction), direction.getOpposite())) {
+                    level.setBlock(pipePos, state.setValue(FACING, direction).setValue(ATTACHED, true), 3);
                     if (level instanceof ServerLevel serverLevel) {
-                        serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
+                        serverLevel.playSound(null, pipePos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
                     return InteractionResult.SUCCESS;
                 }
@@ -97,18 +95,6 @@ public class LapisPipeBlock extends AbstractPipeBlock {
             }
         }
         return InteractionResult.PASS;
-    }
-
-    private static boolean isContainerAt(Level level, BlockPos pos, Direction direction) {
-        Container container = getBlockContainer(level, pos);
-        if (container != null && !(container instanceof AbstractPipeEntity)) {
-            if (container instanceof WorldlyContainer worldlyContainer) {
-                return worldlyContainer.getSlotsForFace(direction.getOpposite()).length > 0;
-            } else {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

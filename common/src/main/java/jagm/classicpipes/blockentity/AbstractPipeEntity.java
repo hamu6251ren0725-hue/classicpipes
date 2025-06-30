@@ -2,6 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -52,51 +52,31 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
-        if (this.isEmpty()) {
-            return;
-        }
-        ListIterator<ItemInPipe> iterator = this.contents.listIterator();
-        while (iterator.hasNext()) {
-            ItemInPipe item = iterator.next();
-            item.move(level, this.getTargetSpeed(), this.getAcceleration());
-            if (item.getProgress() >= ItemInPipe.HALFWAY) {
-                if (item.isEjecting()) {
-                    this.routeItem(item);
+        if (!this.isEmpty()) {
+            ListIterator<ItemInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                ItemInPipe item = iterator.next();
+                item.move(level, this.getTargetSpeed(), this.getAcceleration());
+                if (item.getProgress() >= ItemInPipe.HALFWAY) {
                     if (item.isEjecting()) {
+                        this.routeItem(item);
+                        if (item.isEjecting()) {
+                            iterator.remove();
+                            this.eject(level, pos, item);
+                        }
+                        level.sendBlockUpdated(pos, state, state, 2);
+                    }
+                }
+                if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
+                    if (Services.BLOCK_ENTITY_HELPER.handleItemInsertion(level, pos, item)) {
                         iterator.remove();
-                        this.eject(level, pos, item);
                     }
                     level.sendBlockUpdated(pos, state, state, 2);
                 }
             }
-            if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
-                Container container = AbstractPipeBlock.getBlockContainer(level, pos.relative(item.getTargetDirection()));
-                if (container == null) {
-                    // Bounce the item backwards.
-                    item.resetProgress(item.getTargetDirection());
-                } else if (container instanceof AbstractPipeEntity nextPipe) {
-                    // Pass the item to the next pipe.
-                    item.resetProgress(item.getTargetDirection().getOpposite());
-                    nextPipe.insertPipeItem(level, item);
-                    iterator.remove();
-                    level.sendBlockUpdated(nextPipe.worldPosition, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
-                    nextPipe.setChanged();
-                } else {
-                    // HopperBlockEntity.addItem returns the stack of items that was not able to be added to the container.
-                    ItemStack stack = HopperBlockEntity.addItem(this, container, item.getStack(), item.getTargetDirection().getOpposite());
-                    if (!stack.isEmpty()) {
-                        // Bounce the remaining items backwards.
-                        item.setStack(stack);
-                        item.resetProgress(item.getTargetDirection());
-                    } else {
-                        iterator.remove();
-                    }
-                }
-                level.sendBlockUpdated(pos, state, state, 2);
-            }
+            this.setChanged();
+            this.addQueuedItems();
         }
-        this.setChanged();
-        this.addQueuedItems();
     }
 
     public void tickClient(Level level, BlockPos pos, BlockState state) {
@@ -108,10 +88,11 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
     }
 
-    protected void insertPipeItem(Level level, ItemInPipe item) {
+    public void insertPipeItem(Level level, ItemInPipe item) {
         item.setCreatedThisTick(true);
         item.setEvenTick(level.getGameTime() % 2 == 0);
         this.contents.add(item);
+        this.setChanged();
     }
 
     protected void addQueuedItems() {
@@ -182,11 +163,11 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        if (level instanceof ServerLevel serverLevel && !stack.isEmpty()) {
+        if (this.getLevel() instanceof ServerLevel serverLevel && !stack.isEmpty()) {
             Direction direction = Direction.from3DDataValue(slot);
             ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
             this.insertPipeItem(serverLevel, item);
-            serverLevel.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
+            serverLevel.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
         }
         this.setChanged();
     }
