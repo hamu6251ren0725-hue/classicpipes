@@ -6,14 +6,17 @@ import jagm.classicpipes.inventory.DiamondPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -51,15 +54,14 @@ public class ClassicPipes {
     public static final Block BAMBOO_PIPE = createWoodenPipe("bamboo_pipe");
     public static final Block CRIMSON_PIPE = createWoodenPipe("crimson_pipe");
     public static final Block WARPED_PIPE = createWoodenPipe("warped_pipe");
-
-    public static final Block GOLDEN_PIPE = createPipe("golden_pipe", "golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
-    public static final Block COPPER_PIPE = createPipe("copper_pipe", "copper_pipe", CopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
-    public static final Block IRON_PIPE = createPipe("iron_pipe", "iron_pipe", IronPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER));
-    public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", "diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB));
-    public static final Block FLINT_PIPE = createPipe("flint_pipe", "flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS));
-    public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", "brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS));
-    public static final Block LAPIS_PIPE = createPipe("lapis_pipe", "lapis_pipe", LapisPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB));
-    public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", "obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS));
+    public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("golden_pipe"));
+    public static final Block COPPER_PIPE = createPipe("copper_pipe", CopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("copper_pipe"));
+    public static final Block IRON_PIPE = createPipe("iron_pipe", IronPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("iron_pipe"));
+    public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB), translateDesc("diamond_pipe"));
+    public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("flint_pipe"));
+    public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("brick_pipe"));
+    public static final Block LAPIS_PIPE = createPipe("lapis_pipe", LapisPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB), translateDesc("lapis_pipe"));
+    public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("obsidian_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
@@ -79,45 +81,45 @@ public class ClassicPipes {
 
     public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(DiamondPipeMenu::new, FeatureFlags.DEFAULT_FLAGS);
 
-    private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props) {
+    private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
+        if (lore.length > 0) {
+            props.component(DataComponents.LORE, new ItemLore(List.of(), Arrays.asList(lore)));
+        }
         Item item = factory.apply(props.setId(MiscUtil.makeKey(Registries.ITEM, name)));
         ITEMS.put(name, item);
     }
 
-    private static Block createBlock(String name, String desc, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props) {
+    private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
         Block block = factory.apply(props.setId(MiscUtil.makeKey(Registries.BLOCK, name)));
         BLOCKS.put(name, block);
-        createItem(name, itemProps -> new BlockItem(block, itemProps) {
-
-            @Override
-            public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipAdder, TooltipFlag flag) {
-                tooltipAdder.accept(Component.translatable("item." + MOD_ID + "." + desc + ".desc").withStyle(ChatFormatting.GRAY));
-            }
-
-        }, new Item.Properties());
+        createItem(name, itemProps -> new BlockItem(block, itemProps), new Item.Properties(), lore);
         return block;
     }
 
-    private static Block createPipe(String name, String desc, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props) {
-        Block pipe = createBlock(name, desc, factory, props.noOcclusion());
+    private static Block createPipe(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
+        Block pipe = createBlock(name, factory, props.noOcclusion(), lore);
         TRANSPARENT_BLOCKS.add(pipe);
         return pipe;
     }
 
-    private static Block createBasicPipe(String name, String desc, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props) {
-        Block pipe = createPipe(name, desc, factory, props);
+    private static Block createBasicPipe(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
+        Block pipe = createPipe(name, factory, props, lore);
         BASIC_PIPES.add(pipe);
         return pipe;
     }
 
     private static Block createWoodenPipe(String name) {
-        return createBasicPipe(name, "wooden_pipe", WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING));
+        return createBasicPipe(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING), translateDesc("wooden_pipe"));
     }
 
     private static SoundEvent createSoundEvent(String name) {
         SoundEvent soundEvent = SoundEvent.createVariableRangeEvent(MiscUtil.resourceLocation(name));
         SOUNDS.put(name, soundEvent);
         return soundEvent;
+    }
+
+    private static Component translateDesc(String desc) {
+        return Component.translatable("item." + MOD_ID + "." + desc + ".desc").withStyle(ChatFormatting.GRAY);
     }
 
 }

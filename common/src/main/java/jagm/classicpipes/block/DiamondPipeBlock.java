@@ -1,7 +1,6 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.DiamondPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
