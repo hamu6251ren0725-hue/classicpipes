@@ -90,4 +90,8 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
         return new DiamondPipeMenu(id, playerInventory, filter);
     }
 
+    public ItemFilterContainer getFilter() {
+        return filter;
+    }
+
 }

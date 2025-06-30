@@ -1,10 +1,13 @@
 package jagm.classicpipes.inventory;
 
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -110,6 +113,18 @@ public class ItemFilterContainer implements Container {
     public void clearContent() {
         for (Direction direction : Direction.values()) {
             filterMap.put(direction, NonNullList.withSize(FILTER_SIZE, ItemStack.EMPTY));
+        }
+    }
+
+    public void dropAllItems(ServerLevel level, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            for (ItemStack stack : filterMap.get(direction)) {
+                if (!stack.isEmpty()) {
+                    ItemEntity droppedItem = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), stack);
+                    droppedItem.setDefaultPickUpDelay();
+                    level.addFreshEntity(droppedItem);
+                }
+            }
         }
     }
 
