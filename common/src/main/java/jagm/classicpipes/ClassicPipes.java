@@ -10,14 +10,13 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -26,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ClassicPipes {
@@ -54,13 +52,13 @@ public class ClassicPipes {
     public static final Block BAMBOO_PIPE = createWoodenPipe("bamboo_pipe");
     public static final Block CRIMSON_PIPE = createWoodenPipe("crimson_pipe");
     public static final Block WARPED_PIPE = createWoodenPipe("warped_pipe");
-    public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("golden_pipe"));
     public static final Block COPPER_PIPE = createPipe("copper_pipe", CopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("copper_pipe"));
     public static final Block IRON_PIPE = createPipe("iron_pipe", IronPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("iron_pipe"));
+    public static final Block LAPIS_PIPE = createPipe("lapis_pipe", LapisPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB), translateDesc("lapis_pipe"));
+    public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("golden_pipe"));
     public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB), translateDesc("diamond_pipe"));
     public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("flint_pipe"));
     public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("brick_pipe"));
-    public static final Block LAPIS_PIPE = createPipe("lapis_pipe", LapisPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB), translateDesc("lapis_pipe"));
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("obsidian_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
@@ -89,15 +87,15 @@ public class ClassicPipes {
         ITEMS.put(name, item);
     }
 
-    private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
+    private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, boolean fashionable, Component... lore) {
         Block block = factory.apply(props.setId(MiscUtil.makeKey(Registries.BLOCK, name)));
         BLOCKS.put(name, block);
-        createItem(name, itemProps -> new BlockItem(block, itemProps), new Item.Properties(), lore);
+        createItem(name, itemProps -> new BlockItem(block, itemProps), fashionable ? new Item.Properties().equippableUnswappable(EquipmentSlot.HEAD) : new Item.Properties(), lore);
         return block;
     }
 
     private static Block createPipe(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
-        Block pipe = createBlock(name, factory, props.noOcclusion(), lore);
+        Block pipe = createBlock(name, factory, props.noOcclusion(), true, lore);
         TRANSPARENT_BLOCKS.add(pipe);
         return pipe;
     }
