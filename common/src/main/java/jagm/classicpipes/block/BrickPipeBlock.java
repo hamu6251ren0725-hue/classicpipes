@@ -28,7 +28,7 @@ public class BrickPipeBlock extends AbstractPipeBlock {
 
     @Override
     protected boolean canConnect(Level level, BlockPos pipePos, Direction direction) {
-        if (level.getBlockState(pipePos).getBlock() instanceof AbstractPipeBlock pipeBlock) {
+        if (level.getBlockState(pipePos.relative(direction)).getBlock() instanceof AbstractPipeBlock pipeBlock) {
             return this.canConnectToPipe(pipeBlock);
         }
         return false;
