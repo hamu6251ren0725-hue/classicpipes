@@ -2,6 +2,7 @@ package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.DiamondPipeEntity;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -31,10 +32,13 @@ public class DiamondPipeBlock extends AbstractPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof DiamondPipeEntity diamondPipe) {
-            player.openMenu(diamondPipe);
+        if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
+            if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof DiamondPipeEntity diamondPipe) {
+                player.openMenu(diamondPipe);
+            }
+            return InteractionResult.SUCCESS;
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override

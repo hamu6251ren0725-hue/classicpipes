@@ -101,7 +101,7 @@ public class IronPipeBlock extends AbstractPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (player.getAbilities().mayBuild) {
+        if (player.getAbilities().mayBuild && !MiscUtil.itemIsPipe(player.getMainHandItem())) {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING_PRIMARY));
             for (int i = 0; i < 5; i++) {
                 if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
