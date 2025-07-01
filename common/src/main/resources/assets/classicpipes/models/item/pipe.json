@@ -4,7 +4,7 @@
   "gui_light": "front",
   "display": {
     "gui": {
-      "rotation": [30, 45, 0],
+      "rotation": [25, 45, 0],
       "scale": [0.75, 0.75, 0.75]
     },
     "ground": {

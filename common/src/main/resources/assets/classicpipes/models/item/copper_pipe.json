@@ -3,6 +3,7 @@
   "textures": {
     "texture": "classicpipes:block/copper_pipe",
     "enabled": "classicpipes:block/copper_pipe_enabled",
+    "interior": "minecraft:block/copper_block",
     "particle": "classicpipes:block/copper_pipe"
   },
   "elements": [
@@ -40,10 +41,10 @@
       "from": [ 12, 4, 12 ],
       "to": [ 4, 0, 4 ],
       "faces": {
-        "north": { "texture": "#texture"},
-        "south": { "texture": "#texture"},
-        "east": { "texture": "#texture"},
-        "west": { "texture": "#texture"}
+        "north": { "texture": "#interior"},
+        "south": { "texture": "#interior"},
+        "east": { "texture": "#interior"},
+        "west": { "texture": "#interior"}
       }
     }
   ]
