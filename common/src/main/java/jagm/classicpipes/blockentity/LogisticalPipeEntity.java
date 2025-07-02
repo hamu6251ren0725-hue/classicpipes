@@ -1,0 +1,98 @@
+package jagm.classicpipes.blockentity;
+
+import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.util.ItemInPipe;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+
+import java.util.*;
+
+public class LogisticalPipeEntity extends RoundRobinPipeEntity {
+
+    private final Map<Direction, Tuple<LogisticalPipeEntity, Integer>> connectedLogisticalPipes;
+    private final Map<ItemStack, Direction> routingSchedule;
+
+    public LogisticalPipeEntity(BlockPos pos, BlockState state) {
+        super(ClassicPipes.LOGISTICAL_PIPE_ENTITY, pos, state);
+        this.connectedLogisticalPipes = new HashMap<>();
+        this.routingSchedule = new HashMap<>();
+    }
+
+    @Override
+    public void routeItem(BlockState state, ItemInPipe item) {
+        Iterator<ItemStack> iterator = routingSchedule.keySet().iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            if (stack.equals(item.getStack())) {
+                item.setEjecting(false);
+                item.setTargetDirection(routingSchedule.get(stack));
+                iterator.remove();
+                return;
+            }
+        }
+        super.routeItem(state, item);
+    }
+
+    public void schedule(ItemStack stack, Direction direction) {
+        routingSchedule.put(stack, direction);
+    }
+
+    public void schedulePath(ItemStack stack, LogisticalPipeEntity target) {
+        Map<LogisticalPipeEntity, Tuple<LogisticalPipeEntity, Direction>> cameFrom = new HashMap<>();
+        Map<LogisticalPipeEntity, Integer> gScore = new HashMap<>();
+        gScore.put(this, 0);
+        Map<LogisticalPipeEntity, Integer> fScore = new HashMap<>();
+        fScore.put(this, 0);
+        PriorityQueue<LogisticalPipeEntity> openSet = new PriorityQueue<>(Comparator.comparingInt(fScore::get));
+        openSet.add(this);
+        while (!openSet.isEmpty()) {
+            LogisticalPipeEntity current = openSet.poll();
+            if (current == target) {
+                while (cameFrom.containsKey(current)) {
+                    Tuple<LogisticalPipeEntity, Direction> tuple = cameFrom.get(current);
+                    tuple.getA().schedule(stack, tuple.getB());
+                    current = tuple.getA();
+                }
+            }
+            for (Direction side : current.connectedLogisticalPipes.keySet()) {
+                Tuple<LogisticalPipeEntity, Integer> edge = current.connectedLogisticalPipes.get(side);
+                LogisticalPipeEntity neighbour = edge.getA();
+                int newScore = gScore.get(current) + edge.getB();
+                if (newScore < gScore.get(neighbour)) {
+                    cameFrom.put(neighbour, new Tuple<>(current, side));
+                    gScore.put(neighbour, newScore);
+                    fScore.put(neighbour, newScore + this.worldPosition.distChessboard(neighbour.worldPosition));
+                    if (!openSet.contains(neighbour)) {
+                        openSet.add(neighbour);
+                    }
+                }
+            }
+        }
+    }
+
+    public int getTargetSpeed() {
+        return ItemInPipe.SPEED_LIMIT;
+    }
+
+    public int getAcceleration() {
+        return ItemInPipe.SPEED_LIMIT;
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput valueInput) {
+        super.loadAdditional(valueInput);
+        // TODO
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput valueOutput) {
+        super.saveAdditional(valueOutput);
+        // TODO
+    }
+
+}
