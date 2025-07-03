@@ -60,7 +60,7 @@ public class ClassicPipes {
     public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("flint_pipe"));
     public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("brick_pipe"));
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("obsidian_pipe"));
-    public static final Block NETHERITE_PIPE = createPipe("netherite_pipe", NetheritePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("netherite_pipe"));
+    public static final Block NETHERITE_PIPE = createPipe("netherite_pipe", NetheritePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("netherite_pipe.a"), translateDesc("netherite_pipe.b"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
