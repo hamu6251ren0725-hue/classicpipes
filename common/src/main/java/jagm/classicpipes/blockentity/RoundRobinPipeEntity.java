@@ -91,10 +91,12 @@ public class RoundRobinPipeEntity extends AbstractPipeEntity {
         }
     }
 
+    @Override
     public int getTargetSpeed() {
         return ItemInPipe.DEFAULT_SPEED;
     }
 
+    @Override
     public int getAcceleration() {
         return ItemInPipe.DEFAULT_ACCELERATION;
     }

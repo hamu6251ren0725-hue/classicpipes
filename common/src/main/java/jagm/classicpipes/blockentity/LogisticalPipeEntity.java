@@ -4,6 +4,7 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,12 +15,10 @@ import java.util.*;
 
 public class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
-    private final Map<Direction, Tuple<LogisticalPipeEntity, Integer>> connectedLogisticalPipes;
     private final Map<ItemStack, Direction> routingSchedule;
 
     public LogisticalPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.LOGISTICAL_PIPE_ENTITY, pos, state);
-        this.connectedLogisticalPipes = new HashMap<>();
         this.routingSchedule = new HashMap<>();
     }
 
@@ -42,7 +41,7 @@ public class LogisticalPipeEntity extends RoundRobinPipeEntity {
         routingSchedule.put(stack, direction);
     }
 
-    public void schedulePath(ItemStack stack, LogisticalPipeEntity target) {
+    public void schedulePath(ServerLevel level, ItemStack stack, LogisticalPipeEntity target) {
         Map<LogisticalPipeEntity, Tuple<LogisticalPipeEntity, Direction>> cameFrom = new HashMap<>();
         Map<LogisticalPipeEntity, Integer> gScore = new HashMap<>();
         gScore.put(this, 0);
@@ -59,26 +58,29 @@ public class LogisticalPipeEntity extends RoundRobinPipeEntity {
                     current = tuple.getA();
                 }
             }
-            for (Direction side : current.connectedLogisticalPipes.keySet()) {
-                Tuple<LogisticalPipeEntity, Integer> edge = current.connectedLogisticalPipes.get(side);
-                LogisticalPipeEntity neighbour = edge.getA();
-                int newScore = gScore.get(current) + edge.getB();
-                if (newScore < gScore.get(neighbour)) {
-                    cameFrom.put(neighbour, new Tuple<>(current, side));
-                    gScore.put(neighbour, newScore);
-                    fScore.put(neighbour, newScore + this.worldPosition.distChessboard(neighbour.worldPosition));
-                    if (!openSet.contains(neighbour)) {
-                        openSet.add(neighbour);
+            for (Direction side : current.logistics.keySet()) {
+                Tuple<BlockPos, Integer> tuple = current.logistics.get(side);
+                if (level.getBlockEntity(tuple.getA()) instanceof LogisticalPipeEntity neighbour) {
+                    int newScore = gScore.get(current) + tuple.getB();
+                    if (newScore < gScore.get(neighbour)) {
+                        cameFrom.put(neighbour, new Tuple<>(current, side));
+                        gScore.put(neighbour, newScore);
+                        fScore.put(neighbour, newScore + this.worldPosition.distChessboard(neighbour.worldPosition));
+                        if (!openSet.contains(neighbour)) {
+                            openSet.add(neighbour);
+                        }
                     }
                 }
             }
         }
     }
 
+    @Override
     public int getTargetSpeed() {
         return ItemInPipe.SPEED_LIMIT;
     }
 
+    @Override
     public int getAcceleration() {
         return ItemInPipe.SPEED_LIMIT;
     }

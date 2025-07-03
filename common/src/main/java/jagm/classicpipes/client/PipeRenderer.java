@@ -4,16 +4,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
 
     private final BlockEntityRendererProvider.Context context;
+    private static final boolean DEBUG = true;
 
     public PipeRenderer(BlockEntityRendererProvider.Context context) {
         this.context = context;
@@ -33,6 +39,25 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                     poses.mulPose(Axis.XP.rotationDegrees(90.0F));
                 }
                 context.getItemRenderer().renderStatic(item.getStack(), ItemDisplayContext.FIXED, light, overlay, poses, bufferSource, pipe.getLevel(), 0);
+                poses.popPose();
+            }
+        }
+        if (DEBUG) {
+            for (Direction direction : pipe.logistics.keySet()) {
+                Component component = Component.literal(String.valueOf(pipe.logistics.get(direction).getB()));
+                poses.pushPose();
+                poses.translate(
+                        0.5F + (direction.equals(Direction.EAST) ? 0.375F : (direction.equals(Direction.WEST) ? -0.375F : 0.0F)),
+                        0.5F + (direction.equals(Direction.UP) ? 0.375F : (direction.equals(Direction.DOWN) ? -0.375F : 0.0F)),
+                        0.5F + (direction.equals(Direction.SOUTH) ? 0.375F : (direction.equals(Direction.NORTH) ? -0.375F : 0.0F))
+                );
+                poses.mulPose(this.context.getEntityRenderer().cameraOrientation());
+                poses.scale(0.025F, -0.025F, 0.025F);
+                Matrix4f matrix4f = poses.last().pose();
+                Font font = this.context.getFont();
+                float f = (float)(-font.width(component)) / 2.0F;
+                int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
+                font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
                 poses.popPose();
             }
         }

@@ -14,6 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -34,11 +35,14 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
 
     protected final List<ItemInPipe> contents;
     protected final List<ItemInPipe> queued;
+    public final Map<Direction, Tuple<BlockPos, Integer>> logistics;
+    private boolean logisticsInitialised = false;
 
     public AbstractPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.contents = new ArrayList<>();
         this.queued = new ArrayList<>();
+        this.logistics = new HashMap<>();
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
@@ -52,6 +56,10 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        if (!this.logisticsInitialised) {
+            this.updateLogistics(level, state, pos);
+            this.logisticsInitialised = true;
+        }
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
@@ -125,6 +133,64 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             this.setChanged();
             level.sendBlockUpdated(pos, state, state, 2);
         }
+        this.updateLogistics(level, state, pos, direction, new HashSet<>());
+    }
+
+    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            if (state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction))) {
+                this.updateLogistics(level, state, pos, direction, new HashSet<>());
+            }
+        }
+    }
+
+    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos, Direction direction, Set<BlockPos> visited) {
+        if (visited.contains(pos)) {
+            return;
+        }
+        visited.add(pos);
+        BlockPos neighbourPos = pos.relative(direction);
+        if (level.getBlockEntity(neighbourPos) instanceof AbstractPipeEntity neighbourPipe) {
+            if (neighbourPipe instanceof LogisticalPipeEntity) {
+                this.logistics.put(direction, new Tuple<>(neighbourPos, 1));
+            } else if (neighbourPipe.logistics.size() < (neighbourPipe.logistics.containsKey(direction.getOpposite()) ? 3 : 2) && neighbourPipe.logistics.size() > (neighbourPipe.logistics.containsKey(direction.getOpposite()) ? 1 : 0)) {
+                for (Direction neighbourToLogistical : neighbourPipe.logistics.keySet()) {
+                    if (!neighbourToLogistical.equals(direction.getOpposite())){
+                        Tuple<BlockPos, Integer> tuple = neighbourPipe.logistics.get(neighbourToLogistical);
+                        this.logistics.put(direction, new Tuple<>(tuple.getA(), tuple.getB() + 1));
+                    }
+                }
+            } else {
+                this.logistics.remove(direction);
+            }
+            for (Direction otherDirection : this.logistics.keySet()) {
+                if (!otherDirection.equals(direction)) {
+                    if (this instanceof LogisticalPipeEntity) {
+                        neighbourPipe.logistics.put(direction.getOpposite(), new Tuple<>(pos, 1));
+                    } else if (this.logistics.size() < (this.logistics.containsKey(direction) ? 3 : 2) && this.logistics.size() > (this.logistics.containsKey(direction) ? 1 : 0)) {
+                        Tuple<BlockPos, Integer> tuple = this.logistics.get(otherDirection);
+                        neighbourPipe.logistics.put(direction.getOpposite(), new Tuple<>(tuple.getA(), tuple.getB() + 1));
+                    } else {
+                        neighbourPipe.logistics.remove(direction.getOpposite());
+                    }
+                    neighbourPipe.setChanged();
+                    level.sendBlockUpdated(neighbourPos, neighbourPipe.getBlockState(), neighbourPipe.getBlockState(), 2);
+                    if (level.getBlockEntity(pos.relative(otherDirection)) instanceof AbstractPipeEntity otherNeighbour) {
+                        otherNeighbour.updateLogistics(level, otherNeighbour.getBlockState(), pos.relative(otherDirection), otherDirection.getOpposite(), visited);
+                    }
+                }
+            }
+            neighbourPipe.updateLogistics(level, neighbourPipe.getBlockState(), neighbourPos, direction.getOpposite(), visited);
+        } else {
+            this.logistics.remove(direction);
+            for (Direction otherDirection : this.logistics.keySet()) {
+                if (level.getBlockEntity(pos.relative(otherDirection)) instanceof AbstractPipeEntity otherNeighbour) {
+                    otherNeighbour.updateLogistics(level, otherNeighbour.getBlockState(), pos.relative(otherDirection), otherDirection.getOpposite(), visited);
+                }
+            }
+        }
+        this.setChanged();
+        level.sendBlockUpdated(pos, state, state, 2);
     }
 
     public void eject(ServerLevel level, BlockPos pos, ItemInPipe item) {
@@ -175,9 +241,17 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     @Override
     protected void loadAdditional(ValueInput valueInput) {
         this.clearContent();
+        this.logistics.clear();
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<ItemInPipe> itemsList = valueInput.listOrEmpty("items", ItemInPipe.CODEC);
         itemsList.forEach(contents::add);
+        for (Direction direction : Direction.values()) {
+            BlockPos pos = valueInput.read(direction.getName() + "_pos", BlockPos.CODEC).orElse(BlockPos.ZERO);
+            int distance = valueInput.getIntOr(direction.getName() + "_distance", -1);
+            if (distance >= 0) {
+                this.logistics.put(direction, new Tuple<>(pos, distance));
+            }
+        }
     }
 
     @Override
@@ -188,6 +262,11 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             if (!item.getStack().isEmpty()) {
                 itemsList.add(item);
             }
+        }
+        for (Direction direction : this.logistics.keySet()) {
+            Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
+            valueOutput.store(direction.getName() + "_pos", BlockPos.CODEC, tuple.getA());
+            valueOutput.putInt(direction.getName() + "_distance", tuple.getB());
         }
     }
 
