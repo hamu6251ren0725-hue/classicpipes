@@ -4,12 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -19,7 +19,6 @@ import org.joml.Matrix4f;
 public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
 
     private final BlockEntityRendererProvider.Context context;
-    private static final boolean DEBUG = true;
 
     public PipeRenderer(BlockEntityRendererProvider.Context context) {
         this.context = context;
@@ -42,7 +41,7 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                 poses.popPose();
             }
         }
-        if (DEBUG) {
+        if (MiscUtil.DEBUG_MODE) {
             for (Direction direction : pipe.logistics.keySet()) {
                 Component component = Component.literal(String.valueOf(pipe.logistics.get(direction).getB()));
                 poses.pushPose();

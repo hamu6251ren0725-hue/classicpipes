@@ -2,8 +2,10 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
+import jagm.classicpipes.block.NetheritePipeBlock;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -118,6 +120,16 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         return state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
     }
 
+    protected final int countConnections(BlockState state) {
+        int count = 0;
+        for (Direction direction : Direction.values()) {
+            if (isPipeConnected(state, direction)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
@@ -130,67 +142,97 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                     }
                 }
             }
-            this.setChanged();
-            level.sendBlockUpdated(pos, state, state, 2);
         }
-        this.updateLogistics(level, state, pos, direction, new HashSet<>());
-    }
-
-    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos) {
-        for (Direction direction : Direction.values()) {
-            if (state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction))) {
-                this.updateLogistics(level, state, pos, direction, new HashSet<>());
-            }
-        }
-    }
-
-    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos, Direction direction, Set<BlockPos> visited) {
-        if (visited.contains(pos)) {
-            return;
-        }
-        visited.add(pos);
-        BlockPos neighbourPos = pos.relative(direction);
-        if (level.getBlockEntity(neighbourPos) instanceof AbstractPipeEntity neighbourPipe) {
-            if (neighbourPipe instanceof LogisticalPipeEntity) {
-                this.logistics.put(direction, new Tuple<>(neighbourPos, 1));
-            } else if (neighbourPipe.logistics.size() < (neighbourPipe.logistics.containsKey(direction.getOpposite()) ? 3 : 2) && neighbourPipe.logistics.size() > (neighbourPipe.logistics.containsKey(direction.getOpposite()) ? 1 : 0)) {
-                for (Direction neighbourToLogistical : neighbourPipe.logistics.keySet()) {
-                    if (!neighbourToLogistical.equals(direction.getOpposite())){
-                        Tuple<BlockPos, Integer> tuple = neighbourPipe.logistics.get(neighbourToLogistical);
-                        this.logistics.put(direction, new Tuple<>(tuple.getA(), tuple.getB() + 1));
-                    }
-                }
-            } else {
-                this.logistics.remove(direction);
-            }
-            for (Direction otherDirection : this.logistics.keySet()) {
-                if (!otherDirection.equals(direction)) {
-                    if (this instanceof LogisticalPipeEntity) {
-                        neighbourPipe.logistics.put(direction.getOpposite(), new Tuple<>(pos, 1));
-                    } else if (this.logistics.size() < (this.logistics.containsKey(direction) ? 3 : 2) && this.logistics.size() > (this.logistics.containsKey(direction) ? 1 : 0)) {
-                        Tuple<BlockPos, Integer> tuple = this.logistics.get(otherDirection);
-                        neighbourPipe.logistics.put(direction.getOpposite(), new Tuple<>(tuple.getA(), tuple.getB() + 1));
-                    } else {
-                        neighbourPipe.logistics.remove(direction.getOpposite());
-                    }
-                    neighbourPipe.setChanged();
-                    level.sendBlockUpdated(neighbourPos, neighbourPipe.getBlockState(), neighbourPipe.getBlockState(), 2);
-                    if (level.getBlockEntity(pos.relative(otherDirection)) instanceof AbstractPipeEntity otherNeighbour) {
-                        otherNeighbour.updateLogistics(level, otherNeighbour.getBlockState(), pos.relative(otherDirection), otherDirection.getOpposite(), visited);
-                    }
-                }
-            }
-            neighbourPipe.updateLogistics(level, neighbourPipe.getBlockState(), neighbourPos, direction.getOpposite(), visited);
-        } else {
+        if (wasConnected) {
             this.logistics.remove(direction);
-            for (Direction otherDirection : this.logistics.keySet()) {
-                if (level.getBlockEntity(pos.relative(otherDirection)) instanceof AbstractPipeEntity otherNeighbour) {
-                    otherNeighbour.updateLogistics(level, otherNeighbour.getBlockState(), pos.relative(otherDirection), otherDirection.getOpposite(), visited);
-                }
+        }
+        for (Direction otherDirection : Direction.values()) {
+            BlockPos nextPos = pos.relative(otherDirection);
+            if (this.isPipeConnected(state, otherDirection) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
+                this.updateLogistics(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>());
+            } else {
+                this.logistics.remove(otherDirection);
             }
         }
         this.setChanged();
         level.sendBlockUpdated(pos, state, state, 2);
+    }
+
+    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            BlockPos nextPos = pos.relative(direction);
+            if (this.isPipeConnected(state, direction) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
+                this.updateLogistics(level, state, pos, nextPipe, nextPos, direction, new HashSet<>());
+            } else {
+                this.logistics.remove(direction);
+                this.setChanged();
+                level.sendBlockUpdated(pos, state, state, 2);
+            }
+        }
+    }
+
+    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited) {
+        if (MiscUtil.DEBUG_MODE) {
+            ClassicPipes.LOGGER.info("[Debug] Updating logistics [{} {} {}] -> [{} {} {}] (Depth {})", pos.getX(), pos.getY(), pos.getZ(), nextPos.getX(), nextPos.getY(), nextPos.getZ(),  visited.size());
+        }
+        if (visited.contains(pos)) {
+            return;
+        }
+        visited.add(pos);
+        if (this instanceof LogisticalPipeEntity) {
+            nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(pos, 1));
+        } else {
+            boolean hasLogisticConnection = false;
+            if (this.countConnections(state) < 3) {
+                for (Direction direction : this.logistics.keySet()) {
+                    if (!direction.equals(nextDirection)) {
+                        Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
+                        nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(tuple.getA(), tuple.getB() + 1));
+                        hasLogisticConnection = true;
+                    }
+                }
+            }
+            if (!hasLogisticConnection) {
+                nextPipe.logistics.remove(nextDirection.getOpposite());
+            }
+        }
+        if (nextPipe instanceof LogisticalPipeEntity) {
+            this.logistics.put(nextDirection, new Tuple<>(nextPos, 1));
+        } else {
+            boolean hasLogisticConnection = false;
+            if (nextPipe.countConnections(nextPipe.getBlockState()) < 3) {
+                for (Direction direction : nextPipe.logistics.keySet()) {
+                    if (!direction.equals(nextDirection.getOpposite())) {
+                        Tuple<BlockPos, Integer> tuple = nextPipe.logistics.get(direction);
+                        this.logistics.put(nextDirection, new Tuple<>(tuple.getA(), tuple.getB() + 1));
+                        hasLogisticConnection = true;
+                    }
+                }
+            }
+            if (!hasLogisticConnection) {
+                this.logistics.remove(nextDirection);
+            }
+            for (Direction direction : Direction.values()) {
+                if (!direction.equals(nextDirection.getOpposite())) {
+                    BlockPos anotherPos = nextPos.relative(direction);
+                    if (nextPipe.isPipeConnected(nextPipe.getBlockState(), direction) && level.getBlockEntity(anotherPos) instanceof AbstractPipeEntity anotherPipe) {
+                        nextPipe.updateLogistics(level, nextPipe.getBlockState(), nextPos, anotherPipe, anotherPos, direction, visited);
+                    } else {
+                        nextPipe.logistics.remove(direction);
+                    }
+                }
+            }
+        }
+        if (this instanceof LogisticalPipeEntity) {
+            level.setBlock(pos, state.setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection), this.logistics.containsKey(nextDirection)), 3);
+        }
+        if (nextPipe instanceof LogisticalPipeEntity) {
+            level.setBlock(nextPos, nextPipe.getBlockState().setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection.getOpposite()), nextPipe.logistics.containsKey(nextDirection.getOpposite())), 3);
+        }
+        this.setChanged();
+        level.sendBlockUpdated(pos, state, state, 2);
+        nextPipe.setChanged();
+        level.sendBlockUpdated(nextPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
     }
 
     public void eject(ServerLevel level, BlockPos pos, ItemInPipe item) {
