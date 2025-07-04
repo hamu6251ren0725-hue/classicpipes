@@ -293,10 +293,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         itemsList.forEach(contents::add);
         for (Direction direction : Direction.values()) {
             BlockPos pos = valueInput.read(direction.getName() + "_pos", BlockPos.CODEC).orElse(BlockPos.ZERO);
-            int distance = valueInput.getIntOr(direction.getName() + "_distance", -1);
-            if (distance >= 0) {
-                this.logistics.put(direction, new Tuple<>(pos, distance));
-            }
+            valueInput.getInt(direction.getName() + "_distance").ifPresent(distance -> this.logistics.put(direction, new Tuple<>(pos, distance)));
         }
     }
 

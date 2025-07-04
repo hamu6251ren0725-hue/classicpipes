@@ -41,15 +41,4 @@ public class DiamondPipeBlock extends AbstractPipeBlock {
         return InteractionResult.PASS;
     }
 
-    @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (level instanceof ServerLevel serverLevel) {
-            BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-            if (blockEntity instanceof DiamondPipeEntity pipe) {
-                pipe.getFilter().dropAllItems(serverLevel, pos);
-            }
-        }
-        return super.playerWillDestroy(level, pos, state, player);
-    }
-
 }

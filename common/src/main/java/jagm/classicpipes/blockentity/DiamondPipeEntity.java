@@ -2,7 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.DiamondPipeMenu;
-import jagm.classicpipes.inventory.ItemFilterContainer;
+import jagm.classicpipes.inventory.FilterContainer;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -23,11 +23,11 @@ import java.util.List;
 
 public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvider {
 
-    private final ItemFilterContainer filter;
+    private final FilterContainer filter;
 
     public DiamondPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.DIAMOND_PIPE_ENTITY, pos, state);
-        this.filter = new ItemFilterContainer(this);
+        this.filter = new FilterContainer(this);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
         return new DiamondPipeMenu(id, playerInventory, filter);
     }
 
-    public ItemFilterContainer getFilter() {
+    public FilterContainer getFilter() {
         return filter;
     }
 

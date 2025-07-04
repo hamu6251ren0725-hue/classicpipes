@@ -1,13 +1,9 @@
 package jagm.classicpipes.inventory;
 
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -15,20 +11,18 @@ import net.minecraft.world.item.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ItemFilterContainer implements Container {
-
-    public static final int FILTER_SIZE = 9;
+public class FilterContainer implements Container {
 
     private final Map<Direction, NonNullList<ItemStack>> filterMap;
     private final AbstractPipeEntity pipe;
 
-    public ItemFilterContainer(AbstractPipeEntity pipe) {
+    public FilterContainer(AbstractPipeEntity pipe) {
         this.pipe = pipe;
         this.filterMap = new HashMap<>();
         this.clearContent();
     }
 
-    public ItemFilterContainer() {
+    public FilterContainer() {
         this(null);
     }
 
@@ -52,7 +46,7 @@ public class ItemFilterContainer implements Container {
 
     @Override
     public int getContainerSize() {
-        return FILTER_SIZE * filterMap.size();
+        return 54;
     }
 
     @Override
@@ -67,29 +61,28 @@ public class ItemFilterContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        int row = slot / FILTER_SIZE;
-        int col = slot % FILTER_SIZE;
+        int row = slot / 9;
+        int col = slot % 9;
         return filterMap.get(Direction.from3DDataValue(row)).get(col);
     }
 
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        int row = slot / FILTER_SIZE;
-        int col = slot % FILTER_SIZE;
-        return ContainerHelper.takeItem(filterMap.get(Direction.from3DDataValue(row)), col);
+        int row = slot / 9;
+        int col = slot % 9;
+        filterMap.get(Direction.from3DDataValue(row)).set(col, ItemStack.EMPTY);
+        return ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
-        int row = slot / FILTER_SIZE;
-        int col = slot % FILTER_SIZE;
-        return ContainerHelper.takeItem(filterMap.get(Direction.from3DDataValue(row)), col);
+        return removeItem(slot, 1);
     }
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        int row = slot / FILTER_SIZE;
-        int col = slot % FILTER_SIZE;
+        int row = slot / 9;
+        int col = slot % 9;
         filterMap.get(Direction.from3DDataValue(row)).set(col, stack);
     }
 
@@ -112,19 +105,7 @@ public class ItemFilterContainer implements Container {
     @Override
     public void clearContent() {
         for (Direction direction : Direction.values()) {
-            filterMap.put(direction, NonNullList.withSize(FILTER_SIZE, ItemStack.EMPTY));
-        }
-    }
-
-    public void dropAllItems(ServerLevel level, BlockPos pos) {
-        for (Direction direction : Direction.values()) {
-            for (ItemStack stack : filterMap.get(direction)) {
-                if (!stack.isEmpty()) {
-                    ItemEntity droppedItem = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), stack);
-                    droppedItem.setDefaultPickUpDelay();
-                    level.addFreshEntity(droppedItem);
-                }
-            }
+            filterMap.put(direction, NonNullList.withSize(9, ItemStack.EMPTY));
         }
     }
 
