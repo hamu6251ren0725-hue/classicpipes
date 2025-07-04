@@ -59,6 +59,11 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
     }
 
     @Override
+    protected boolean canJoinLogisticalNetwork() {
+        return false;
+    }
+
+    @Override
     protected void loadAdditional(ValueInput valueInput) {
         filter.clearContent();
         super.loadAdditional(valueInput);

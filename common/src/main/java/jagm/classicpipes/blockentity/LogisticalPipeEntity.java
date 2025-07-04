@@ -82,7 +82,7 @@ public class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
     @Override
     public int getAcceleration() {
-        return ItemInPipe.SPEED_LIMIT;
+        return ItemInPipe.DEFAULT_ACCELERATION * 64;
     }
 
     @Override

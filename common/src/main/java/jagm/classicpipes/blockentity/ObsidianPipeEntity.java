@@ -39,6 +39,11 @@ public class ObsidianPipeEntity extends AbstractPipeEntity {
     }
 
     @Override
+    protected boolean canJoinLogisticalNetwork() {
+        return false;
+    }
+
+    @Override
     public int getTargetSpeed() {
         return ItemInPipe.DEFAULT_SPEED;
     }

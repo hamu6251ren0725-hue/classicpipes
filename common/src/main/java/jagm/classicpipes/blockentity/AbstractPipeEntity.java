@@ -116,6 +116,10 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         routeItem(this.getBlockState(), item);
     }
 
+    protected boolean canJoinLogisticalNetwork() {
+        return true;
+    }
+
     protected final boolean isPipeConnected(BlockState state, Direction direction) {
         return state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
     }
@@ -179,13 +183,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             return;
         }
         visited.add(pos);
-        if (this instanceof LogisticalPipeEntity) {
+        if (this instanceof LogisticalPipeEntity && nextPipe.canJoinLogisticalNetwork()) {
             nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(pos, 1));
         } else {
             boolean hasLogisticConnection = false;
             if (this.countConnections(state) < 3) {
                 for (Direction direction : this.logistics.keySet()) {
-                    if (!direction.equals(nextDirection)) {
+                    if (!direction.equals(nextDirection) && nextPipe.canJoinLogisticalNetwork()) {
                         Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
                         nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(tuple.getA(), tuple.getB() + 1));
                         hasLogisticConnection = true;
@@ -196,13 +200,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 nextPipe.logistics.remove(nextDirection.getOpposite());
             }
         }
-        if (nextPipe instanceof LogisticalPipeEntity) {
+        if (nextPipe instanceof LogisticalPipeEntity && this.canJoinLogisticalNetwork()) {
             this.logistics.put(nextDirection, new Tuple<>(nextPos, 1));
         } else {
             boolean hasLogisticConnection = false;
             if (nextPipe.countConnections(nextPipe.getBlockState()) < 3) {
                 for (Direction direction : nextPipe.logistics.keySet()) {
-                    if (!direction.equals(nextDirection.getOpposite())) {
+                    if (!direction.equals(nextDirection.getOpposite()) && this.canJoinLogisticalNetwork()) {
                         Tuple<BlockPos, Integer> tuple = nextPipe.logistics.get(direction);
                         this.logistics.put(nextDirection, new Tuple<>(tuple.getA(), tuple.getB() + 1));
                         hasLogisticConnection = true;
