@@ -2,6 +2,7 @@ package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
+import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,7 +42,7 @@ public class ForgeEntrypoint {
                 helper.register("flint_pipe", ClassicPipes.FLINT_PIPE_ENTITY);
                 helper.register("lapis_pipe", ClassicPipes.LAPIS_PIPE_ENTITY);
                 helper.register("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
-                helper.register("logistical_pipe", ClassicPipes.LOGISTICAL_PIPE_ENTITY);
+                helper.register("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY);
             });
             event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
                 ClassicPipes.SOUNDS.forEach(helper::register);
@@ -51,6 +52,7 @@ public class ForgeEntrypoint {
             });
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
                 helper.register("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
+                helper.register("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
             });
         }
 
@@ -69,7 +71,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.FLINT_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
-            event.registerBlockEntityRenderer(ClassicPipes.LOGISTICAL_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
@@ -81,7 +83,10 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            event.enqueueWork(() -> MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new));
+            event.enqueueWork(() -> {
+                MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
+                MenuScreens.register(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, NetheriteBasicPipeScreen::new);
+            });
         }
 
     }

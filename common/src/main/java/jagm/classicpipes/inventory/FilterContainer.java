@@ -1,42 +1,26 @@
 package jagm.classicpipes.inventory;
 
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class FilterContainer implements Container {
 
-    private final Map<Direction, NonNullList<ItemStack>> filterMap;
+    private final NonNullList<ItemStack> filter;
     private final AbstractPipeEntity pipe;
+    private final int size;
 
-    public FilterContainer(AbstractPipeEntity pipe) {
+    public FilterContainer(AbstractPipeEntity pipe, int size) {
         this.pipe = pipe;
-        this.filterMap = new HashMap<>();
+        this.filter = NonNullList.create();
+        this.size = size;
         this.clearContent();
     }
 
     public FilterContainer() {
-        this(null);
-    }
-
-    public boolean directionContains(Item item, Direction direction) {
-        for (ItemStack stack : filterMap.get(direction)) {
-            if (stack.is(item)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean directionEmpty(Direction direction) {
-        return filterMap.get(direction).stream().allMatch(ItemStack::isEmpty);
+        this(null, 9);
     }
 
     @Override
@@ -46,31 +30,22 @@ public class FilterContainer implements Container {
 
     @Override
     public int getContainerSize() {
-        return 54;
+        return this.size;
     }
 
     @Override
     public boolean isEmpty() {
-        for (Direction direction : Direction.values()) {
-            if (!this.directionEmpty(direction)) {
-                return false;
-            }
-        }
-        return true;
+        return this.filter.isEmpty();
     }
 
     @Override
     public ItemStack getItem(int slot) {
-        int row = slot / 9;
-        int col = slot % 9;
-        return filterMap.get(Direction.from3DDataValue(row)).get(col);
+        return this.filter.get(slot);
     }
 
     @Override
     public ItemStack removeItem(int slot, int amount) {
-        int row = slot / 9;
-        int col = slot % 9;
-        filterMap.get(Direction.from3DDataValue(row)).set(col, ItemStack.EMPTY);
+        this.filter.set(slot, ItemStack.EMPTY);
         return ItemStack.EMPTY;
     }
 
@@ -81,9 +56,7 @@ public class FilterContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        int row = slot / 9;
-        int col = slot % 9;
-        filterMap.get(Direction.from3DDataValue(row)).set(col, stack);
+        this.filter.set(slot, stack);
     }
 
     @Override
@@ -104,9 +77,8 @@ public class FilterContainer implements Container {
 
     @Override
     public void clearContent() {
-        for (Direction direction : Direction.values()) {
-            filterMap.put(direction, NonNullList.withSize(9, ItemStack.EMPTY));
-        }
+        this.filter.clear();
+        this.filter.addAll(NonNullList.withSize(this.size, ItemStack.EMPTY));
     }
 
 }

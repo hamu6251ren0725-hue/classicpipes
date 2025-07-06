@@ -43,8 +43,8 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
     protected void renderBg(GuiGraphics graphics, float f, int x, int y) {
         int i = (this.width - 176) / 2 - 64;
         int j = (this.height - this.imageHeight) / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, 6 * 18 + 17, 256, 256);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j + 6 * 18 + 17, 0.0F, 126.0F, this.imageWidth, 96, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+        //graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j + 6 * 18 + 17, 0.0F, 126.0F, this.imageWidth, 96, 256, 256);
     }
 
 }

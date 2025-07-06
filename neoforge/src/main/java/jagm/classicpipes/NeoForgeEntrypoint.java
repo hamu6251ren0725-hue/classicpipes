@@ -2,6 +2,7 @@ package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
+import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
@@ -41,7 +42,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("flint_pipe"), ClassicPipes.FLINT_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("lapis_pipe"), ClassicPipes.LAPIS_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("obsidian_pipe"), ClassicPipes.OBSIDIAN_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("logistical_pipe"), ClassicPipes.LOGISTICAL_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("netherite_pipe"), ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY);
             });
             event.register(Registries.SOUND_EVENT, helper -> {
                 ClassicPipes.SOUNDS.forEach((name, soundEvent) -> helper.register(MiscUtil.resourceLocation(name), soundEvent));
@@ -51,6 +52,7 @@ public class NeoForgeEntrypoint {
             });
             event.register(Registries.MENU, helper -> {
                 helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("netherite_pipe"), ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
             });
         }
 
@@ -69,7 +71,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.FLINT_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
-            event.registerBlockEntityRenderer(ClassicPipes.LOGISTICAL_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
@@ -82,6 +84,7 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterScreens(RegisterMenuScreensEvent event) {
             event.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
+            event.register(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, NetheriteBasicPipeScreen::new);
         }
 
     }

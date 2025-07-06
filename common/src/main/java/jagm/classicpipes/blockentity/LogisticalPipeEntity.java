@@ -1,24 +1,24 @@
 package jagm.classicpipes.blockentity;
 
-import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.*;
 
-public class LogisticalPipeEntity extends RoundRobinPipeEntity {
+public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
     private final Map<ItemStack, Direction> routingSchedule;
 
-    public LogisticalPipeEntity(BlockPos pos, BlockState state) {
-        super(ClassicPipes.LOGISTICAL_PIPE_ENTITY, pos, state);
+    public LogisticalPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
+        super(blockEntityType, pos, state);
         this.routingSchedule = new HashMap<>();
     }
 
@@ -27,7 +27,7 @@ public class LogisticalPipeEntity extends RoundRobinPipeEntity {
         Iterator<ItemStack> iterator = routingSchedule.keySet().iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
-            if (stack.equals(item.getStack())) {
+            if (ItemStack.isSameItemSameComponents(stack, item.getStack())) {
                 item.setEjecting(false);
                 item.setTargetDirection(routingSchedule.get(stack));
                 iterator.remove();
