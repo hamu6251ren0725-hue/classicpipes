@@ -1,6 +1,7 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.LogisticalNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -16,10 +17,71 @@ import java.util.*;
 public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
     private final Map<ItemStack, Direction> routingSchedule;
+    private LogisticalNetwork logisticalNetwork;
+    private boolean controller;
 
     public LogisticalPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
         super(blockEntityType, pos, state);
         this.routingSchedule = new HashMap<>();
+        this.logisticalNetwork = null;
+        this.controller = false;
+    }
+
+    public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        super.tickServer(level, pos, state);
+        if (this.logisticalNetwork == null) {
+            this.logisticalNetwork = new LogisticalNetwork(this);
+            this.controller = true;
+            Set<LogisticalPipeEntity> visited = new HashSet<>();
+            visited.add(this);
+            for (Direction direction : logistics.keySet()) {
+                BlockPos nextPos = pos.relative(direction);
+                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
+                    this.logisticalNetwork.merge(nextPipe.generateLogisticalNetwork(level, direction, nextPos, visited));
+                }
+            }
+            visited = new HashSet<>();
+            visited.add(this);
+            for (Direction direction : logistics.keySet()) {
+                BlockPos nextPos = pos.relative(direction);
+                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
+                    nextPipe.distributeLogisticalNetwork(level, direction, nextPos, visited, this.logisticalNetwork);
+                }
+            }
+        }
+    }
+
+    protected LogisticalNetwork generateLogisticalNetwork(ServerLevel level, Direction fromDirection, BlockPos pos, Set<LogisticalPipeEntity> visited) {
+        if (visited.contains(this)) {
+            return null;
+        }
+        visited.add(this);
+        LogisticalNetwork logisticalNetwork = new LogisticalNetwork(this);
+        for (Direction direction : this.logistics.keySet()) {
+            if (!direction.equals(fromDirection)) {
+                BlockPos nextPos = pos.relative(direction);
+                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
+                    logisticalNetwork.merge(nextPipe.generateLogisticalNetwork(level, direction, nextPos, visited));
+                }
+            }
+        }
+        return logisticalNetwork;
+    }
+
+    protected void distributeLogisticalNetwork(ServerLevel level, Direction fromDirection, BlockPos pos, Set<LogisticalPipeEntity> visited, LogisticalNetwork logisticalNetwork) {
+        if (visited.contains(this)) {
+            return;
+        }
+        visited.add(this);
+        this.logisticalNetwork = logisticalNetwork;
+        for (Direction direction : this.logistics.keySet()) {
+            if (!direction.equals(fromDirection)) {
+                BlockPos nextPos = pos.relative(direction);
+                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
+                    nextPipe.distributeLogisticalNetwork(level, direction, nextPos, visited, logisticalNetwork);
+                }
+            }
+        }
     }
 
     @Override
@@ -73,6 +135,15 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                 }
             }
         }
+    }
+
+    public void notController() {
+        this.logisticalNetwork = null;
+        this.controller = false;
+    }
+
+    public void setLogisticalNetwork(LogisticalNetwork logisticalNetwork) {
+        this.logisticalNetwork = logisticalNetwork;
     }
 
     @Override

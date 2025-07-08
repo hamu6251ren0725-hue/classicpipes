@@ -269,11 +269,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 }
             }
         }
-        if (this instanceof LogisticalPipeEntity) {
+        if (this instanceof LogisticalPipeEntity logisticalPipe) {
             level.setBlock(pos, state.setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection), this.logistics.containsKey(nextDirection)), 3);
+            logisticalPipe.notController();
         }
-        if (nextPipe instanceof LogisticalPipeEntity) {
+        if (nextPipe instanceof LogisticalPipeEntity logisticalPipe) {
             level.setBlock(nextPos, nextPipe.getBlockState().setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection.getOpposite()), nextPipe.logistics.containsKey(nextDirection.getOpposite())), 3);
+            logisticalPipe.notController();
         }
         this.setChanged();
         level.sendBlockUpdated(pos, state, state, 2);
