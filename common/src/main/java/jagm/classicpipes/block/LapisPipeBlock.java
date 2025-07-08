@@ -97,7 +97,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
                                 pipe.routeItem(state, item);
                             }
                         }
-                        pipe.addQueuedItems();
+                        pipe.addQueuedItems(level, false);
                         pipe.setChanged();
                     }
                     return InteractionResult.SUCCESS;

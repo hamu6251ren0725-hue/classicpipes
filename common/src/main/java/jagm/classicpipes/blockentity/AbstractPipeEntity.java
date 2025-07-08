@@ -39,12 +39,14 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     protected final List<ItemInPipe> queued;
     public final Map<Direction, Tuple<BlockPos, Integer>> logistics;
     private boolean logisticsInitialised = false;
+    private final Map<ItemInPipe, Long> tickAdded;
 
     public AbstractPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.contents = new ArrayList<>();
         this.queued = new ArrayList<>();
         this.logistics = new HashMap<>();
+        this.tickAdded = new HashMap<>();
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
@@ -52,7 +54,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             if (level instanceof ServerLevel serverLevel) {
                 pipe.tickServer(serverLevel, pos, state);
             } else {
-                pipe.tickClient(level, pos, state);
+                pipe.tickClient(level, pos);
             }
         }
     }
@@ -66,7 +68,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 ItemInPipe item = iterator.next();
-                item.move(level, this.getTargetSpeed(), this.getAcceleration());
+                if (this.tickAdded.containsKey(item)) {
+                    if (this.tickAdded.get(item) == level.getGameTime()) {
+                        continue;
+                    }
+                    this.tickAdded.remove(item);
+                }
+                item.move(this.getTargetSpeed(), this.getAcceleration());
                 if (item.getProgress() >= ItemInPipe.HALFWAY) {
                     if (item.isEjecting()) {
                         iterator.remove();
@@ -82,30 +90,49 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 }
             }
             this.setChanged();
-            this.addQueuedItems();
+            this.addQueuedItems(level, false);
         }
     }
 
-    public void tickClient(Level level, BlockPos pos, BlockState state) {
+    public void tickClient(Level level, BlockPos pos) {
         if (!this.isEmpty()) {
-            for (ItemInPipe item : this.contents) {
-                item.move(level, this.getTargetSpeed(), this.getAcceleration());
+            ListIterator<ItemInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                ItemInPipe item = iterator.next();
+                if (this.tickAdded.containsKey(item)) {
+                    if (this.tickAdded.get(item) == level.getGameTime()) {
+                        continue;
+                    }
+                    this.tickAdded.remove(item);
+                }
+                item.move(this.getTargetSpeed(), this.getAcceleration());
+                if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
+                    BlockPos nextPos = pos.relative(item.getTargetDirection());
+                    if (level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
+                        item.resetProgress(item.getTargetDirection().getOpposite());
+                        nextPipe.insertPipeItem(level, item);
+                        iterator.remove();
+                    }
+                }
             }
             this.setChanged();
         }
     }
 
     public void insertPipeItem(Level level, ItemInPipe item) {
-        item.setCreatedThisTick(true);
-        item.setEvenTick(level.getGameTime() % 2 == 0);
         this.queued.add(item);
         this.routeItem(item);
-        this.addQueuedItems();
+        this.addQueuedItems(level, true);
         this.setChanged();
     }
 
-    public void addQueuedItems() {
-        this.contents.addAll(this.queued);
+    public void addQueuedItems(Level level, boolean waitForNextTick) {
+        for (ItemInPipe item : this.queued) {
+            this.contents.add(item);
+            if (waitForNextTick) {
+                this.tickAdded.put(item, level.getGameTime());
+            }
+        }
         this.queued.clear();
     }
 
@@ -147,7 +174,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                     item.drop(level, pos);
                 }
             }
-            this.addQueuedItems();
+            this.addQueuedItems(level, false);
         }
         if (wasConnected) {
             blockUpdated = true;

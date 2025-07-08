@@ -117,7 +117,7 @@ public class IronPipeBlock extends AbstractPipeBlock {
                                 pipe.routeItem(state, item);
                             }
                         }
-                        pipe.addQueuedItems();
+                        pipe.addQueuedItems(level, false);
                         pipe.setChanged();
                     }
                     return InteractionResult.SUCCESS;
@@ -147,7 +147,7 @@ public class IronPipeBlock extends AbstractPipeBlock {
                     pipe.routeItem(state, item);
                 }
             }
-            pipe.addQueuedItems();
+            pipe.addQueuedItems(level, false);
             pipe.setChanged();
         }
     }

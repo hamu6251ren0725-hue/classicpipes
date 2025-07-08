@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class ItemInPipe {
@@ -24,9 +23,7 @@ public class ItemInPipe {
                 Codec.INT.fieldOf("progress").orElse(0).forGetter(ItemInPipe::getProgress),
                 Codec.BYTE.fieldOf("from_direction").orElse((byte) 0).forGetter(item -> (byte) item.getFromDirection().get3DDataValue()),
                 Codec.BYTE.fieldOf("target_direction").orElse((byte) 0).forGetter(item -> (byte) item.getTargetDirection().get3DDataValue()),
-                Codec.BOOL.fieldOf("ejecting").orElse(true).forGetter(ItemInPipe::isEjecting),
-                Codec.BOOL.fieldOf("even_tick").orElse(false).forGetter(ItemInPipe::createdOnEvenTick),
-                Codec.BOOL.fieldOf("created_this_tick").orElse(false).forGetter(ItemInPipe::wasCreatedThisTick)
+                Codec.BOOL.fieldOf("ejecting").orElse(true).forGetter(ItemInPipe::isEjecting)
         ).apply(instance, ItemInPipe::new)
     );
 
@@ -36,8 +33,6 @@ public class ItemInPipe {
     private Direction fromDirection;
     private Direction targetDirection;
     private boolean ejecting;
-    private boolean evenTick;
-    private boolean createdThisTick;
 
     public ItemInPipe(ItemStack stack, int speed, int progress, Direction fromDirection, Direction targetDirection, boolean ejecting) {
         this.stack = stack;
@@ -46,8 +41,6 @@ public class ItemInPipe {
         this.fromDirection = fromDirection;
         this.targetDirection = targetDirection;
         this.ejecting = ejecting;
-        this.evenTick = false;
-        this.createdThisTick = false;
     }
 
     public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection) {
@@ -58,20 +51,11 @@ public class ItemInPipe {
         this(stack, DEFAULT_SPEED, 0, fromDirection, toDirection, ejecting);
     }
 
-    public ItemInPipe(ItemStack stack, int speed, int progress, byte fromDirection, byte targetDirection, boolean ejecting, boolean evenTick, boolean createdThisTick) {
+    public ItemInPipe(ItemStack stack, int speed, int progress, byte fromDirection, byte targetDirection, boolean ejecting) {
         this(stack, speed, progress, Direction.from3DDataValue(fromDirection), Direction.from3DDataValue(targetDirection), ejecting);
-        this.evenTick = evenTick;
-        this.createdThisTick = createdThisTick;
     }
 
-    public void move(Level level, int targetSpeed, int acceleration) {
-        if (this.createdThisTick) {
-            if (((level.getGameTime() % 2 == 0) == level.isClientSide()) != this.evenTick) {
-                return;
-            } else {
-                this.createdThisTick = false;
-            }
-        }
+    public void move(int targetSpeed, int acceleration) {
         if (this.speed < targetSpeed) {
             this.speed = Math.min(this.speed + acceleration, Math.min(targetSpeed, SPEED_LIMIT));
         } else if (this.speed > targetSpeed) {
@@ -116,7 +100,7 @@ public class ItemInPipe {
     public void resetProgress(Direction direction) {
         this.progress -= PIPE_LENGTH;
         this.fromDirection = direction;
-        this.targetDirection = direction.getOpposite();
+        this.targetDirection = direction;
     }
 
     public boolean isEjecting() {
@@ -141,22 +125,6 @@ public class ItemInPipe {
 
     public int getSpeed() {
         return this.speed;
-    }
-
-    public boolean createdOnEvenTick() {
-        return this.evenTick;
-    }
-
-    public void setEvenTick(boolean evenTick) {
-        this.evenTick = evenTick;
-    }
-
-    public boolean wasCreatedThisTick() {
-        return this.createdThisTick;
-    }
-
-    public void setCreatedThisTick(boolean createdThisTick) {
-        this.createdThisTick = createdThisTick;
     }
 
 }
