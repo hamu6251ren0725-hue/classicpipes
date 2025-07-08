@@ -11,36 +11,41 @@ import net.minecraft.world.phys.Vec3;
 
 public class ItemInPipe {
 
-    public static final int PIPE_LENGTH = 2048;
-    public static final int HALFWAY = PIPE_LENGTH / 2;
-    public static final int DEFAULT_SPEED = 64;
-    public static final int DEFAULT_ACCELERATION = 1;
-    public static final int SPEED_LIMIT = HALFWAY;
+    public static final short PIPE_LENGTH = 2048;
+    public static final short HALFWAY = PIPE_LENGTH / 2;
+    public static final short DEFAULT_SPEED = 64;
+    public static final short DEFAULT_ACCELERATION = 1;
+    public static final short SPEED_LIMIT = HALFWAY;
+    public static final short DESPAWN_AGE = 24000;
+
     public static final Codec<ItemInPipe> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
                 ItemStack.CODEC.fieldOf("item").orElse(ItemStack.EMPTY).forGetter(ItemInPipe::getStack),
-                Codec.INT.fieldOf("speed").orElse(DEFAULT_SPEED).forGetter(ItemInPipe::getSpeed),
-                Codec.INT.fieldOf("progress").orElse(0).forGetter(ItemInPipe::getProgress),
+                Codec.SHORT.fieldOf("speed").orElse(DEFAULT_SPEED).forGetter(ItemInPipe::getSpeed),
+                Codec.SHORT.fieldOf("progress").orElse((short) 0).forGetter(ItemInPipe::getProgress),
                 Codec.BYTE.fieldOf("from_direction").orElse((byte) 0).forGetter(item -> (byte) item.getFromDirection().get3DDataValue()),
                 Codec.BYTE.fieldOf("target_direction").orElse((byte) 0).forGetter(item -> (byte) item.getTargetDirection().get3DDataValue()),
-                Codec.BOOL.fieldOf("ejecting").orElse(true).forGetter(ItemInPipe::isEjecting)
+                Codec.BOOL.fieldOf("ejecting").orElse(true).forGetter(ItemInPipe::isEjecting),
+                Codec.SHORT.fieldOf("age").orElse((short) 0).forGetter(ItemInPipe::getAge)
         ).apply(instance, ItemInPipe::new)
     );
 
     private ItemStack stack;
-    private int speed;
-    private int progress;
+    private short speed;
+    private short progress;
     private Direction fromDirection;
     private Direction targetDirection;
     private boolean ejecting;
+    private short age;
 
-    public ItemInPipe(ItemStack stack, int speed, int progress, Direction fromDirection, Direction targetDirection, boolean ejecting) {
+    public ItemInPipe(ItemStack stack, short speed, short progress, Direction fromDirection, Direction targetDirection, boolean ejecting, short age) {
         this.stack = stack;
-        this.speed = Math.min(speed, SPEED_LIMIT);
+        this.speed = (short) Math.min(speed, SPEED_LIMIT);
         this.progress = progress;
         this.fromDirection = fromDirection;
         this.targetDirection = targetDirection;
         this.ejecting = ejecting;
+        this.age = age;
     }
 
     public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection) {
@@ -48,20 +53,21 @@ public class ItemInPipe {
     }
 
     public ItemInPipe(ItemStack stack, Direction fromDirection, Direction toDirection, boolean ejecting) {
-        this(stack, DEFAULT_SPEED, 0, fromDirection, toDirection, ejecting);
+        this(stack, DEFAULT_SPEED, (short) 0, fromDirection, toDirection, ejecting, (short) 0);
     }
 
-    public ItemInPipe(ItemStack stack, int speed, int progress, byte fromDirection, byte targetDirection, boolean ejecting) {
-        this(stack, speed, progress, Direction.from3DDataValue(fromDirection), Direction.from3DDataValue(targetDirection), ejecting);
+    public ItemInPipe(ItemStack stack, short speed, short progress, byte fromDirection, byte targetDirection, boolean ejecting, short age) {
+        this(stack, speed, progress, Direction.from3DDataValue(fromDirection), Direction.from3DDataValue(targetDirection), ejecting, age);
     }
 
-    public void move(int targetSpeed, int acceleration) {
+    public void move(short targetSpeed, short acceleration) {
         if (this.speed < targetSpeed) {
-            this.speed = Math.min(this.speed + acceleration, Math.min(targetSpeed, SPEED_LIMIT));
+            this.speed = (short) Math.min(this.speed + acceleration, Math.min(targetSpeed, SPEED_LIMIT));
         } else if (this.speed > targetSpeed) {
-            this.speed = Math.max(this.speed - acceleration, Math.max(targetSpeed, 1));
+            this.speed = (short) Math.max(this.speed - acceleration, Math.max(targetSpeed, 1));
         }
         this.progress += this.speed;
+        this.age++;
     }
 
     public void drop(ServerLevel level, BlockPos pos) {
@@ -93,7 +99,7 @@ public class ItemInPipe {
         this.stack = stack;
     }
 
-    public int getProgress() {
+    public short getProgress() {
         return this.progress;
     }
 
@@ -123,8 +129,12 @@ public class ItemInPipe {
         this.targetDirection = direction;
     }
 
-    public int getSpeed() {
+    public short getSpeed() {
         return this.speed;
+    }
+
+    public short getAge() {
+        return this.age;
     }
 
 }

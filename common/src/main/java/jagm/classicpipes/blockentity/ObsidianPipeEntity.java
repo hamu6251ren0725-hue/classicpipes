@@ -44,12 +44,12 @@ public class ObsidianPipeEntity extends AbstractPipeEntity {
     }
 
     @Override
-    public int getTargetSpeed() {
+    public short getTargetSpeed() {
         return ItemInPipe.DEFAULT_SPEED;
     }
 
     @Override
-    public int getAcceleration() {
+    public short getAcceleration() {
         return ItemInPipe.DEFAULT_ACCELERATION;
     }
 

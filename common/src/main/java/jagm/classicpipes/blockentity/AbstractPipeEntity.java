@@ -65,6 +65,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             this.logisticsInitialised = true;
         }
         if (!this.isEmpty()) {
+            boolean sendBlockUpdate = false;
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 ItemInPipe item = iterator.next();
@@ -75,19 +76,27 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                     this.tickAdded.remove(item);
                 }
                 item.move(this.getTargetSpeed(), this.getAcceleration());
+                if (item.getAge() > ItemInPipe.DESPAWN_AGE) {
+                    iterator.remove();
+                    sendBlockUpdate = true;
+                    continue;
+                }
                 if (item.getProgress() >= ItemInPipe.HALFWAY) {
                     if (item.isEjecting()) {
                         iterator.remove();
                         this.eject(level, pos, item);
-                        level.sendBlockUpdated(pos, state, state, 2);
+                        sendBlockUpdate = true;
                     }
                 }
                 if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                     if (Services.BLOCK_ENTITY_HELPER.handleItemInsertion(this, level, pos, state, item)) {
                         iterator.remove();
                     }
-                    level.sendBlockUpdated(pos, state, state, 2);
+                    sendBlockUpdate = true;
                 }
+            }
+            if (sendBlockUpdate) {
+                level.sendBlockUpdated(pos, state, state, 2);
             }
             this.setChanged();
             this.addQueuedItems(level, false);
@@ -298,9 +307,9 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
     }
 
-    public abstract int getTargetSpeed();
+    public abstract short getTargetSpeed();
 
-    public abstract int getAcceleration();
+    public abstract short getAcceleration();
 
     public List<ItemInPipe> getContents() {
         return this.contents;

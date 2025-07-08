@@ -83,7 +83,7 @@ public class RoundRobinPipeEntity extends AbstractPipeEntity {
                             item.setTargetDirection(direction);
                             item.setEjecting(false);
                         } else {
-                            this.queued.add(new ItemInPipe(item.getStack().copyWithCount(routeCount), item.getSpeed(), item.getProgress(), item.getFromDirection(), direction, false));
+                            this.queued.add(new ItemInPipe(item.getStack().copyWithCount(routeCount), item.getSpeed(), item.getProgress(), item.getFromDirection(), direction, false, item.getAge()));
                         }
                     }
                 }
@@ -92,12 +92,12 @@ public class RoundRobinPipeEntity extends AbstractPipeEntity {
     }
 
     @Override
-    public int getTargetSpeed() {
+    public short getTargetSpeed() {
         return ItemInPipe.DEFAULT_SPEED;
     }
 
     @Override
-    public int getAcceleration() {
+    public short getAcceleration() {
         return ItemInPipe.DEFAULT_ACCELERATION;
     }
 
