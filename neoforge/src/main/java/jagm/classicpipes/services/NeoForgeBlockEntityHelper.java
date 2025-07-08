@@ -21,7 +21,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-public class NeoForgeBlockEntityHelper implements BlockEntityHelper{
+public class NeoForgeBlockEntityHelper implements BlockEntityHelper {
 
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
@@ -36,10 +36,10 @@ public class NeoForgeBlockEntityHelper implements BlockEntityHelper{
     @Override
     public boolean canAccessContainer(Level level, BlockPos containerPos, Direction face) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        BlockState state = level.getBlockState(containerPos);
         if (blockEntity instanceof AbstractPipeEntity) {
             return false;
         }
+        BlockState state = level.getBlockState(containerPos);
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, state, blockEntity, face);
         if (itemHandler != null) {
             return itemHandler.getSlots() > 0;
@@ -48,7 +48,7 @@ public class NeoForgeBlockEntityHelper implements BlockEntityHelper{
     }
 
     @Override
-    public boolean handleItemInsertion(ServerLevel level, BlockPos pipePos, ItemInPipe item) {
+    public boolean handleItemInsertion(AbstractPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item) {
         BlockPos containerPos = pipePos.relative(item.getTargetDirection());
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof AbstractPipeEntity nextPipe) {
@@ -69,15 +69,14 @@ public class NeoForgeBlockEntityHelper implements BlockEntityHelper{
                 }
             }
             item.setStack(stack);
-            item.resetProgress(item.getTargetDirection());
-            return false;
         }
         item.resetProgress(item.getTargetDirection());
+        pipe.routeItem(pipeState, item);
         return false;
     }
 
     @Override
-    public boolean handleItemExtraction(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof AbstractPipeEntity) {
             return false;

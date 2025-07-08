@@ -117,7 +117,6 @@ public class ItemInPipe {
         this.progress -= PIPE_LENGTH;
         this.fromDirection = direction;
         this.targetDirection = direction.getOpposite();
-        this.setEjecting(true);
     }
 
     public boolean isEjecting() {

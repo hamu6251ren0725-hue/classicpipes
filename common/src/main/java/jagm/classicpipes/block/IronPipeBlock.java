@@ -1,7 +1,9 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.IronPipeEntity;
+import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -109,6 +111,15 @@ public class IronPipeBlock extends AbstractPipeBlock {
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
+                    if (level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe) {
+                        for (ItemInPipe item : pipe.getContents()) {
+                            if (item.getProgress() < ItemInPipe.HALFWAY) {
+                                pipe.routeItem(state, item);
+                            }
+                        }
+                        pipe.addQueuedItems();
+                        pipe.setChanged();
+                    }
                     return InteractionResult.SUCCESS;
                 }
                 direction = MiscUtil.nextDirection(direction);
@@ -129,6 +140,15 @@ public class IronPipeBlock extends AbstractPipeBlock {
             level.setBlock(pos, state.setValue(ENABLED, false), 2);
         } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.setValue(ENABLED, true), 2);
+        }
+        if (level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe) {
+            for (ItemInPipe item : pipe.getContents()) {
+                if (item.getProgress() < ItemInPipe.HALFWAY) {
+                    pipe.routeItem(state, item);
+                }
+            }
+            pipe.addQueuedItems();
+            pipe.setChanged();
         }
     }
 

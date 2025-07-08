@@ -25,8 +25,8 @@ public interface BlockEntityHelper {
 
     boolean canAccessContainer(Level level, BlockPos containerPos, Direction face);
 
-    boolean handleItemInsertion(ServerLevel level, BlockPos pipePos, ItemInPipe item);
+    boolean handleItemInsertion(AbstractPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item);
 
-    boolean handleItemExtraction(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, int amount);
+    boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
 
 }

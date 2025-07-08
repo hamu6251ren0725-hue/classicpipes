@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class FabricBlockEntityHelper implements BlockEntityHelper{
+public class FabricBlockEntityHelper implements BlockEntityHelper {
 
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
@@ -53,7 +53,7 @@ public class FabricBlockEntityHelper implements BlockEntityHelper{
     }
 
     @Override
-    public boolean handleItemInsertion(ServerLevel level, BlockPos pipePos, ItemInPipe item) {
+    public boolean handleItemInsertion(AbstractPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item) {
         BlockPos containerPos = pipePos.relative(item.getTargetDirection());
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof AbstractPipeEntity nextPipe) {
@@ -75,15 +75,14 @@ public class FabricBlockEntityHelper implements BlockEntityHelper{
                 return true;
             }
             item.setStack(item.getStack().copyWithCount(count - inserted));
-            item.resetProgress(item.getTargetDirection());
-            return false;
         }
         item.resetProgress(item.getTargetDirection());
+        pipe.routeItem(pipeState, item);
         return false;
     }
 
     @Override
-    public boolean handleItemExtraction(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
         BlockState state = level.getBlockState(containerPos);
         if (state.getBlock() instanceof AbstractPipeBlock) {
             return false;

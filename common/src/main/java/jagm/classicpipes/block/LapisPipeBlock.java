@@ -1,8 +1,10 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.LapisPipeEntity;
 import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -88,6 +90,15 @@ public class LapisPipeBlock extends AbstractPipeBlock {
                     level.setBlock(pipePos, state.setValue(FACING, direction).setValue(ATTACHED, true), 3);
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pipePos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
+                    }
+                    if (level.getBlockEntity(pipePos) instanceof AbstractPipeEntity pipe) {
+                        for (ItemInPipe item : pipe.getContents()) {
+                            if (item.getProgress() < ItemInPipe.HALFWAY) {
+                                pipe.routeItem(state, item);
+                            }
+                        }
+                        pipe.addQueuedItems();
+                        pipe.setChanged();
                     }
                     return InteractionResult.SUCCESS;
                 }

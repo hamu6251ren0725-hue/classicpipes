@@ -69,16 +69,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 item.move(level, this.getTargetSpeed(), this.getAcceleration());
                 if (item.getProgress() >= ItemInPipe.HALFWAY) {
                     if (item.isEjecting()) {
-                        this.routeItem(item);
-                        if (item.isEjecting()) {
-                            iterator.remove();
-                            this.eject(level, pos, item);
-                        }
+                        iterator.remove();
+                        this.eject(level, pos, item);
                         level.sendBlockUpdated(pos, state, state, 2);
                     }
                 }
                 if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
-                    if (Services.BLOCK_ENTITY_HELPER.handleItemInsertion(level, pos, item)) {
+                    if (Services.BLOCK_ENTITY_HELPER.handleItemInsertion(this, level, pos, state, item)) {
                         iterator.remove();
                     }
                     level.sendBlockUpdated(pos, state, state, 2);
@@ -101,11 +98,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     public void insertPipeItem(Level level, ItemInPipe item) {
         item.setCreatedThisTick(true);
         item.setEvenTick(level.getGameTime() % 2 == 0);
-        this.contents.add(item);
+        this.queued.add(item);
+        this.routeItem(item);
+        this.addQueuedItems();
         this.setChanged();
     }
 
-    protected void addQueuedItems() {
+    public void addQueuedItems() {
         this.contents.addAll(this.queued);
         this.queued.clear();
     }
@@ -135,19 +134,23 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
+        boolean blockUpdated = false;
         if (!this.isEmpty()) {
+            blockUpdated = true;
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 ItemInPipe item = iterator.next();
-                if (wasConnected) {
-                    if ((item.getFromDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY) || (item.getTargetDirection() == direction && item.getProgress() >= ItemInPipe.HALFWAY)) {
-                        iterator.remove();
-                        item.drop(level, pos);
-                    }
+                if (!wasConnected || (item.getTargetDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY)) {
+                    this.routeItem(state, item);
+                } else if ((item.getFromDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY) || (item.getTargetDirection() == direction && item.getProgress() >= ItemInPipe.HALFWAY)) {
+                    iterator.remove();
+                    item.drop(level, pos);
                 }
             }
+            this.addQueuedItems();
         }
         if (wasConnected) {
+            blockUpdated = true;
             this.logistics.remove(direction);
         }
         for (Direction otherDirection : Direction.values()) {
@@ -156,10 +159,13 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 this.updateLogistics(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>());
             } else {
                 this.logistics.remove(otherDirection);
+                blockUpdated = true;
             }
         }
-        this.setChanged();
-        level.sendBlockUpdated(pos, state, state, 2);
+        if (blockUpdated) {
+            this.setChanged();
+            level.sendBlockUpdated(pos, state, state, 2);
+        }
     }
 
     private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos) {
