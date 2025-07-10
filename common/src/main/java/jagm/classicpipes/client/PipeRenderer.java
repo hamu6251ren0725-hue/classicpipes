@@ -3,6 +3,7 @@ package jagm.classicpipes.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.LogisticalPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.Minecraft;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -50,6 +52,25 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                         0.5F + (direction.equals(Direction.UP) ? 0.375F : (direction.equals(Direction.DOWN) ? -0.375F : 0.0F)),
                         0.5F + (direction.equals(Direction.SOUTH) ? 0.375F : (direction.equals(Direction.NORTH) ? -0.375F : 0.0F))
                 );
+                poses.mulPose(this.context.getEntityRenderer().cameraOrientation());
+                poses.scale(0.0125F, -0.0125F, 0.0125F);
+                Matrix4f matrix4f = poses.last().pose();
+                Font font = this.context.getFont();
+                float f = (float)(-font.width(component)) / 2.0F;
+                int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
+                font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
+                poses.popPose();
+            }
+            if (pipe instanceof LogisticalPipeEntity logisticalPipe) {
+                Component component;
+                if (logisticalPipe.hasLogisticalNetwork()) {
+                    BlockPos pos = logisticalPipe.getLogisticalNetwork().getPos();
+                    component = Component.literal("[ " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " ]");
+                } else {
+                    component = Component.literal("null");
+                }
+                poses.pushPose();
+                poses.translate(0.5F, 0.5F, 0.5F);
                 poses.mulPose(this.context.getEntityRenderer().cameraOrientation());
                 poses.scale(0.025F, -0.025F, 0.025F);
                 Matrix4f matrix4f = poses.last().pose();

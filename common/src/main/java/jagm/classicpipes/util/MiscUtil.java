@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class MiscUtil {
 
-    public static final boolean DEBUG_MODE = false;
+    public static final boolean DEBUG_MODE = true;
 
     public static ResourceLocation resourceLocation(String name) {
         return ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name);

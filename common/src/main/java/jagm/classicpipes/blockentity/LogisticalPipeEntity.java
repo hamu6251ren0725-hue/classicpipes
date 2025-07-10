@@ -19,69 +19,68 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     private final Map<ItemStack, Direction> routingSchedule;
     private LogisticalNetwork logisticalNetwork;
     private boolean controller;
+    private BlockPos toLoad;
+    private byte loadAttempts;
 
     public LogisticalPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
         super(blockEntityType, pos, state);
         this.routingSchedule = new HashMap<>();
         this.logisticalNetwork = null;
         this.controller = false;
+        this.toLoad = null;
+        this.loadAttempts = 0;
     }
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
-        if (this.logisticalNetwork == null) {
-            this.logisticalNetwork = new LogisticalNetwork(this);
-            this.controller = true;
-            Set<LogisticalPipeEntity> visited = new HashSet<>();
-            visited.add(this);
-            for (Direction direction : logistics.keySet()) {
-                BlockPos nextPos = pos.relative(direction);
-                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
-                    this.logisticalNetwork.merge(nextPipe.generateLogisticalNetwork(level, direction, nextPos, visited));
+        if (!this.hasLogisticalNetwork()) {
+            if (this.toLoad != null && this.loadAttempts < 3) {
+                if (level.getBlockEntity(this.toLoad) instanceof LogisticalPipeEntity controllerPipe) {
+                    if (controllerPipe.hasLogisticalNetwork()) {
+                        this.setLogisticalNetwork(controllerPipe.getLogisticalNetwork(), level, pos, state);
+                        this.toLoad = null;
+                    }
                 }
-            }
-            visited = new HashSet<>();
-            visited.add(this);
-            for (Direction direction : logistics.keySet()) {
-                BlockPos nextPos = pos.relative(direction);
-                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
-                    nextPipe.distributeLogisticalNetwork(level, direction, nextPos, visited, this.logisticalNetwork);
+                this.loadAttempts++;
+            } else {
+                boolean foundNetwork = false;
+                for (Direction direction : this.logistics.keySet()) {
+                    if (level.getBlockEntity(this.logistics.get(direction).getA()) instanceof LogisticalPipeEntity nextPipe) {
+                        if (nextPipe.getLogisticalNetwork() != null) {
+                            this.setLogisticalNetwork(nextPipe.getLogisticalNetwork(), level, pos, state);
+                            foundNetwork = true;
+                            break;
+                        }
+                    }
+                }
+                if (!foundNetwork) {
+                    this.distributeLogisticalNetwork(level, null, pos, state, new HashSet<>(), new LogisticalNetwork(pos));
+                    this.setController(true);
                 }
             }
         }
     }
 
-    protected LogisticalNetwork generateLogisticalNetwork(ServerLevel level, Direction fromDirection, BlockPos pos, Set<LogisticalPipeEntity> visited) {
-        if (visited.contains(this)) {
-            return null;
-        }
-        visited.add(this);
-        LogisticalNetwork logisticalNetwork = new LogisticalNetwork(this);
-        for (Direction direction : this.logistics.keySet()) {
-            if (!direction.equals(fromDirection)) {
-                BlockPos nextPos = pos.relative(direction);
-                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
-                    logisticalNetwork.merge(nextPipe.generateLogisticalNetwork(level, direction, nextPos, visited));
-                }
-            }
-        }
-        return logisticalNetwork;
-    }
-
-    protected void distributeLogisticalNetwork(ServerLevel level, Direction fromDirection, BlockPos pos, Set<LogisticalPipeEntity> visited, LogisticalNetwork logisticalNetwork) {
+    protected void distributeLogisticalNetwork(ServerLevel level, Direction fromDirection, BlockPos pos, BlockState state, Set<LogisticalPipeEntity> visited, LogisticalNetwork logisticalNetwork) {
         if (visited.contains(this)) {
             return;
         }
         visited.add(this);
-        this.logisticalNetwork = logisticalNetwork;
-        for (Direction direction : this.logistics.keySet()) {
-            if (!direction.equals(fromDirection)) {
-                BlockPos nextPos = pos.relative(direction);
-                if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
-                    nextPipe.distributeLogisticalNetwork(level, direction, nextPos, visited, logisticalNetwork);
+        if (this.hasLogisticalNetwork()) {
+            logisticalNetwork.merge(this.getLogisticalNetwork());
+        } else {
+            for (Direction direction : this.logistics.keySet()) {
+                if (!direction.equals(fromDirection)) {
+                    BlockPos nextPos = this.logistics.get(direction).getA();
+                    if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
+                        nextPipe.distributeLogisticalNetwork(level, direction, nextPos, state, visited, logisticalNetwork);
+                    }
                 }
             }
         }
+        this.setController(false);
+        this.setLogisticalNetwork(logisticalNetwork, level, pos, state);
+
     }
 
     @Override
@@ -89,7 +88,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         Iterator<ItemStack> iterator = routingSchedule.keySet().iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();
-            if (ItemStack.isSameItemSameComponents(stack, item.getStack())) {
+            if (ItemStack.isSameItemSameComponents(stack, item.getStack()) && stack.getCount() == item.getStack().getCount()) {
                 item.setEjecting(false);
                 item.setTargetDirection(routingSchedule.get(stack));
                 iterator.remove();
@@ -137,13 +136,27 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         }
     }
 
-    public void notController() {
-        this.logisticalNetwork = null;
-        this.controller = false;
+    public void setLogisticalNetwork(LogisticalNetwork logisticalNetwork, ServerLevel level, BlockPos pos, BlockState state) {
+        if (logisticalNetwork != null) {
+            logisticalNetwork.addPipe(this);
+        }
+        this.logisticalNetwork = logisticalNetwork;
+        this.setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(pos, state, state, 2);
+        }
     }
 
-    public void setLogisticalNetwork(LogisticalNetwork logisticalNetwork) {
-        this.logisticalNetwork = logisticalNetwork;
+    public LogisticalNetwork getLogisticalNetwork() {
+        return this.logisticalNetwork;
+    }
+
+    public boolean hasLogisticalNetwork() {
+        return this.logisticalNetwork != null;
+    }
+
+    public void setController(boolean controller) {
+        this.controller = controller;
     }
 
     @Override
@@ -159,13 +172,16 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     @Override
     protected void loadAdditional(ValueInput valueInput) {
         super.loadAdditional(valueInput);
-        // TODO
+        this.setLogisticalNetwork(null, null, null, null);
+        valueInput.read("network_pos", BlockPos.CODEC).ifPresent(pos -> this.toLoad = pos);
     }
 
     @Override
     protected void saveAdditional(ValueOutput valueOutput) {
         super.saveAdditional(valueOutput);
-        // TODO
+        if (this.hasLogisticalNetwork()) {
+            valueOutput.store("network_pos", BlockPos.CODEC, this.getLogisticalNetwork().getPos());
+        }
     }
 
 }
