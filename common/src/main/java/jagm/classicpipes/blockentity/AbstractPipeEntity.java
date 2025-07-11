@@ -5,7 +5,6 @@ import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.NetheritePipeBlock;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
-import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -26,7 +25,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -217,9 +215,6 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited) {
-        //if (MiscUtil.DEBUG_MODE) {
-        //    ClassicPipes.LOGGER.info("[Debug] Updating logistics [{} {} {}] -> [{} {} {}] (Depth {})", pos.getX(), pos.getY(), pos.getZ(), nextPos.getX(), nextPos.getY(), nextPos.getZ(),  visited.size());
-        //}
         if (visited.contains(pos)) {
             return;
         }
@@ -271,7 +266,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         if (this instanceof LogisticalPipeEntity logisticalPipe) {
             boolean wasLinked = state.getValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection));
             boolean isLinked = this.logistics.containsKey(nextDirection);
-            if (wasLinked && !isLinked && logisticalPipe.hasLogisticalNetwork()) {
+            if (wasLinked != isLinked && logisticalPipe.hasLogisticalNetwork()) {
                 logisticalPipe.getLogisticalNetwork().destroy(level);
             }
             level.setBlock(pos, state.setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection), isLinked), 3);
@@ -279,7 +274,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         if (nextPipe instanceof LogisticalPipeEntity logisticalPipe) {
             boolean wasLinked = logisticalPipe.getBlockState().getValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection.getOpposite()));
             boolean isLinked = logisticalPipe.logistics.containsKey(nextDirection.getOpposite());
-            if (wasLinked && !isLinked && logisticalPipe.hasLogisticalNetwork()) {
+            if (wasLinked != isLinked && logisticalPipe.hasLogisticalNetwork()) {
                 logisticalPipe.getLogisticalNetwork().destroy(level);
             }
             level.setBlock(nextPos, nextPipe.getBlockState().setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection.getOpposite()), nextPipe.logistics.containsKey(nextDirection.getOpposite())), 3);

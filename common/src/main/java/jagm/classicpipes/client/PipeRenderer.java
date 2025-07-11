@@ -11,7 +11,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -63,9 +62,8 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
             }
             if (pipe instanceof LogisticalPipeEntity logisticalPipe) {
                 Component component;
-                if (logisticalPipe.hasLogisticalNetwork()) {
-                    BlockPos pos = logisticalPipe.getLogisticalNetwork().getPos();
-                    component = Component.literal("[ " + pos.getX() + " " + pos.getY() + " " + pos.getZ() + " ]");
+                if (logisticalPipe.toLoad != null) {
+                    component = Component.literal("[ " + logisticalPipe.toLoad.getX() + " " + logisticalPipe.toLoad.getY() + " " + logisticalPipe.toLoad.getZ() + " ]");
                 } else {
                     component = Component.literal("null");
                 }

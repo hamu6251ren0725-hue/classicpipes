@@ -1,7 +1,9 @@
 package jagm.classicpipes.blockentity;
 
+import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.LogisticalNetwork;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -19,7 +21,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     private final Map<ItemStack, Direction> routingSchedule;
     private LogisticalNetwork logisticalNetwork;
     private boolean controller;
-    private BlockPos toLoad;
+    public BlockPos toLoad;
     private byte loadAttempts;
 
     public LogisticalPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
@@ -45,7 +47,8 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
             } else {
                 boolean foundNetwork = false;
                 for (Direction direction : this.logistics.keySet()) {
-                    if (level.getBlockEntity(this.logistics.get(direction).getA()) instanceof LogisticalPipeEntity nextPipe) {
+                    BlockPos nextPos = this.logistics.get(direction).getA();
+                    if (level.getBlockEntity(nextPos) instanceof LogisticalPipeEntity nextPipe) {
                         if (nextPipe.getLogisticalNetwork() != null) {
                             this.setLogisticalNetwork(nextPipe.getLogisticalNetwork(), level, pos, state);
                             foundNetwork = true;
@@ -139,6 +142,9 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     public void setLogisticalNetwork(LogisticalNetwork logisticalNetwork, ServerLevel level, BlockPos pos, BlockState state) {
         if (logisticalNetwork != null) {
             logisticalNetwork.addPipe(this);
+            if (MiscUtil.DEBUG_MODE) {
+                ClassicPipes.LOGGER.info("Pipe at [ {} {} {} ] linked to network at [ {} {} {} ]", pos.getX(), pos.getY(), pos.getZ(), logisticalNetwork.getPos().getX(),  logisticalNetwork.getPos().getY(),  logisticalNetwork.getPos().getZ());
+            }
         }
         this.logisticalNetwork = logisticalNetwork;
         this.setChanged();
@@ -159,6 +165,10 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         this.controller = controller;
     }
 
+    public boolean isController() {
+        return this.controller;
+    }
+
     @Override
     public short getTargetSpeed() {
         return ItemInPipe.SPEED_LIMIT;
@@ -172,8 +182,13 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     @Override
     protected void loadAdditional(ValueInput valueInput) {
         super.loadAdditional(valueInput);
-        this.setLogisticalNetwork(null, null, null, null);
-        valueInput.read("network_pos", BlockPos.CODEC).ifPresent(pos -> this.toLoad = pos);
+        this.setController(valueInput.getBooleanOr("controller", false));
+        if (this.isController()) {
+            this.logisticalNetwork = new LogisticalNetwork(this.getBlockPos(), this);
+            this.toLoad = this.getBlockPos();
+        } else {
+            valueInput.read("network_pos", BlockPos.CODEC).ifPresent(pos -> this.toLoad = pos);
+        }
     }
 
     @Override
@@ -182,6 +197,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         if (this.hasLogisticalNetwork()) {
             valueOutput.store("network_pos", BlockPos.CODEC, this.getLogisticalNetwork().getPos());
         }
+        valueOutput.putBoolean("controller", this.isController());
     }
 
 }
