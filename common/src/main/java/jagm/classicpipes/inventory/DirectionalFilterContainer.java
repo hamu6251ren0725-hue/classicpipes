@@ -5,20 +5,21 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DirectionalFilterContainer implements Container {
+public class DirectionalFilterContainer implements Filter {
 
     private final Map<Direction, NonNullList<ItemStack>> filterMap;
     private final AbstractPipeEntity pipe;
+    private boolean matchComponents;
 
     public DirectionalFilterContainer(AbstractPipeEntity pipe) {
         this.pipe = pipe;
         this.filterMap = new HashMap<>();
+        this.matchComponents = false;
         this.clearContent();
     }
 
@@ -26,10 +27,18 @@ public class DirectionalFilterContainer implements Container {
         this(null);
     }
 
-    public boolean directionContains(Item item, Direction direction) {
-        for (ItemStack stack : filterMap.get(direction)) {
-            if (stack.is(item)) {
-                return true;
+    public boolean directionMatches(ItemStack stack, Direction direction) {
+        if (this.shouldMatchComponents()) {
+            for (ItemStack filterStack : filterMap.get(direction)) {
+                if (ItemStack.isSameItemSameComponents(stack, filterStack)) {
+                    return true;
+                }
+            }
+        } else {
+            for (ItemStack filterStack : filterMap.get(direction)) {
+                if (filterStack.is(stack.getItem())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -107,6 +116,16 @@ public class DirectionalFilterContainer implements Container {
         for (Direction direction : Direction.values()) {
             filterMap.put(direction, NonNullList.withSize(9, ItemStack.EMPTY));
         }
+    }
+
+    @Override
+    public void setMatchComponents(boolean matchComponents) {
+        this.matchComponents = matchComponents;
+    }
+
+    @Override
+    public boolean shouldMatchComponents() {
+        return this.matchComponents;
     }
 
 }

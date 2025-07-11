@@ -1,6 +1,5 @@
 package jagm.classicpipes.inventory;
 
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -10,9 +9,9 @@ import net.minecraft.world.item.ItemStack;
 
 public abstract class FilterMenu extends AbstractContainerMenu {
 
-    private final Container filter;
+    private final Filter filter;
 
-    protected FilterMenu(MenuType<?> menuType, int id, Container filter) {
+    protected FilterMenu(MenuType<?> menuType, int id, Filter filter) {
         super(menuType, id);
         this.filter = filter;
     }
@@ -24,7 +23,7 @@ public abstract class FilterMenu extends AbstractContainerMenu {
         } else {
             Slot slot = this.slots.get(index);
             if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0 || button == 1)) {
-                if (this.getCarried().isEmpty()) {
+                if (this.getCarried().isEmpty() || clickType == ClickType.QUICK_MOVE) {
                     slot.remove(1);
                 } else {
                     slot.set(this.getCarried().copyWithCount(1));
@@ -60,6 +59,10 @@ public abstract class FilterMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.filter.stillValid(player);
+    }
+
+    public Filter getFilter() {
+        return this.filter;
     }
 
 }

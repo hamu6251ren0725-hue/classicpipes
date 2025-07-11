@@ -35,12 +35,12 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
         List<Direction> validDirections = new ArrayList<>();
         Direction direction = MiscUtil.nextDirection(item.getFromDirection());
         for (int i = 0; i < 5; i++) {
-            if (this.isPipeConnected(state, direction) && filter.directionContains(item.getStack().getItem(), direction)) {
+            if (this.isPipeConnected(state, direction) && filter.directionMatches(item.getStack(), direction)) {
                 validDirections.add(direction);
             }
             direction = MiscUtil.nextDirection(direction);
         }
-        if (validDirections.isEmpty() && filter.directionContains(item.getStack().getItem(), direction)) {
+        if (validDirections.isEmpty() && filter.directionMatches(item.getStack(), direction)) {
             validDirections.add(item.getFromDirection());
         }
         if (validDirections.isEmpty()) {
@@ -65,24 +65,26 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
 
     @Override
     protected void loadAdditional(ValueInput valueInput) {
-        filter.clearContent();
+        this.filter.clearContent();
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<ItemStackWithSlot> filterList = valueInput.listOrEmpty("filter", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : filterList) {
-            filter.setItem(slotStack.slot(), slotStack.stack());
+            this.filter.setItem(slotStack.slot(), slotStack.stack());
         }
+        this.filter.setMatchComponents(valueInput.getBooleanOr("match_components", false));
     }
 
     @Override
     protected void saveAdditional(ValueOutput valueOutput) {
         super.saveAdditional(valueOutput);
         ValueOutput.TypedOutputList<ItemStackWithSlot> filterList = valueOutput.list("filter", ItemStackWithSlot.CODEC);
-        for (int slot = 0; slot < filter.getContainerSize(); slot++) {
-            ItemStack stack = filter.getItem(slot);
+        for (int slot = 0; slot < this.filter.getContainerSize(); slot++) {
+            ItemStack stack = this.filter.getItem(slot);
             if (!stack.isEmpty()) {
                 filterList.add(new ItemStackWithSlot(slot, stack));
             }
         }
+        valueOutput.putBoolean("match_components", this.filter.shouldMatchComponents());
     }
 
     @Override
@@ -92,7 +94,7 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new DiamondPipeMenu(id, playerInventory, filter);
+        return new DiamondPipeMenu(id, playerInventory, this.filter);
     }
 
 }

@@ -1,7 +1,6 @@
 package jagm.classicpipes.inventory;
 
 import jagm.classicpipes.ClassicPipes;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 
 public class NetheriteBasicPipeMenu extends FilterMenu {
@@ -10,7 +9,7 @@ public class NetheriteBasicPipeMenu extends FilterMenu {
         this(id, playerInventory, new FilterContainer());
     }
 
-    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, Container filter) {
+    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, Filter filter) {
         super(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, id, filter);
         for (int j = 0; j < 9; j++) {
             this.addSlot(new FilterSlot(filter, j, 8 + j * 18, 18));

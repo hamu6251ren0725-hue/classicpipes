@@ -27,24 +27,26 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     @Override
     protected void loadAdditional(ValueInput valueInput) {
-        filter.clearContent();
+        this.filter.clearContent();
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<ItemStackWithSlot> filterList = valueInput.listOrEmpty("filter", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : filterList) {
-            filter.setItem(slotStack.slot(), slotStack.stack());
+            this.filter.setItem(slotStack.slot(), slotStack.stack());
         }
+        this.filter.setMatchComponents(valueInput.getBooleanOr("match_components", false));
     }
 
     @Override
     protected void saveAdditional(ValueOutput valueOutput) {
         super.saveAdditional(valueOutput);
         ValueOutput.TypedOutputList<ItemStackWithSlot> filterList = valueOutput.list("filter", ItemStackWithSlot.CODEC);
-        for (int slot = 0; slot < filter.getContainerSize(); slot++) {
-            ItemStack stack = filter.getItem(slot);
+        for (int slot = 0; slot < this.filter.getContainerSize(); slot++) {
+            ItemStack stack = this.filter.getItem(slot);
             if (!stack.isEmpty()) {
                 filterList.add(new ItemStackWithSlot(slot, stack));
             }
         }
+        valueOutput.putBoolean("match_components", this.filter.shouldMatchComponents());
     }
 
     @Override
@@ -54,7 +56,7 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new NetheriteBasicPipeMenu(id, playerInventory, filter);
+        return new NetheriteBasicPipeMenu(id, playerInventory, this.filter);
     }
 
 }

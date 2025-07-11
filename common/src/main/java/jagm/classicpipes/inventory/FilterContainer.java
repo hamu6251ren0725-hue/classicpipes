@@ -6,16 +6,18 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public class FilterContainer implements Container {
+public class FilterContainer implements Filter {
 
     private final NonNullList<ItemStack> filter;
     private final AbstractPipeEntity pipe;
     private final int size;
+    private boolean matchComponents;
 
     public FilterContainer(AbstractPipeEntity pipe, int size) {
         this.pipe = pipe;
         this.filter = NonNullList.create();
         this.size = size;
+        this.matchComponents = false;
         this.clearContent();
     }
 
@@ -79,6 +81,16 @@ public class FilterContainer implements Container {
     public void clearContent() {
         this.filter.clear();
         this.filter.addAll(NonNullList.withSize(this.size, ItemStack.EMPTY));
+    }
+
+    @Override
+    public void setMatchComponents(boolean matchComponents) {
+        this.matchComponents = matchComponents;
+    }
+
+    @Override
+    public boolean shouldMatchComponents() {
+        return this.matchComponents;
     }
 
 }
