@@ -1,8 +1,12 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.network.MatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
+import jagm.classicpipes.util.NetworkHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,6 +34,8 @@ public class FabricEntrypoint implements ModInitializer {
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+        PayloadTypeRegistry.playC2S().register(MatchComponentsPayload.TYPE, MatchComponentsPayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(MatchComponentsPayload.TYPE, (payload, context) -> NetworkHandler.handleMatchComponents(context.player(), payload));
     }
 
     private static <T extends BlockEntity> void registerBlockEntity(String name, BlockEntityType<T> blockEntityType) {

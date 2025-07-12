@@ -97,7 +97,8 @@ public class DirectionalFilterContainer implements Filter {
 
     @Override
     public void setChanged() {
-        if (pipe != null) {
+        if (pipe != null && pipe.getLevel() != null) {
+            pipe.getLevel().sendBlockUpdated(pipe.getBlockPos(), pipe.getBlockState(), pipe.getBlockState(), 2);
             pipe.setChanged();
         }
     }
@@ -121,6 +122,7 @@ public class DirectionalFilterContainer implements Filter {
     @Override
     public void setMatchComponents(boolean matchComponents) {
         this.matchComponents = matchComponents;
+        this.setChanged();
     }
 
     @Override

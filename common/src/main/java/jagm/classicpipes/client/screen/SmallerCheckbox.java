@@ -14,9 +14,7 @@ import net.minecraft.util.ARGB;
 
 public class SmallerCheckbox extends AbstractButton {
 
-    private static final ResourceLocation CHECKBOX_SELECTED_HIGHLIGHTED_SPRITE = MiscUtil.resourceLocation("widget/checkbox_selected_highlighted");
     private static final ResourceLocation CHECKBOX_SELECTED_SPRITE = MiscUtil.resourceLocation("widget/checkbox_selected");
-    private static final ResourceLocation CHECKBOX_HIGHLIGHTED_SPRITE = MiscUtil.resourceLocation("widget/checkbox_highlighted");
     private static final ResourceLocation CHECKBOX_SPRITE = MiscUtil.resourceLocation("widget/checkbox");
     public static final int SIZE = 11;
 
@@ -60,13 +58,8 @@ public class SmallerCheckbox extends AbstractButton {
 
     @Override
     public void renderWidget(GuiGraphics graphics, int x, int y, float f) {
-        ResourceLocation resourcelocation;
-        if (this.selected()) {
-            resourcelocation = this.isFocused() ? CHECKBOX_SELECTED_HIGHLIGHTED_SPRITE : CHECKBOX_SELECTED_SPRITE;
-        } else {
-            resourcelocation = this.isFocused() ? CHECKBOX_HIGHLIGHTED_SPRITE : CHECKBOX_SPRITE;
-        }
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, resourcelocation, this.getX(), this.getY(), SIZE, SIZE, ARGB.white(this.alpha));
+        ResourceLocation spriteLocation = this.selected() ? CHECKBOX_SELECTED_SPRITE : CHECKBOX_SPRITE;
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteLocation, this.getX(), this.getY(), SIZE, SIZE, ARGB.white(this.alpha));
     }
 
     public interface OnValueChange {

@@ -86,6 +86,7 @@ public class FilterContainer implements Filter {
     @Override
     public void setMatchComponents(boolean matchComponents) {
         this.matchComponents = matchComponents;
+        this.setChanged();
     }
 
     @Override

@@ -2,14 +2,17 @@ package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
+import jagm.classicpipes.network.MatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -29,7 +32,7 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
         super.init();
         this.leftPos = (this.width - 176) / 2;
         this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.imageHeight - 100)
+                .pos(this.leftPos + 8, this.topPos + 128)
                 .onValueChange(this::matchComponentsCheckboxChanged)
                 .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
                 .selected(this.getMenu().getFilter().shouldMatchComponents())
@@ -44,7 +47,7 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
             Component text = Component.translatable("direction." + ClassicPipes.MOD_ID + "." + Direction.from3DDataValue(i).name().toLowerCase()).withStyle(ChatFormatting.BLACK);
             graphics.drawString(this.font, text, this.leftPos - 30 + (35 - this.font.width(text)) / 2, this.topPos + 22 + 18 * i, -12566464, false);
         }
-        graphics.drawString(this.font, Component.translatable("widget.classicpipes.match_components"), this.leftPos + 12 + SmallerCheckbox.SIZE, this.imageHeight - 98, -12566464, false);
+        graphics.drawString(this.font, Component.translatable("widget.classicpipes.match_components"), this.leftPos + 12 + SmallerCheckbox.SIZE, this.topPos + 130, -12566464, false);
         this.renderTooltip(graphics, x, y);
     }
 
@@ -56,7 +59,12 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
     }
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        //TODO
+        if (this.minecraft != null) {
+            ClientPacketListener listener = this.minecraft.getConnection();
+            if (listener != null) {
+                listener.send(new ServerboundCustomPayloadPacket(new MatchComponentsPayload(checked)));
+            }
+        }
     }
 
 }
