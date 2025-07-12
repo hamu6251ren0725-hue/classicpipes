@@ -1,6 +1,8 @@
-package jagm.classicpipes.inventory;
+package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.inventory.container.DirectionalFilterContainer;
+import jagm.classicpipes.inventory.container.Filter;
 import net.minecraft.world.entity.player.Inventory;
 
 public class DiamondPipeMenu extends FilterMenu {

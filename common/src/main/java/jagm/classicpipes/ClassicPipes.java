@@ -2,8 +2,8 @@ package jagm.classicpipes;
 
 import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
-import jagm.classicpipes.inventory.DiamondPipeMenu;
-import jagm.classicpipes.inventory.NetheriteBasicPipeMenu;
+import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
+import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;

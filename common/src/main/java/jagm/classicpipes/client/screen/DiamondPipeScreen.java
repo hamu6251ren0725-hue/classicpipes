@@ -1,8 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.inventory.DiamondPipeMenu;
-import jagm.classicpipes.inventory.SmallerCheckbox;
+import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;

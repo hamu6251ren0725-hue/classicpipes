@@ -1,8 +1,8 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.inventory.FilterContainer;
-import jagm.classicpipes.inventory.NetheriteBasicPipeMenu;
+import jagm.classicpipes.inventory.container.FilterContainer;
+import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.ItemStackWithSlot;

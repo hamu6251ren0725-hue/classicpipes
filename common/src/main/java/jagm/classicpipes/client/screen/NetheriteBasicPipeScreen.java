@@ -1,6 +1,6 @@
 package jagm.classicpipes.client.screen;
 
-import jagm.classicpipes.inventory.NetheriteBasicPipeMenu;
+import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

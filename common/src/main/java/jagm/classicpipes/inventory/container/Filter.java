@@ -1,4 +1,4 @@
-package jagm.classicpipes.inventory;
+package jagm.classicpipes.inventory.container;
 
 import net.minecraft.world.Container;
 

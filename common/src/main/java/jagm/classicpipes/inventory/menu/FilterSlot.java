@@ -1,4 +1,4 @@
-package jagm.classicpipes.inventory;
+package jagm.classicpipes.inventory.menu;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;

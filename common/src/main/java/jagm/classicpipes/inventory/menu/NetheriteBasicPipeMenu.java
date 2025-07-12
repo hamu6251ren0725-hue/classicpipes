@@ -1,6 +1,8 @@
-package jagm.classicpipes.inventory;
+package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.inventory.container.Filter;
+import jagm.classicpipes.inventory.container.FilterContainer;
 import net.minecraft.world.entity.player.Inventory;
 
 public class NetheriteBasicPipeMenu extends FilterMenu {

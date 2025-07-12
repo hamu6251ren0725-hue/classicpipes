@@ -1,8 +1,8 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.inventory.DiamondPipeMenu;
-import jagm.classicpipes.inventory.DirectionalFilterContainer;
+import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
+import jagm.classicpipes.inventory.container.DirectionalFilterContainer;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;

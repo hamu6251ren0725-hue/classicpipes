@@ -1,4 +1,4 @@
-package jagm.classicpipes.inventory;
+package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.GuiGraphics;
