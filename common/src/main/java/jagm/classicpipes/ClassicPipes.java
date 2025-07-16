@@ -11,10 +11,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ItemLore;
@@ -80,8 +80,8 @@ public class ClassicPipes {
     public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
-    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(DiamondPipeMenu::new);
-    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(NetheriteBasicPipeMenu::new);
+    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
+    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(NetheriteBasicPipeMenu::new, ByteBufCodecs.BOOL);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

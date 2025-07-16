@@ -1,10 +1,9 @@
 package jagm.classicpipes.services;
 
-import io.netty.buffer.Unpooled;
+import io.netty.buffer.ByteBuf;
 import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
-import jagm.classicpipes.util.NetworkHandler;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -16,16 +15,13 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -39,7 +35,6 @@ import org.apache.commons.lang3.function.TriFunction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 public class FabricBlockEntityHelper implements BlockEntityHelper {
 
@@ -49,13 +44,30 @@ public class FabricBlockEntityHelper implements BlockEntityHelper {
     }
 
     @Override
-    public <T extends AbstractContainerMenu> MenuType<T> createMenuType(TriFunction<Integer, Inventory, FriendlyByteBuf, T> menuSupplier) {
-        return null;
+    public <T extends AbstractContainerMenu, D> MenuType<T> createMenuType(TriFunction<Integer, Inventory, D, T> menuSupplier, StreamCodec<ByteBuf, D> codec) {
+        return new ExtendedScreenHandlerType<>(menuSupplier::apply, codec);
     }
 
     @Override
-    public void openMenu(ServerPlayer player, MenuProvider menuProvider, Consumer<RegistryFriendlyByteBuf> consumer) {
+    public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec) {
+        player.openMenu(new ExtendedScreenHandlerFactory<>() {
 
+            @Override
+            public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+                return menuProvider.createMenu(id, inventory, player);
+            }
+
+            @Override
+            public Component getDisplayName() {
+                return menuProvider.getDisplayName();
+            }
+
+            @Override
+            public D getScreenOpeningData(ServerPlayer serverPlayer) {
+                return payload;
+            }
+
+        });
     }
 
     @Override

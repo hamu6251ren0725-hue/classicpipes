@@ -8,6 +8,7 @@ import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -67,7 +68,7 @@ public class NetheritePipeBlock extends AbstractPipeBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
             if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof NetheriteBasicPipeEntity netheritePipe) {
-                Services.BLOCK_ENTITY_HELPER.openMenu((ServerPlayer) player, netheritePipe, extraData -> extraData.writeBoolean(netheritePipe.shouldMatchComponents()));
+                Services.BLOCK_ENTITY_HELPER.openMenu((ServerPlayer) player, netheritePipe,  netheritePipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
             }
             return InteractionResult.SUCCESS;
         }

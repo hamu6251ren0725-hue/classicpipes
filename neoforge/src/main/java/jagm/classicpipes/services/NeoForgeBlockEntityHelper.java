@@ -1,5 +1,6 @@
 package jagm.classicpipes.services;
 
+import io.netty.buffer.ByteBuf;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.network.MatchComponentsPayload;
 import jagm.classicpipes.util.ItemInPipe;
@@ -7,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -37,15 +39,23 @@ public class NeoForgeBlockEntityHelper implements BlockEntityHelper {
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
         return new BlockEntityType<>(blockEntitySupplier::apply, Set.of(validBlocks));
     }
-
+/*
     @Override
     public <T extends AbstractContainerMenu> MenuType<T> createMenuType(TriFunction<Integer, Inventory, FriendlyByteBuf, T> menuSupplier) {
         return IMenuTypeExtension.create(menuSupplier::apply);
+    }*/
+    public <T extends AbstractContainerMenu, D> MenuType<T> createMenuType(TriFunction<Integer, Inventory, D, T> menuSupplier, StreamCodec<ByteBuf, D> codec) {
+        return IMenuTypeExtension.create((id, inventory, buffer) -> menuSupplier.apply(id, inventory, codec.decode(buffer)));
     }
-
+/*
     @Override
     public void openMenu(ServerPlayer player, MenuProvider menuProvider, Consumer<RegistryFriendlyByteBuf> consumer) {
         player.openMenu(menuProvider, consumer);
+    }
+*/
+    @Override
+    public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec) {
+        player.openMenu(menuProvider, buffer -> codec.encode(buffer, payload));
     }
 
     @Override
