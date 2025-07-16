@@ -13,16 +13,12 @@ public class FilterContainer implements Filter {
     private final int size;
     private boolean matchComponents;
 
-    public FilterContainer(AbstractPipeEntity pipe, int size) {
+    public FilterContainer(AbstractPipeEntity pipe, int size, boolean matchComponents) {
         this.pipe = pipe;
         this.filter = NonNullList.create();
         this.size = size;
-        this.matchComponents = false;
+        this.matchComponents = matchComponents;
         this.clearContent();
-    }
-
-    public FilterContainer() {
-        this(null, 9);
     }
 
     @Override

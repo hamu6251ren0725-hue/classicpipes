@@ -11,6 +11,7 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
@@ -18,6 +19,12 @@ import net.minecraftforge.registries.RegisterEvent;
 @Mod(ClassicPipes.MOD_ID)
 public class ForgeEntrypoint {
 
+    /*public static final SimpleChannel INSTANCE = ChannelBuilder.named(MiscUtil.resourceLocation("main"))
+            .serverAcceptedVersions((status, version) -> true)
+            .clientAcceptedVersions((status, version) -> true)
+            .networkProtocolVersion(1)
+            .simpleChannel();
+    */
     public ForgeEntrypoint(FMLJavaModLoadingContext context) {
 
     }
@@ -53,6 +60,13 @@ public class ForgeEntrypoint {
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
                 helper.register("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
                 helper.register("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+            });
+        }
+
+        @SubscribeEvent
+        public static void onCommonSetup(FMLCommonSetupEvent event) {
+            event.enqueueWork(() -> {
+                // TODO Register Forge packet handler.
             });
         }
 

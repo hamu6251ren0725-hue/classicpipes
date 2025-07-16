@@ -22,7 +22,7 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     public NetheriteBasicPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, pos, state);
-        this.filter = new FilterContainer(this, 9);
+        this.filter = new FilterContainer(this, 9, false);
     }
 
     @Override
@@ -57,6 +57,10 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
         return new NetheriteBasicPipeMenu(id, playerInventory, this.filter);
+    }
+
+    public boolean shouldMatchComponents() {
+        return this.filter.shouldMatchComponents();
     }
 
 }

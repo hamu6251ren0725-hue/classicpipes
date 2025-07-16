@@ -80,8 +80,8 @@ public class ClassicPipes {
     public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
-    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(DiamondPipeMenu::new, FeatureFlags.DEFAULT_FLAGS);
-    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(NetheriteBasicPipeMenu::new, FeatureFlags.DEFAULT_FLAGS);
+    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(DiamondPipeMenu::new);
+    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(NetheriteBasicPipeMenu::new);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

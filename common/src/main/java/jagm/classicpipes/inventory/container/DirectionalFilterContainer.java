@@ -16,15 +16,11 @@ public class DirectionalFilterContainer implements Filter {
     private final AbstractPipeEntity pipe;
     private boolean matchComponents;
 
-    public DirectionalFilterContainer(AbstractPipeEntity pipe) {
+    public DirectionalFilterContainer(AbstractPipeEntity pipe, boolean matchComponents) {
         this.pipe = pipe;
         this.filterMap = new HashMap<>();
-        this.matchComponents = false;
+        this.matchComponents = matchComponents;
         this.clearContent();
-    }
-
-    public DirectionalFilterContainer() {
-        this(null);
     }
 
     public boolean directionMatches(ItemStack stack, Direction direction) {

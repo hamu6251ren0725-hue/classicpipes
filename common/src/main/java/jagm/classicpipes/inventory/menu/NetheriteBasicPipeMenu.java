@@ -3,12 +3,17 @@ package jagm.classicpipes.inventory.menu;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 
 public class NetheriteBasicPipeMenu extends FilterMenu {
 
-    public NetheriteBasicPipeMenu(int id, Inventory playerInventory) {
-        this(id, playerInventory, new FilterContainer());
+    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, FriendlyByteBuf extraData) {
+        this(id, playerInventory, extraData.readBoolean());
+    }
+
+    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, boolean matchComponents) {
+        this(id, playerInventory, new FilterContainer(null, 9, matchComponents));
     }
 
     public NetheriteBasicPipeMenu(int id, Inventory playerInventory, Filter filter) {

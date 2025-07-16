@@ -27,7 +27,7 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
 
     public DiamondPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.DIAMOND_PIPE_ENTITY, pos, state);
-        this.filter = new DirectionalFilterContainer(this);
+        this.filter = new DirectionalFilterContainer(this, false);
     }
 
     @Override
@@ -95,6 +95,10 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
         return new DiamondPipeMenu(id, playerInventory, this.filter);
+    }
+
+    public boolean shouldMatchComponents() {
+        return this.filter.shouldMatchComponents();
     }
 
 }
