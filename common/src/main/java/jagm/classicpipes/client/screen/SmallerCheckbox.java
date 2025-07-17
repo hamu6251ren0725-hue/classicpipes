@@ -1,6 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.util.MiscUtil;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
@@ -16,17 +17,21 @@ public class SmallerCheckbox extends AbstractButton {
 
     private static final ResourceLocation CHECKBOX_SELECTED_SPRITE = MiscUtil.resourceLocation("widget/checkbox_selected");
     private static final ResourceLocation CHECKBOX_SPRITE = MiscUtil.resourceLocation("widget/checkbox");
-    public static final int SIZE = 11;
+    public static final int SIZE = 12;
 
     private boolean selected;
     private final SmallerCheckbox.OnValueChange onValueChange;
+    private final Component label;
+    private final Font font;
 
-    public SmallerCheckbox(int x, int y, SmallerCheckbox.OnValueChange onValueChange, boolean selected) {
+    public SmallerCheckbox(int x, int y, SmallerCheckbox.OnValueChange onValueChange, boolean selected, Component label, Font font) {
         super(x, y, 0, 0, CommonComponents.EMPTY);
-        this.width = SIZE;
+        this.width = SIZE + (font != null ? 4 + font.width(label) : 0);
         this.height = SIZE;
         this.selected = selected;
         this.onValueChange = onValueChange;
+        this.label = label;
+        this.font = font;
     }
 
     public static SmallerCheckbox.Builder builder() {
@@ -60,6 +65,7 @@ public class SmallerCheckbox extends AbstractButton {
     public void renderWidget(GuiGraphics graphics, int x, int y, float f) {
         ResourceLocation spriteLocation = this.selected() ? CHECKBOX_SELECTED_SPRITE : CHECKBOX_SPRITE;
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteLocation, this.getX(), this.getY(), SIZE, SIZE, ARGB.white(this.alpha));
+        graphics.drawString(this.font, this.label, this.getX() + SIZE + 4, this.getY() + 2, -12566464, false);
     }
 
     public interface OnValueChange {
@@ -68,15 +74,20 @@ public class SmallerCheckbox extends AbstractButton {
     }
 
     public static class Builder {
+
         private int x = 0;
         private int y = 0;
         private SmallerCheckbox.OnValueChange onValueChange;
         private Tooltip tooltip;
         private boolean selected = false;
+        private Component label;
+        private Font font;
 
         Builder() {
             this.onValueChange = SmallerCheckbox.OnValueChange.NOP;
             this.tooltip = null;
+            this.label = null;
+            this.font = null;
         }
 
         public SmallerCheckbox.Builder pos(int x, int y) {
@@ -100,8 +111,14 @@ public class SmallerCheckbox extends AbstractButton {
             return this;
         }
 
+        public SmallerCheckbox.Builder label(Component label, Font font) {
+            this.label = label;
+            this.font = font;
+            return this;
+        }
+
         public SmallerCheckbox build() {
-            SmallerCheckbox checkbox = new SmallerCheckbox(this.x, this.y, this.onValueChange, this.selected);
+            SmallerCheckbox checkbox = new SmallerCheckbox(this.x, this.y, this.onValueChange, this.selected, this.label, this.font);
             checkbox.setTooltip(this.tooltip);
             return checkbox;
         }

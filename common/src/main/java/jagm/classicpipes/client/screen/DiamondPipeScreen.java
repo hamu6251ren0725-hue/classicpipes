@@ -31,10 +31,11 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
         super.init();
         this.leftPos = (this.width - 176) / 2;
         this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 128)
+                .pos(this.leftPos + 8, this.topPos + 126)
                 .onValueChange(this::matchComponentsCheckboxChanged)
                 .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
                 .selected(this.getMenu().getFilter().shouldMatchComponents())
+                .label(Component.translatable("widget.classicpipes.match_components"), this.font)
                 .build()
         );
     }
@@ -46,7 +47,6 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
             Component text = Component.translatable("direction." + ClassicPipes.MOD_ID + "." + Direction.from3DDataValue(i).name().toLowerCase()).withStyle(ChatFormatting.BLACK);
             graphics.drawString(this.font, text, this.leftPos - 30 + (35 - this.font.width(text)) / 2, this.topPos + 22 + 18 * i, -12566464, false);
         }
-        graphics.drawString(this.font, Component.translatable("widget.classicpipes.match_components"), this.leftPos + 12 + SmallerCheckbox.SIZE, this.topPos + 130, -12566464, false);
         this.renderTooltip(graphics, x, y);
     }
 
