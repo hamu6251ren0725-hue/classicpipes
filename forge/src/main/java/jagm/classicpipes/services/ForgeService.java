@@ -1,8 +1,8 @@
 package jagm.classicpipes.services;
 
 import io.netty.buffer.ByteBuf;
-import jagm.classicpipes.network.PacketHandler;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.network.ForgePacketHandler;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -51,7 +51,7 @@ public class ForgeService implements LoaderService {
 
     @Override
     public void sendToServer(CustomPacketPayload payload) {
-        PacketHandler.sendToServer(payload);
+        ForgePacketHandler.sendToServer(payload);
     }
 
     @Override

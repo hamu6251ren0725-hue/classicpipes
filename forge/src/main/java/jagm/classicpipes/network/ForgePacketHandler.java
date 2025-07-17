@@ -6,14 +6,9 @@ import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.SimpleChannel;
 
-public class PacketHandler {
+public class ForgePacketHandler {
 
-    private static final SimpleChannel INSTANCE = ChannelBuilder
-            .named(MiscUtil.resourceLocation("main"))
-            .serverAcceptedVersions((status, version) -> true)
-            .clientAcceptedVersions((status, version) -> true)
-            .networkProtocolVersion(1)
-            .simpleChannel();
+    private static final SimpleChannel INSTANCE = ChannelBuilder.named(MiscUtil.resourceLocation("main")).simpleChannel();
 
     public static void register() {
         INSTANCE.play().serverbound().add(MatchComponentsPayload.class, MatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));

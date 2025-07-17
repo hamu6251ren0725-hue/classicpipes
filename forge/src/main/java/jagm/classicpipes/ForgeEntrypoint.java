@@ -3,7 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
-import jagm.classicpipes.network.PacketHandler;
+import jagm.classicpipes.network.ForgePacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraftforge.api.distmarker.Dist;
@@ -60,7 +60,7 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onCommonSetup(FMLCommonSetupEvent event) {
-            event.enqueueWork(PacketHandler::register);
+            event.enqueueWork(ForgePacketHandler::register);
         }
 
     }
