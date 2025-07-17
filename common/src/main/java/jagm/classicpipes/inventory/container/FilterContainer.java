@@ -90,4 +90,9 @@ public class FilterContainer implements Filter {
         return this.matchComponents;
     }
 
+    @Override
+    public AbstractPipeEntity getPipe() {
+        return this.pipe;
+    }
+
 }

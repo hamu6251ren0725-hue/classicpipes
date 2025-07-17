@@ -26,7 +26,7 @@ public class SmallerCheckbox extends AbstractButton {
 
     public SmallerCheckbox(int x, int y, SmallerCheckbox.OnValueChange onValueChange, boolean selected, Component label, Font font) {
         super(x, y, 0, 0, CommonComponents.EMPTY);
-        this.width = SIZE + (font != null ? 4 + font.width(label) : 0);
+        this.width = SIZE + (font != null ? 2 + font.width(label) : 0);
         this.height = SIZE;
         this.selected = selected;
         this.onValueChange = onValueChange;
@@ -65,7 +65,7 @@ public class SmallerCheckbox extends AbstractButton {
     public void renderWidget(GuiGraphics graphics, int x, int y, float f) {
         ResourceLocation spriteLocation = this.selected() ? CHECKBOX_SELECTED_SPRITE : CHECKBOX_SPRITE;
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteLocation, this.getX(), this.getY(), SIZE, SIZE, ARGB.white(this.alpha));
-        graphics.drawString(this.font, this.label, this.getX() + SIZE + 4, this.getY() + 2, -12566464, false);
+        graphics.drawString(this.font, this.label, this.getX() + SIZE + 2, this.getY() + 3, -12566464, false);
     }
 
     public interface OnValueChange {

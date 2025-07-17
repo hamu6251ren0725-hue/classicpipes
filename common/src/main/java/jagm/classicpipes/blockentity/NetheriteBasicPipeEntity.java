@@ -19,10 +19,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
+    private boolean defaultRoute;
 
     public NetheriteBasicPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 9, false);
+        this.defaultRoute = false;
     }
 
     @Override
@@ -34,6 +36,7 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
             this.filter.setItem(slotStack.slot(), slotStack.stack());
         }
         this.filter.setMatchComponents(valueInput.getBooleanOr("match_components", false));
+        this.defaultRoute = valueInput.getBooleanOr("default_route", false);
     }
 
     @Override
@@ -47,6 +50,7 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
             }
         }
         valueOutput.putBoolean("match_components", this.filter.shouldMatchComponents());
+        valueOutput.putBoolean("default_route", this.defaultRoute);
     }
 
     @Override
@@ -56,11 +60,19 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new NetheriteBasicPipeMenu(id, playerInventory, this.filter);
+        return new NetheriteBasicPipeMenu(id, playerInventory, this.filter, this.defaultRoute);
     }
 
     public boolean shouldMatchComponents() {
         return this.filter.shouldMatchComponents();
+    }
+
+    public boolean isDefaultRoute() {
+        return this.defaultRoute;
+    }
+
+    public void setDefaultRoute(boolean defaultRoute) {
+        this.defaultRoute = defaultRoute;
     }
 
 }

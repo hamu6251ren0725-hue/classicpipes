@@ -17,6 +17,7 @@ public class PacketHandler {
 
     public static void register() {
         INSTANCE.play().serverbound().add(MatchComponentsPayload.class, MatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
+        INSTANCE.play().serverbound().add(DefaultRoutePayload.class, DefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
     }
 
     public static void sendToServer(CustomPacketPayload payload) {

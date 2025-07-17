@@ -1,8 +1,12 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
+import jagm.classicpipes.network.DefaultRoutePayload;
+import jagm.classicpipes.network.MatchComponentsPayload;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -18,6 +22,27 @@ public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteB
     }
 
     @Override
+    protected void init() {
+        super.init();
+        this.addRenderableWidget(SmallerCheckbox.builder()
+                .pos(this.leftPos + 8, this.topPos + 36)
+                .onValueChange(this::matchComponentsCheckboxChanged)
+                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
+                .selected(this.getMenu().getFilter().shouldMatchComponents())
+                .label(Component.translatable("widget.classicpipes.match_components"), this.font)
+                .build()
+        );
+        this.addRenderableWidget(SmallerCheckbox.builder()
+                .pos(this.leftPos + 8, this.topPos + 49)
+                .onValueChange(this::defaultRouteCheckboxChanged)
+                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.default_route")))
+                .selected(this.getMenu().isDefaultRoute())
+                .label(Component.translatable("widget.classicpipes.default_route"), this.font)
+                .build()
+        );
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int x, int y, float f) {
         super.render(graphics, x, y, f);
         this.renderTooltip(graphics, x, y);
@@ -28,6 +53,14 @@ public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteB
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         p_281362_.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+    }
+
+    private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
+        Services.LOADER_SERVICE.sendToServer(new MatchComponentsPayload(checked));
+    }
+
+    private void defaultRouteCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
+        Services.LOADER_SERVICE.sendToServer(new DefaultRoutePayload(checked));
     }
 
 }

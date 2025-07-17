@@ -126,4 +126,9 @@ public class DirectionalFilterContainer implements Filter {
         return this.matchComponents;
     }
 
+    @Override
+    public AbstractPipeEntity getPipe() {
+        return this.pipe;
+    }
+
 }

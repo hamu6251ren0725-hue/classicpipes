@@ -4,6 +4,7 @@ import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
+import jagm.classicpipes.network.NetheriteBasicPipePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
@@ -81,7 +82,7 @@ public class ClassicPipes {
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
     public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
-    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(NetheriteBasicPipeMenu::new, ByteBufCodecs.BOOL);
+    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(NetheriteBasicPipeMenu::new, NetheriteBasicPipePayload.STREAM_CODEC);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

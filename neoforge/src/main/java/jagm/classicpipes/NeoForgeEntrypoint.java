@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
+import jagm.classicpipes.network.DefaultRoutePayload;
 import jagm.classicpipes.network.MatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
@@ -63,6 +64,7 @@ public class NeoForgeEntrypoint {
         public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
             registrar.playToServer(MatchComponentsPayload.TYPE, MatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+            registrar.playToServer(DefaultRoutePayload.TYPE, DefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
         }
 
     }

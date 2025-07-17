@@ -1,5 +1,6 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.network.DefaultRoutePayload;
 import jagm.classicpipes.network.MatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.api.ModInitializer;
@@ -17,8 +18,11 @@ public class FabricEntrypoint implements ModInitializer {
 
     @Override
     public void onInitialize() {
+
         ClassicPipes.ITEMS.forEach((name, item) -> Registry.register(BuiltInRegistries.ITEM, MiscUtil.resourceLocation(name), item));
         ClassicPipes.BLOCKS.forEach((name, block) -> Registry.register(BuiltInRegistries.BLOCK, MiscUtil.resourceLocation(name), block));
+        ClassicPipes.SOUNDS.forEach((name, soundEvent) -> Registry.register(BuiltInRegistries.SOUND_EVENT, MiscUtil.resourceLocation(name), soundEvent));
+
         registerBlockEntity("basic_pipe", ClassicPipes.BASIC_PIPE_ENTITY);
         registerBlockEntity("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
         registerBlockEntity("copper_pipe", ClassicPipes.COPPER_PIPE_ENTITY);
@@ -28,13 +32,18 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("lapis_pipe", ClassicPipes.LAPIS_PIPE_ENTITY);
         registerBlockEntity("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
         registerBlockEntity("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY);
-        ClassicPipes.SOUNDS.forEach((name, soundEvent) -> Registry.register(BuiltInRegistries.SOUND_EVENT, MiscUtil.resourceLocation(name), soundEvent));
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
-        ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
+
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
+        ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
+
         PayloadTypeRegistry.playC2S().register(MatchComponentsPayload.TYPE, MatchComponentsPayload.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(MatchComponentsPayload.TYPE, (payload, context) -> payload.handle(context.player()));
+        PayloadTypeRegistry.playC2S().register(DefaultRoutePayload.TYPE, DefaultRoutePayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(DefaultRoutePayload.TYPE, (payload, context) -> payload.handle(context.player()));
+
     }
 
     private static <T extends BlockEntity> void registerBlockEntity(String name, BlockEntityType<T> blockEntityType) {
