@@ -59,7 +59,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
         BlockState superState = super.getStateForPlacement(context);
         if (superState != null) {
             for (Direction direction : Direction.values()) {
-                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer(context.getLevel(), context.getClickedPos().relative(direction), direction.getOpposite())) {
+                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.LOADER_SERVICE.canAccessContainer(context.getLevel(), context.getClickedPos().relative(direction), direction.getOpposite())) {
                     return superState.trySetValue(FACING, direction).trySetValue(ATTACHED, true);
                 }
             }
@@ -73,7 +73,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
         BlockState superState = super.updateShape(state, level, scheduledTickAccess, pipePos, initialDirection, neighborPos, neighborState, random);
         Direction direction = superState.getValue(FACING);
         for (int i = 0; i < 6; i++) {
-            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer((Level) level, pipePos.relative(direction), direction.getOpposite())) {
+            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.LOADER_SERVICE.canAccessContainer((Level) level, pipePos.relative(direction), direction.getOpposite())) {
                 return superState.setValue(FACING, direction).setValue(ATTACHED, true);
             }
             direction = MiscUtil.nextDirection(direction);
@@ -86,7 +86,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
         if (player.getAbilities().mayBuild && !MiscUtil.itemIsPipe(player.getMainHandItem())) {
             Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
             for (int i = 0; i < 5; i++) {
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.BLOCK_ENTITY_HELPER.canAccessContainer(level, pipePos.relative(direction), direction.getOpposite())) {
+                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.LOADER_SERVICE.canAccessContainer(level, pipePos.relative(direction), direction.getOpposite())) {
                     level.setBlock(pipePos, state.setValue(FACING, direction).setValue(ATTACHED, true), 3);
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pipePos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);

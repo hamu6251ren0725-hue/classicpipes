@@ -1,7 +1,6 @@
 package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.inventory.container.Filter;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;

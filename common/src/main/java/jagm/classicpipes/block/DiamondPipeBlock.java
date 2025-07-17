@@ -37,7 +37,7 @@ public class DiamondPipeBlock extends AbstractPipeBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
             if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof DiamondPipeEntity diamondPipe) {
-                Services.BLOCK_ENTITY_HELPER.openMenu((ServerPlayer) player, diamondPipe, diamondPipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
+                Services.LOADER_SERVICE.openMenu((ServerPlayer) player, diamondPipe, diamondPipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
             }
             return InteractionResult.SUCCESS;
         }

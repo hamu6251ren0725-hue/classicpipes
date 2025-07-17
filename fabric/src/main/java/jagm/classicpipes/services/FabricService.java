@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -14,9 +15,9 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class FabricBlockEntityHelper implements BlockEntityHelper {
+public class FabricService implements LoaderService {
 
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
@@ -50,7 +51,7 @@ public class FabricBlockEntityHelper implements BlockEntityHelper {
 
     @Override
     public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec) {
-        player.openMenu(new ExtendedScreenHandlerFactory<>() {
+        player.openMenu(new ExtendedScreenHandlerFactory<D>() {
 
             @Override
             public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
@@ -81,6 +82,11 @@ public class FabricBlockEntityHelper implements BlockEntityHelper {
             return itemHandler.supportsExtraction() || itemHandler.supportsInsertion();
         }
         return false;
+    }
+
+    @Override
+    public void sendToServer(CustomPacketPayload payload) {
+        ClientPlayNetworking.send(payload);
     }
 
     @Override

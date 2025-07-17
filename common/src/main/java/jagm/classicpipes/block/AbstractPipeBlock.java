@@ -69,7 +69,7 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
         if (level.getBlockState(neighbourPos).getBlock() instanceof AbstractPipeBlock pipeBlock) {
             return this.canConnectToPipe(pipeBlock);
         }
-        return Services.BLOCK_ENTITY_HELPER.canAccessContainer(level, neighbourPos, direction.getOpposite());
+        return Services.LOADER_SERVICE.canAccessContainer(level, neighbourPos, direction.getOpposite());
     }
 
     protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){

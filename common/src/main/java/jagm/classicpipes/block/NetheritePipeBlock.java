@@ -68,7 +68,7 @@ public class NetheritePipeBlock extends AbstractPipeBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
             if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof NetheriteBasicPipeEntity netheritePipe) {
-                Services.BLOCK_ENTITY_HELPER.openMenu((ServerPlayer) player, netheritePipe,  netheritePipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
+                Services.LOADER_SERVICE.openMenu((ServerPlayer) player, netheritePipe,  netheritePipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
             }
             return InteractionResult.SUCCESS;
         }

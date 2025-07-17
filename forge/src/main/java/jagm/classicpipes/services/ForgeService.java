@@ -1,12 +1,13 @@
 package jagm.classicpipes.services;
 
 import io.netty.buffer.ByteBuf;
+import jagm.classicpipes.network.PacketHandler;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -31,7 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-public class ForgeBlockEntityHelper implements BlockEntityHelper {
+public class ForgeService implements LoaderService {
 
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks) {
@@ -46,6 +47,11 @@ public class ForgeBlockEntityHelper implements BlockEntityHelper {
     @Override
     public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec) {
         player.openMenu(menuProvider, buffer -> codec.encode(buffer, payload));
+    }
+
+    @Override
+    public void sendToServer(CustomPacketPayload payload) {
+        PacketHandler.sendToServer(payload);
     }
 
     @Override

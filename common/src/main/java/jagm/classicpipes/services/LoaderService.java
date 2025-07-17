@@ -5,8 +5,8 @@ import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -22,11 +22,13 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.function.BiFunction;
 
-public interface BlockEntityHelper {
+public interface LoaderService {
 
     <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> blockEntitySupplier, Block... validBlocks);
 
     <T extends AbstractContainerMenu, D> MenuType<T> createMenuType(TriFunction<Integer, Inventory, D, T> menuSupplier, StreamCodec<ByteBuf, D> codec);
+
+    void sendToServer(CustomPacketPayload payload);
 
     <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec);
 

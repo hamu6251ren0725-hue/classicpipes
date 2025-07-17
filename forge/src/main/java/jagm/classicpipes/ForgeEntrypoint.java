@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
+import jagm.classicpipes.network.PacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,12 +20,6 @@ import net.minecraftforge.registries.RegisterEvent;
 @Mod(ClassicPipes.MOD_ID)
 public class ForgeEntrypoint {
 
-    /*public static final SimpleChannel INSTANCE = ChannelBuilder.named(MiscUtil.resourceLocation("main"))
-            .serverAcceptedVersions((status, version) -> true)
-            .clientAcceptedVersions((status, version) -> true)
-            .networkProtocolVersion(1)
-            .simpleChannel();
-    */
     public ForgeEntrypoint(FMLJavaModLoadingContext context) {
 
     }
@@ -65,9 +60,7 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onCommonSetup(FMLCommonSetupEvent event) {
-            event.enqueueWork(() -> {
-                // TODO Register Forge packet handler.
-            });
+            event.enqueueWork(PacketHandler::register);
         }
 
     }

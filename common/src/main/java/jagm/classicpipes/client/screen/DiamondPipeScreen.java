@@ -3,16 +3,15 @@ package jagm.classicpipes.client.screen;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.network.MatchComponentsPayload;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -59,12 +58,7 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
     }
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        if (this.minecraft != null) {
-            ClientPacketListener listener = this.minecraft.getConnection();
-            if (listener != null) {
-                listener.send(new ServerboundCustomPayloadPacket(new MatchComponentsPayload(checked)));
-            }
-        }
+        Services.LOADER_SERVICE.sendToServer(new MatchComponentsPayload(checked));
     }
 
 }

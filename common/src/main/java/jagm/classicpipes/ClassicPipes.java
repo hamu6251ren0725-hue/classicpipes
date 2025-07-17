@@ -63,15 +63,15 @@ public class ClassicPipes {
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.MUD_BRICKS), translateDesc("obsidian_pipe"));
     public static final Block NETHERITE_BASIC_PIPE = createPipe("netherite_pipe", NetheritePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("netherite_pipe.a"), translateDesc("netherite_pipe.b"));
 
-    public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
-    public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
-    public static final BlockEntityType<CopperPipeEntity> COPPER_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(CopperPipeEntity::new, COPPER_PIPE);
-    public static final BlockEntityType<IronPipeEntity> IRON_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(IronPipeEntity::new, IRON_PIPE);
-    public static final BlockEntityType<DiamondPipeEntity> DIAMOND_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(DiamondPipeEntity::new, DIAMOND_PIPE);
-    public static final BlockEntityType<FlintPipeEntity> FLINT_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(FlintPipeEntity::new, FLINT_PIPE);
-    public static final BlockEntityType<LapisPipeEntity> LAPIS_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(LapisPipeEntity::new, LAPIS_PIPE);
-    public static final BlockEntityType<ObsidianPipeEntity> OBSIDIAN_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(ObsidianPipeEntity::new, OBSIDIAN_PIPE);
-    public static final BlockEntityType<LogisticalPipeEntity> NETHERITE_BASIC_PIPE_ENTITY = Services.BLOCK_ENTITY_HELPER.createBlockEntityType(NetheriteBasicPipeEntity::new, NETHERITE_BASIC_PIPE);
+    public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
+    public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
+    public static final BlockEntityType<CopperPipeEntity> COPPER_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(CopperPipeEntity::new, COPPER_PIPE);
+    public static final BlockEntityType<IronPipeEntity> IRON_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(IronPipeEntity::new, IRON_PIPE);
+    public static final BlockEntityType<DiamondPipeEntity> DIAMOND_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(DiamondPipeEntity::new, DIAMOND_PIPE);
+    public static final BlockEntityType<FlintPipeEntity> FLINT_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(FlintPipeEntity::new, FLINT_PIPE);
+    public static final BlockEntityType<LapisPipeEntity> LAPIS_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(LapisPipeEntity::new, LAPIS_PIPE);
+    public static final BlockEntityType<ObsidianPipeEntity> OBSIDIAN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(ObsidianPipeEntity::new, OBSIDIAN_PIPE);
+    public static final BlockEntityType<LogisticalPipeEntity> NETHERITE_BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(NetheriteBasicPipeEntity::new, NETHERITE_BASIC_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
@@ -80,8 +80,8 @@ public class ClassicPipes {
     public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
-    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
-    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.BLOCK_ENTITY_HELPER.createMenuType(NetheriteBasicPipeMenu::new, ByteBufCodecs.BOOL);
+    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
+    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(NetheriteBasicPipeMenu::new, ByteBufCodecs.BOOL);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {
