@@ -113,7 +113,7 @@ public class CopperPipeBlock extends AbstractPipeBlock {
     private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
         if (state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.setValue(ENABLED, false), 2);
-        } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos) && state.getValue(ATTACHED)) {
+        } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.setValue(ENABLED, true), 2);
         }
     }
