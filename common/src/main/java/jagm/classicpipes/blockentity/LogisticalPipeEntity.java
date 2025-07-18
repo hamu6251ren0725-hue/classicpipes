@@ -4,6 +4,7 @@ import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.NetheritePipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.LogisticalNetwork;
+import jagm.classicpipes.util.ScheduledRoute;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -19,7 +20,7 @@ import java.util.*;
 
 public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
-    private final Map<ItemStack, Direction> routingSchedule;
+    private final Map<ItemStack, ScheduledRoute> routingSchedule;
     private LogisticalNetwork logisticalNetwork;
     private boolean controller;
     public BlockPos toLoad;
@@ -36,6 +37,15 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
+        Iterator<ItemStack> iterator = this.routingSchedule.keySet().iterator();
+        while (iterator.hasNext()) {
+            ScheduledRoute route = this.routingSchedule.get(iterator.next());
+            route.tick();
+            if (route.timedOut()) {
+                iterator.remove();
+                this.setChanged();
+            }
+        }
         if (!this.hasLogisticalNetwork()) {
             if (this.toLoad != null && this.loadAttempts < 3) {
                 if (level.getBlockEntity(this.toLoad) instanceof LogisticalPipeEntity controllerPipe) {
@@ -134,7 +144,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
             ItemStack stack = iterator.next();
             if (ItemStack.isSameItemSameComponents(stack, item.getStack()) && stack.getCount() == item.getStack().getCount()) {
                 item.setEjecting(false);
-                item.setTargetDirection(this.routingSchedule.get(stack));
+                item.setTargetDirection(this.routingSchedule.get(stack).getDirection());
                 iterator.remove();
                 return true;
             }
@@ -143,7 +153,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     }
 
     public void schedule(ItemStack stack, Direction direction) {
-        routingSchedule.put(stack, direction);
+        routingSchedule.put(stack, new ScheduledRoute(direction));
     }
 
     public void schedulePath(ServerLevel level, ItemInPipe item, LogisticalPipeEntity target) {
@@ -237,7 +247,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         this.routingSchedule.clear();
         ValueInput.TypedInputList<ItemStackWithSlot> routingList = valueInput.listOrEmpty("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : routingList) {
-            this.routingSchedule.put(slotStack.stack(), Direction.from3DDataValue(slotStack.slot()));
+            this.routingSchedule.put(slotStack.stack(), new ScheduledRoute(Direction.from3DDataValue(slotStack.slot())));
         }
     }
 
@@ -250,7 +260,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         valueOutput.putBoolean("controller", this.isController());
         ValueOutput.TypedOutputList<ItemStackWithSlot> routingList = valueOutput.list("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStack stack : this.routingSchedule.keySet()) {
-            routingList.add(new ItemStackWithSlot(this.routingSchedule.get(stack).get3DDataValue(), stack));
+            routingList.add(new ItemStackWithSlot(this.routingSchedule.get(stack).getDirection().get3DDataValue(), stack));
         }
     }
 
