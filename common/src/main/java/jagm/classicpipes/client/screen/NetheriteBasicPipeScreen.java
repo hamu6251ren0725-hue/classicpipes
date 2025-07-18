@@ -1,8 +1,8 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
-import jagm.classicpipes.network.DefaultRoutePayload;
-import jagm.classicpipes.network.MatchComponentsPayload;
+import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
+import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -56,11 +56,11 @@ public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteB
     }
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        Services.LOADER_SERVICE.sendToServer(new MatchComponentsPayload(checked));
+        Services.LOADER_SERVICE.sendToServer(new ServerBoundMatchComponentsPayload(checked));
     }
 
     private void defaultRouteCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        Services.LOADER_SERVICE.sendToServer(new DefaultRoutePayload(checked));
+        Services.LOADER_SERVICE.sendToServer(new ServerBoundDefaultRoutePayload(checked));
     }
 
 }

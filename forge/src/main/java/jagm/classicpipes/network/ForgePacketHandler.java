@@ -11,8 +11,8 @@ public class ForgePacketHandler {
     private static final SimpleChannel INSTANCE = ChannelBuilder.named(MiscUtil.resourceLocation("main")).simpleChannel();
 
     public static void register() {
-        INSTANCE.play().serverbound().add(MatchComponentsPayload.class, MatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
-        INSTANCE.play().serverbound().add(DefaultRoutePayload.class, DefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
+        INSTANCE.play().serverbound().add(ServerBoundMatchComponentsPayload.class, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
+        INSTANCE.play().serverbound().add(ServerBoundDefaultRoutePayload.class, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
     }
 
     public static void sendToServer(CustomPacketPayload payload) {

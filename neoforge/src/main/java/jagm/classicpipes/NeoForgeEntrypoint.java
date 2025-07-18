@@ -3,8 +3,8 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
-import jagm.classicpipes.network.DefaultRoutePayload;
-import jagm.classicpipes.network.MatchComponentsPayload;
+import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
+import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.api.distmarker.Dist;
@@ -63,8 +63,8 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
-            registrar.playToServer(MatchComponentsPayload.TYPE, MatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
-            registrar.playToServer(DefaultRoutePayload.TYPE, DefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+            registrar.playToServer(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+            registrar.playToServer(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
         }
 
     }

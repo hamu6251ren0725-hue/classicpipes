@@ -4,14 +4,14 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.NetheriteBasicPipeEntity;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.network.NetheriteBasicPipePayload;
+import jagm.classicpipes.network.ClientBoundNetheritePipePayload;
 import net.minecraft.world.entity.player.Inventory;
 
 public class NetheriteBasicPipeMenu extends FilterMenu {
 
     private boolean defaultRoute;
 
-    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, NetheriteBasicPipePayload payload) {
+    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, ClientBoundNetheritePipePayload payload) {
         this(id, playerInventory, new FilterContainer(null, 9, payload.matchComponents()), payload.defaultRoute());
     }
 

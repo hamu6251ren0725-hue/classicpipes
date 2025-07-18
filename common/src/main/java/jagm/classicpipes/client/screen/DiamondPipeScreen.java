@@ -2,7 +2,7 @@ package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
-import jagm.classicpipes.network.MatchComponentsPayload;
+import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
@@ -58,7 +58,7 @@ public class DiamondPipeScreen extends AbstractContainerScreen<DiamondPipeMenu> 
     }
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        Services.LOADER_SERVICE.sendToServer(new MatchComponentsPayload(checked));
+        Services.LOADER_SERVICE.sendToServer(new ServerBoundMatchComponentsPayload(checked));
     }
 
 }

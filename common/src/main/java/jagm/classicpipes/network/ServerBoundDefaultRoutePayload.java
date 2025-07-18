@@ -8,13 +8,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record DefaultRoutePayload(boolean defaultRoute) implements CustomPacketPayload {
+public record ServerBoundDefaultRoutePayload(boolean defaultRoute) implements CustomPacketPayload {
 
-    public static final Type<DefaultRoutePayload> TYPE = new Type<>(MiscUtil.resourceLocation("default_route"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, DefaultRoutePayload> STREAM_CODEC = StreamCodec.composite(
+    public static final Type<ServerBoundDefaultRoutePayload> TYPE = new Type<>(MiscUtil.resourceLocation("default_route"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerBoundDefaultRoutePayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL,
-            DefaultRoutePayload::defaultRoute,
-            DefaultRoutePayload::new
+            ServerBoundDefaultRoutePayload::defaultRoute,
+            ServerBoundDefaultRoutePayload::new
     );
 
     @Override

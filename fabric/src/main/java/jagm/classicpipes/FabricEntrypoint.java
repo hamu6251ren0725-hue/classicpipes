@@ -1,7 +1,7 @@
 package jagm.classicpipes;
 
-import jagm.classicpipes.network.DefaultRoutePayload;
-import jagm.classicpipes.network.MatchComponentsPayload;
+import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
+import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -39,10 +39,10 @@ public class FabricEntrypoint implements ModInitializer {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
 
-        PayloadTypeRegistry.playC2S().register(MatchComponentsPayload.TYPE, MatchComponentsPayload.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(MatchComponentsPayload.TYPE, (payload, context) -> payload.handle(context.player()));
-        PayloadTypeRegistry.playC2S().register(DefaultRoutePayload.TYPE, DefaultRoutePayload.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(DefaultRoutePayload.TYPE, (payload, context) -> payload.handle(context.player()));
+        PayloadTypeRegistry.playC2S().register(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ServerBoundMatchComponentsPayload.TYPE, (payload, context) -> payload.handle(context.player()));
+        PayloadTypeRegistry.playC2S().register(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ServerBoundDefaultRoutePayload.TYPE, (payload, context) -> payload.handle(context.player()));
 
     }
 

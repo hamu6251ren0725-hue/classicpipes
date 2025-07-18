@@ -8,13 +8,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record MatchComponentsPayload(boolean matchComponents) implements CustomPacketPayload {
+public record ServerBoundMatchComponentsPayload(boolean matchComponents) implements CustomPacketPayload {
 
-    public static final CustomPacketPayload.Type<MatchComponentsPayload> TYPE = new CustomPacketPayload.Type<>(MiscUtil.resourceLocation("match_components"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MatchComponentsPayload> STREAM_CODEC = StreamCodec.composite(
+    public static final CustomPacketPayload.Type<ServerBoundMatchComponentsPayload> TYPE = new CustomPacketPayload.Type<>(MiscUtil.resourceLocation("match_components"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerBoundMatchComponentsPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL,
-            MatchComponentsPayload::matchComponents,
-            MatchComponentsPayload::new
+            ServerBoundMatchComponentsPayload::matchComponents,
+            ServerBoundMatchComponentsPayload::new
     );
 
     @Override
