@@ -1,6 +1,5 @@
 package jagm.classicpipes.network;
 
-import jagm.classicpipes.inventory.menu.FilterMenu;
 import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;

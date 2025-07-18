@@ -1,30 +1,38 @@
 package jagm.classicpipes.util;
 
 import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetheriteBasicPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class LogisticalNetwork {
 
     private final BlockPos pos;
-    private final Set<LogisticalPipeEntity> pipes;
+    private final Set<NetheriteBasicPipeEntity> routingPipes;
+    private final Set<NetheriteBasicPipeEntity> defaultRoutes;
 
     public LogisticalNetwork(BlockPos pos, LogisticalPipeEntity... pipes) {
-        this.pipes = new HashSet<>();
-        this.pipes.addAll(Arrays.asList(pipes));
+        this.routingPipes = new HashSet<>();
+        this.defaultRoutes = new HashSet<>();
+        for (LogisticalPipeEntity pipe : pipes) {
+            this.addPipe(pipe);
+        }
         this.pos = pos;
     }
 
     public void merge(LogisticalNetwork otherNetwork) {
-        this.pipes.addAll(otherNetwork.getPipes());
+        this.routingPipes.addAll(otherNetwork.getRoutingPipes());
     }
 
-    public Set<LogisticalPipeEntity> getPipes() {
-        return this.pipes;
+    public Set<NetheriteBasicPipeEntity> getRoutingPipes() {
+        return this.routingPipes;
+    }
+
+    public Set<NetheriteBasicPipeEntity> getDefaultRoutes() {
+        return this.defaultRoutes;
     }
 
     public BlockPos getPos() {
@@ -32,14 +40,16 @@ public class LogisticalNetwork {
     }
 
     public void destroy(ServerLevel level) {
-        for (LogisticalPipeEntity pipe : this.pipes) {
-            pipe.setController(false);
-            pipe.setLogisticalNetwork(null, level, pipe.getBlockPos(), pipe.getBlockState());
-        }
+        this.routingPipes.forEach(pipe -> pipe.disconnect(level));
     }
 
     public void addPipe(LogisticalPipeEntity pipe) {
-        this.pipes.add(pipe);
+        if (pipe instanceof NetheriteBasicPipeEntity routingPipe) {
+            this.routingPipes.add(routingPipe);
+            if (routingPipe.isDefaultRoute()) {
+                this.defaultRoutes.add(routingPipe);
+            }
+        }
     }
 
 }

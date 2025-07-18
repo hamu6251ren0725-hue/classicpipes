@@ -95,4 +95,15 @@ public class FilterContainer implements Filter {
         return this.pipe;
     }
 
+    public boolean matches(ItemStack stack) {
+        for (ItemStack filterStack : this.filter) {
+            if (stack.is(filterStack.getItem())) {
+                if (!this.matchComponents || ItemStack.isSameItemSameComponents(stack, filterStack)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

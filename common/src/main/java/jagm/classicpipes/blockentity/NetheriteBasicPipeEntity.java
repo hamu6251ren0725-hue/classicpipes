@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-
 public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
@@ -73,6 +72,12 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     public void setDefaultRoute(boolean defaultRoute) {
         this.defaultRoute = defaultRoute;
+        // Re-add this pipe to the network so it knows whether it's a default route.
+        this.getLogisticalNetwork().addPipe(this);
+    }
+
+    public boolean canRouteItemHere(ItemStack stack) {
+        return this.filter.matches(stack);
     }
 
 }
