@@ -10,8 +10,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,9 +73,13 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
     protected boolean canConnect(Level level, BlockPos pipePos, Direction direction) {
         BlockPos neighbourPos = pipePos.relative(direction);
         if (level.getBlockState(neighbourPos).getBlock() instanceof AbstractPipeBlock pipeBlock) {
-            return this.canConnectToPipe(pipeBlock);
+            return canConnectToPipeBothWays(this, pipeBlock);
         }
         return Services.LOADER_SERVICE.canAccessContainer(level, neighbourPos, direction.getOpposite());
+    }
+
+    protected static boolean canConnectToPipeBothWays(AbstractPipeBlock pipe1, AbstractPipeBlock pipe2) {
+        return pipe1.canConnectToPipe(pipe2) && pipe2.canConnectToPipe(pipe1);
     }
 
     protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){
