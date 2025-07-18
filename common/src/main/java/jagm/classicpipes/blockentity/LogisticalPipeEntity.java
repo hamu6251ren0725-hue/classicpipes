@@ -1,11 +1,9 @@
 package jagm.classicpipes.blockentity;
 
-import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.NetheritePipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.LogisticalNetwork;
-import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -118,6 +116,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                         item.setTargetDirection(validDirections.get(serverLevel.getRandom().nextInt(validDirections.size())));
                     } else {
                         item.setEjecting(true);
+                        item.setTargetDirection(item.getFromDirection().getOpposite());
                     }
                 } else if (!validTargets.isEmpty()) {
                     this.schedulePath(serverLevel, item, validTargets.get(serverLevel.getRandom().nextInt(validTargets.size())));
@@ -148,7 +147,6 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     }
 
     public void schedulePath(ServerLevel level, ItemInPipe item, LogisticalPipeEntity target) {
-        ClassicPipes.LOGGER.info("Finding route from {} to {}.", this.getBlockPos(), target.getBlockPos());
         Map<LogisticalPipeEntity, Tuple<LogisticalPipeEntity, Direction>> cameFrom = new HashMap<>();
         Map<LogisticalPipeEntity, Integer> gScore = new HashMap<>();
         gScore.put(this, 0);
@@ -159,7 +157,6 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         while (!openSet.isEmpty()) {
             LogisticalPipeEntity current = openSet.poll();
             if (current == target) {
-                ClassicPipes.LOGGER.info("Found target.");
                 while (cameFrom.containsKey(current)) {
                     Tuple<LogisticalPipeEntity, Direction> tuple = cameFrom.get(current);
                     current = tuple.getA();
@@ -188,9 +185,6 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     public void setLogisticalNetwork(LogisticalNetwork logisticalNetwork, ServerLevel level, BlockPos pos, BlockState state) {
         if (logisticalNetwork != null) {
             logisticalNetwork.addPipe(this);
-            if (MiscUtil.DEBUG_MODE) {
-                ClassicPipes.LOGGER.info("Pipe at [ {} {} {} ] linked to network at [ {} {} {} ]", pos.getX(), pos.getY(), pos.getZ(), logisticalNetwork.getPos().getX(),  logisticalNetwork.getPos().getY(),  logisticalNetwork.getPos().getZ());
-            }
         }
         this.logisticalNetwork = logisticalNetwork;
         this.setChanged();

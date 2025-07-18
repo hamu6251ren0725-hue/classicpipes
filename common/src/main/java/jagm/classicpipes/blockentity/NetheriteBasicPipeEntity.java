@@ -72,8 +72,11 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     public void setDefaultRoute(boolean defaultRoute) {
         this.defaultRoute = defaultRoute;
-        // Re-add this pipe to the network so it knows whether it's a default route.
-        this.getLogisticalNetwork().addPipe(this);
+        if (defaultRoute) {
+            this.getLogisticalNetwork().addPipe(this);
+        } else {
+            this.getLogisticalNetwork().getDefaultRoutes().remove(this);
+        }
     }
 
     public boolean canRouteItemHere(ItemStack stack) {
