@@ -2,6 +2,7 @@ package jagm.classicpipes.util;
 
 import jagm.classicpipes.blockentity.LogisticalPipeEntity;
 import jagm.classicpipes.blockentity.NetheriteBasicPipeEntity;
+import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 
@@ -13,10 +14,12 @@ public class LogisticalNetwork {
     private final BlockPos pos;
     private final Set<NetheriteBasicPipeEntity> routingPipes;
     private final Set<NetheriteBasicPipeEntity> defaultRoutes;
+    private final Set<ProviderPipeEntity> providerPipes;
 
     public LogisticalNetwork(BlockPos pos, LogisticalPipeEntity... pipes) {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
+        this.providerPipes = new HashSet<>();
         for (LogisticalPipeEntity pipe : pipes) {
             this.addPipe(pipe);
         }
@@ -32,7 +35,10 @@ public class LogisticalNetwork {
     }
 
     public Set<LogisticalPipeEntity> getAllPipes() {
-        return new HashSet<>(this.routingPipes);
+        Set<LogisticalPipeEntity> allPipes = new HashSet<>();
+        allPipes.addAll(this.routingPipes);
+        allPipes.addAll(this.providerPipes);
+        return allPipes;
     }
 
     public Set<NetheriteBasicPipeEntity> getRoutingPipes() {
@@ -57,6 +63,8 @@ public class LogisticalNetwork {
             if (routingPipe.isDefaultRoute()) {
                 this.defaultRoutes.add(routingPipe);
             }
+        } else if (pipe instanceof ProviderPipeEntity providerPipe) {
+            this.providerPipes.add(providerPipe);
         }
     }
 

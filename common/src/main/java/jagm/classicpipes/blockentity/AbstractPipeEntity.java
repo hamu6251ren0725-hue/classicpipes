@@ -185,6 +185,9 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         if (wasConnected) {
             blockUpdated = true;
             this.logistics.remove(direction);
+            if (this instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.hasLogisticalNetwork()) {
+                logisticalPipe.getLogisticalNetwork().destroy(level);
+            }
         }
         for (Direction otherDirection : Direction.values()) {
             BlockPos nextPos = pos.relative(otherDirection);
@@ -192,6 +195,9 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 this.updateLogistics(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>());
             } else {
                 this.logistics.remove(otherDirection);
+                if (this instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.hasLogisticalNetwork()) {
+                    logisticalPipe.getLogisticalNetwork().destroy(level);
+                }
                 blockUpdated = true;
             }
         }
@@ -208,8 +214,12 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 this.updateLogistics(level, state, pos, nextPipe, nextPos, direction, new HashSet<>());
             } else {
                 this.logistics.remove(direction);
-                this.setChanged();
-                level.sendBlockUpdated(pos, state, state, 2);
+                if (this instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.hasLogisticalNetwork()) {
+                    logisticalPipe.getLogisticalNetwork().destroy(level);
+                } else {
+                    this.setChanged();
+                    level.sendBlockUpdated(pos, state, state, 2);
+                }
             }
         }
     }
