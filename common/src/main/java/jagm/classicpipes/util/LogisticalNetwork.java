@@ -23,8 +23,16 @@ public class LogisticalNetwork {
         this.pos = pos;
     }
 
-    public void merge(LogisticalNetwork otherNetwork) {
-        this.routingPipes.addAll(otherNetwork.getRoutingPipes());
+    public void merge(ServerLevel level, LogisticalNetwork otherNetwork) {
+        otherNetwork.getAllPipes().forEach(pipe -> {
+            this.addPipe(pipe);
+            pipe.setLogisticalNetwork(this, level, pipe.getBlockPos(), pipe.getBlockState());
+            pipe.setController(false);
+        });
+    }
+
+    public Set<LogisticalPipeEntity> getAllPipes() {
+        return new HashSet<>(this.routingPipes);
     }
 
     public Set<NetheriteBasicPipeEntity> getRoutingPipes() {
@@ -40,7 +48,7 @@ public class LogisticalNetwork {
     }
 
     public void destroy(ServerLevel level) {
-        this.routingPipes.forEach(pipe -> pipe.disconnect(level));
+        this.getAllPipes().forEach(pipe -> pipe.disconnect(level));
     }
 
     public void addPipe(LogisticalPipeEntity pipe) {

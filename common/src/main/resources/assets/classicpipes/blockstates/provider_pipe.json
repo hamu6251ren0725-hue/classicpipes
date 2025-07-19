@@ -1,0 +1,356 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side"
+      },
+      "when": {
+        "north": "true",
+        "facing": "north",
+        "attached": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_unlinked"
+      },
+      "when": {
+        "AND": [
+          {
+            "north": "true"
+          },
+          {
+            "linked_north": "false"
+          },
+          {
+            "OR": [
+              {
+                "attached": "false"
+              },
+              {
+                "facing": "east|south|west|up|down"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_linked"
+      },
+      "when": {
+        "north": "true",
+        "linked_north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_middle"
+      },
+      "when": {
+        "north": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "facing": "east",
+        "attached": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_unlinked",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "east": "true"
+          },
+          {
+            "linked_east": "false"
+          },
+          {
+            "OR": [
+              {
+                "attached": "false"
+              },
+              {
+                "facing": "north|south|west|up|down"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_linked",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true",
+        "linked_east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_middle",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true",
+        "facing": "south",
+        "attached": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_unlinked",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "AND": [
+          {
+            "south": "true"
+          },
+          {
+            "linked_south": "false"
+          },
+          {
+            "OR": [
+              {
+                "attached": "false"
+              },
+              {
+                "facing": "north|east|west|up|down"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_linked",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true",
+        "linked_south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_middle",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true",
+        "facing": "west",
+        "attached": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_unlinked",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "west": "true"
+          },
+          {
+            "linked_west": "false"
+          },
+          {
+            "OR": [
+              {
+                "attached": "false"
+              },
+              {
+                "facing": "north|east|south|up|down"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_linked",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true",
+        "linked_west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_middle",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "true",
+        "facing": "up",
+        "attached": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_unlinked",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "AND": [
+          {
+            "up": "true"
+          },
+          {
+            "linked_up": "false"
+          },
+          {
+            "OR": [
+              {
+                "attached": "false"
+              },
+              {
+                "facing": "north|east|south|west|down"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_linked",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "true",
+        "linked_up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_middle",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "true",
+        "facing": "down",
+        "attached": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_unlinked",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "AND": [
+          {
+            "down": "true"
+          },
+          {
+            "linked_down": "false"
+          },
+          {
+            "OR": [
+              {
+                "attached": "false"
+              },
+              {
+                "facing": "north|east|south|west|up"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/netherite_pipe_side_linked",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "true",
+        "linked_down": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_middle",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "false"
+      }
+    }
+  ]
+}

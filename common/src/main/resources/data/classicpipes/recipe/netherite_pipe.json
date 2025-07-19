@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "minecraft:netherite_ingot",
+    "O": "minecraft:netherite_scrap",
     "W": "minecraft:glass"
   },
   "pattern": [

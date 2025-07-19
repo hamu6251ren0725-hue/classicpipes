@@ -2,16 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "minecraft:flint",
-    "W": "minecraft:glass",
-    "X": "minecraft:redstone"
+    "O": "minecraft:netherite_pipe",
+    "W": "minecraft:copper_ingot"
   },
   "pattern": [
+    "OOO",
     "OWO",
-    " X "
+    "OOO"
   ],
   "result": {
     "count": 8,
-    "id": "classicpipes:flint_pipe"
+    "id": "classicpipes:supplier_pipe"
   }
 }

@@ -81,7 +81,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         }
         visited.add(this);
         if (this.hasLogisticalNetwork()) {
-            logisticalNetwork.merge(this.getLogisticalNetwork());
+            logisticalNetwork.merge(level, this.getLogisticalNetwork());
         } else {
             for (Direction direction : this.logistics.keySet()) {
                 if (!direction.equals(fromDirection)) {
@@ -91,10 +91,9 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                     }
                 }
             }
+            this.setController(false);
+            this.setLogisticalNetwork(logisticalNetwork, level, pos, state);
         }
-        this.setController(false);
-        this.setLogisticalNetwork(logisticalNetwork, level, pos, state);
-
     }
 
     @Override
@@ -221,6 +220,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
     public void disconnect(ServerLevel level) {
         this.setController(false);
+        this.routingSchedule.clear();
         this.setLogisticalNetwork(null, level, this.getBlockPos(), this.getBlockState());
     }
 

@@ -45,6 +45,7 @@ public class ForgeEntrypoint {
                 helper.register("lapis_pipe", ClassicPipes.LAPIS_PIPE_ENTITY);
                 helper.register("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
                 helper.register("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY);
+                helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
             });
             event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
                 ClassicPipes.SOUNDS.forEach(helper::register);
@@ -79,6 +80,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
