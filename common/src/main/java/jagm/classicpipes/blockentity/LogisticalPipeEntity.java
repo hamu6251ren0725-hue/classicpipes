@@ -37,13 +37,15 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
-        Iterator<ItemStack> iterator = this.routingSchedule.keySet().iterator();
-        while (iterator.hasNext()) {
-            ScheduledRoute route = this.routingSchedule.get(iterator.next());
-            route.tick();
-            if (route.timedOut()) {
-                iterator.remove();
-                this.setChanged();
+        if (!this.routingSchedule.isEmpty()) {
+            Iterator<ItemStack> iterator = this.routingSchedule.keySet().iterator();
+            while (iterator.hasNext()) {
+                ScheduledRoute route = this.routingSchedule.get(iterator.next());
+                route.tick();
+                if (route.timedOut()) {
+                    iterator.remove();
+                    this.setChanged();
+                }
             }
         }
         if (!this.hasLogisticalNetwork()) {
@@ -152,7 +154,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     }
 
     public void schedule(ItemStack stack, Direction direction) {
-        routingSchedule.put(stack, new ScheduledRoute(direction));
+        this.routingSchedule.put(stack, new ScheduledRoute(direction));
     }
 
     public void schedulePath(ServerLevel level, ItemInPipe item, LogisticalPipeEntity target) {

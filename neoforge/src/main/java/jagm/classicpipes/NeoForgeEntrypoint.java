@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
+import jagm.classicpipes.client.screen.ProviderPipeScreen;
 import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
@@ -31,7 +32,8 @@ public class NeoForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegister(RegisterEvent event) {
-            event.register(Registries.BLOCK,helper -> {
+            ClassicPipes.LOGGER.info(event.getRegistryKey().toString());
+            event.register(Registries.BLOCK, helper -> {
                 ClassicPipes.BLOCKS.forEach((name, block) -> helper.register(MiscUtil.resourceLocation(name), block));
             });
             event.register(Registries.ITEM, helper -> {
@@ -58,6 +60,7 @@ public class NeoForgeEntrypoint {
             event.register(Registries.MENU, helper -> {
                 helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("netherite_pipe"), ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_MENU);
             });
         }
 
@@ -98,6 +101,7 @@ public class NeoForgeEntrypoint {
         public static void onRegisterScreens(RegisterMenuScreensEvent event) {
             event.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
             event.register(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, NetheriteBasicPipeScreen::new);
+            event.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
         }
 
     }

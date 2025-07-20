@@ -36,6 +36,7 @@ public class FabricEntrypoint implements ModInitializer {
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+        registerMenu("provider_pipe", ClassicPipes.PROVIDER_PIPE_MENU);
 
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));

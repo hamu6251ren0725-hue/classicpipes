@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
+import jagm.classicpipes.client.screen.ProviderPipeScreen;
 import jagm.classicpipes.network.ForgePacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
@@ -56,6 +57,7 @@ public class ForgeEntrypoint {
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
                 helper.register("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
                 helper.register("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+                helper.register("provider_pipe",ClassicPipes.PROVIDER_PIPE_MENU);
             });
         }
 
@@ -95,6 +97,7 @@ public class ForgeEntrypoint {
             event.enqueueWork(() -> {
                 MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
                 MenuScreens.register(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, NetheriteBasicPipeScreen::new);
+                MenuScreens.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
             });
         }
 

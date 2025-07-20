@@ -1,7 +1,6 @@
 package jagm.classicpipes.client.screen;
 
-import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
-import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
+import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -13,11 +12,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteBasicPipeMenu> {
+public class ProviderPipeScreen extends AbstractContainerScreen<ProviderPipeMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/netherite_pipe.png");
 
-    public NetheriteBasicPipeScreen(NetheriteBasicPipeMenu menu, Inventory playerInventory, Component title) {
+    public ProviderPipeScreen(ProviderPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -30,14 +29,6 @@ public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteB
                 .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
                 .selected(this.getMenu().getFilter().shouldMatchComponents())
                 .label(Component.translatable("widget.classicpipes.match_components"), this.font)
-                .build()
-        );
-        this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 49)
-                .onValueChange(this::defaultRouteCheckboxChanged)
-                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.default_route")))
-                .selected(this.getMenu().isDefaultRoute())
-                .label(Component.translatable("widget.classicpipes.default_route"), this.font)
                 .build()
         );
     }
@@ -57,10 +48,6 @@ public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteB
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
         Services.LOADER_SERVICE.sendToServer(new ServerBoundMatchComponentsPayload(checked));
-    }
-
-    private void defaultRouteCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        Services.LOADER_SERVICE.sendToServer(new ServerBoundDefaultRoutePayload(checked));
     }
 
 }
