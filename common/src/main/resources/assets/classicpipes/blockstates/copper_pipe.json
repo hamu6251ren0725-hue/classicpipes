@@ -5,17 +5,8 @@
         "model": "classicpipes:block/copper_pipe_side"
       },
       "when": {
-        "OR" : [
-          {
-            "north": "true",
-            "facing": "east|south|west|up|down"
-          },
-          {
-            "north": "true",
-            "facing": "north",
-            "attached": "false"
-          }
-        ]
+        "north": "true",
+        "facing": "east|south|west|up|down|none"
       }
     },
     {
@@ -25,7 +16,6 @@
       "when": {
         "north": "true",
         "facing": "north",
-        "attached": "true",
         "enabled": "false"
       }
     },
@@ -36,7 +26,6 @@
       "when": {
         "north": "true",
         "facing": "north",
-        "attached": "true",
         "enabled": "true"
       }
     },
@@ -55,17 +44,8 @@
         "y": 90
       },
       "when": {
-        "OR" : [
-          {
-            "east": "true",
-            "facing": "north|south|west|up|down"
-          },
-          {
-            "east": "true",
-            "facing": "east",
-            "attached": "false"
-          }
-        ]
+        "east": "true",
+        "facing": "north|south|west|up|down|none"
       }
     },
     {
@@ -77,7 +57,6 @@
       "when": {
         "east": "true",
         "facing": "east",
-        "attached": "true",
         "enabled": "false"
       }
     },
@@ -90,7 +69,6 @@
       "when": {
         "east": "true",
         "facing": "east",
-        "attached": "true",
         "enabled": "true"
       }
     },
@@ -111,17 +89,8 @@
         "y": 180
       },
       "when": {
-        "OR": [
-          {
-            "south": "true",
-            "facing": "north|east|west|up|down"
-          },
-          {
-            "south": "true",
-            "facing": "south",
-            "attached": "false"
-          }
-        ]
+        "south": "true",
+        "facing": "north|east|west|up|down|none"
       }
     },
     {
@@ -133,7 +102,6 @@
       "when": {
         "south": "true",
         "facing": "south",
-        "attached": "true",
         "enabled": "false"
       }
     },
@@ -146,7 +114,6 @@
       "when": {
         "south": "true",
         "facing": "south",
-        "attached": "true",
         "enabled": "true"
       }
     },
@@ -167,17 +134,8 @@
         "y": 270
       },
       "when": {
-        "OR": [
-          {
-            "west": "true",
-            "facing": "north|east|south|up|down"
-          },
-          {
-            "west": "true",
-            "facing": "west",
-            "attached": "false"
-          }
-        ]
+        "west": "true",
+        "facing": "north|east|south|up|down|none"
       }
     },
     {
@@ -189,7 +147,6 @@
       "when": {
         "west": "true",
         "facing": "west",
-        "attached": "true",
         "enabled": "false"
       }
     },
@@ -202,7 +159,6 @@
       "when": {
         "west": "true",
         "facing": "west",
-        "attached": "true",
         "enabled": "true"
       }
     },
@@ -223,17 +179,8 @@
         "x": 270
       },
       "when": {
-        "OR": [
-          {
-            "up": "true",
-            "facing": "north|east|south|west|down"
-          },
-          {
-            "up": "true",
-            "facing": "up",
-            "attached": "false"
-          }
-        ]
+        "up": "true",
+        "facing": "north|east|south|west|down|none"
       }
     },
     {
@@ -245,7 +192,6 @@
       "when": {
         "up": "true",
         "facing": "up",
-        "attached": "true",
         "enabled": "false"
       }
     },
@@ -258,7 +204,6 @@
       "when": {
         "up": "true",
         "facing": "up",
-        "attached": "true",
         "enabled": "true"
       }
     },
@@ -279,17 +224,8 @@
         "x": 90
       },
       "when": {
-        "OR": [
-          {
-            "down": "true",
-            "facing": "north|east|south|west|up"
-          },
-          {
-            "down": "true",
-            "facing": "down",
-            "attached": "false"
-          }
-        ]
+        "down": "true",
+        "facing": "north|east|south|west|up|none"
       }
     },
     {
@@ -301,7 +237,6 @@
       "when": {
         "down": "true",
         "facing": "down",
-        "attached": "true",
         "enabled": "false"
       }
     },
@@ -314,7 +249,6 @@
       "when": {
         "down": "true",
         "facing": "down",
-        "attached": "true",
         "enabled": "true"
       }
     },

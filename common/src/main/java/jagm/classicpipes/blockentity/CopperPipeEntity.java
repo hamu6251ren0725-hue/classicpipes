@@ -3,6 +3,7 @@ package jagm.classicpipes.blockentity;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.CopperPipeBlock;
 import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.FacingOrNone;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -24,9 +25,9 @@ public class CopperPipeEntity extends RoundRobinPipeEntity {
     @Override
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
-        if (state.getValue(CopperPipeBlock.ENABLED) && state.getValue(CopperPipeBlock.ATTACHED)) {
+        if (state.getValue(CopperPipeBlock.ENABLED) && state.getValue(CopperPipeBlock.FACING) != FacingOrNone.NONE) {
             if (this.cooldown-- <= 0) {
-                Direction direction = state.getValue(CopperPipeBlock.FACING);
+                Direction direction = state.getValue(CopperPipeBlock.FACING).getDirection();
                 if (Services.LOADER_SERVICE.handleItemExtraction(this, state, level, pos.relative(direction), direction.getOpposite(), 1)) {
                     level.sendBlockUpdated(pos, state, state, 2);
                     this.setChanged();

@@ -1,7 +1,5 @@
 package jagm.classicpipes.block;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
@@ -36,39 +34,30 @@ import java.util.function.Function;
 
 public abstract class AbstractPipeBlock extends TransparentBlock implements SimpleWaterloggedBlock, EntityBlock {
 
-    public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
-    public static final BooleanProperty EAST = BlockStateProperties.EAST;
-    public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
-    public static final BooleanProperty WEST = BlockStateProperties.WEST;
-    public static final BooleanProperty UP = BlockStateProperties.UP;
-    public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN)));
 
     private final Function<BlockState, VoxelShape> shapes;
 
     public AbstractPipeBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(NORTH, false)
-                .setValue(EAST, false)
-                .setValue(SOUTH, false)
-                .setValue(WEST, false)
-                .setValue(UP, false)
-                .setValue(DOWN, false)
                 .setValue(WATERLOGGED, false)
         );
         Map<Direction, VoxelShape> map = Shapes.rotateAll(Block.boxZ(8.0F, 0.0F, 8.0F));
         this.shapes = this.getShapeForEachState(state -> {
             VoxelShape shape = Block.cube(8.0F);
-            for (Map.Entry<Direction, BooleanProperty> entry : PROPERTY_BY_DIRECTION.entrySet()) {
-                if (state.getValue(entry.getValue())) {
-                    shape = Shapes.or(map.get(entry.getKey()), shape);
+            for (Direction direction : Direction.values()) {
+                if (this.isPipeConnected(state, direction)) {
+                    shape = Shapes.or(map.get(direction), shape);
                 }
             }
             return shape;
         });
     }
+
+    public abstract boolean isPipeConnected(BlockState state, Direction direction);
+
+    public abstract BlockState setPipeConnected(BlockState state, Direction direction, boolean connected);
 
     protected boolean canConnect(Level level, BlockPos pipePos, Direction direction) {
         BlockPos neighbourPos = pipePos.relative(direction);
@@ -88,14 +77,7 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState()
-                .trySetValue(NORTH, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.NORTH))
-                .trySetValue(EAST, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.EAST))
-                .trySetValue(SOUTH, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.SOUTH))
-                .trySetValue(WEST, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.WEST))
-                .trySetValue(UP, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.UP))
-                .trySetValue(DOWN, this.canConnect(context.getLevel(), context.getClickedPos(), Direction.DOWN))
-                .trySetValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
+        return this.defaultBlockState().trySetValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
     }
 
     @Override
@@ -103,9 +85,9 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
         if (state.getValue(WATERLOGGED)) {
             scheduledTickAccess.scheduleTick(pipePos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        boolean wasConnected = state.getValue(PROPERTY_BY_DIRECTION.get(direction));
+        boolean wasConnected = this.isPipeConnected(state, direction);
         boolean willConnect = this.canConnect((Level) level, pipePos, direction);
-        BlockState newState = state.setValue(PROPERTY_BY_DIRECTION.get(direction), willConnect);
+        BlockState newState = this.setPipeConnected(state, direction, willConnect);
         if (wasConnected != willConnect && level.getBlockEntity(pipePos) instanceof AbstractPipeEntity pipe && level instanceof ServerLevel serverLevel) {
             pipe.update(serverLevel, newState, pipePos, direction, wasConnected);
         }
@@ -114,7 +96,7 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, WATERLOGGED);
+        builder.add(WATERLOGGED);
     }
 
     @Override

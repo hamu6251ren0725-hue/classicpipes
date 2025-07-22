@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ObsidianPipeBlock extends AbstractPipeBlock {
+public class ObsidianPipeBlock extends BasicPipeBlock {
 
     public ObsidianPipeBlock(Properties properties) {
         super(properties);

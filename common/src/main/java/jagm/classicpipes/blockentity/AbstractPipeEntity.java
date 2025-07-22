@@ -153,7 +153,10 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     protected final boolean isPipeConnected(BlockState state, Direction direction) {
-        return state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction));
+        if (state.getBlock() instanceof AbstractPipeBlock pipeBlock) {
+            return pipeBlock.isPipeConnected(state, direction);
+        }
+        return false;
     }
 
     protected final int countConnections(BlockState state) {
@@ -273,21 +276,21 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 }
             }
         }
-        if (this instanceof LogisticalPipeEntity logisticalPipe) {
-            boolean wasLinked = state.getValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection));
+        if (this instanceof LogisticalPipeEntity logisticalPipe && state.getBlock() instanceof NetheritePipeBlock logisticalBlock) {
+            boolean wasLinked = logisticalBlock.isLinked(state, nextDirection);
             boolean isLinked = this.logistics.containsKey(nextDirection);
             if (wasLinked != isLinked && logisticalPipe.hasLogisticalNetwork()) {
                 logisticalPipe.getLogisticalNetwork().destroy(level);
             }
-            level.setBlock(pos, state.setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection), isLinked), 3);
+            level.setBlock(pos, logisticalBlock.setLinked(state, nextDirection, isLinked), 3);
         }
-        if (nextPipe instanceof LogisticalPipeEntity logisticalPipe) {
-            boolean wasLinked = logisticalPipe.getBlockState().getValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection.getOpposite()));
+        if (nextPipe instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.getBlockState().getBlock() instanceof NetheritePipeBlock logisticalBlock) {
+            boolean wasLinked = logisticalBlock.isLinked(logisticalPipe.getBlockState(), nextDirection.getOpposite());
             boolean isLinked = logisticalPipe.logistics.containsKey(nextDirection.getOpposite());
             if (wasLinked != isLinked && logisticalPipe.hasLogisticalNetwork()) {
                 logisticalPipe.getLogisticalNetwork().destroy(level);
             }
-            level.setBlock(nextPos, nextPipe.getBlockState().setValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(nextDirection.getOpposite()), nextPipe.logistics.containsKey(nextDirection.getOpposite())), 3);
+            level.setBlock(nextPos, logisticalBlock.setLinked(logisticalPipe.getBlockState(), nextDirection.getOpposite(), isLinked), 3);
         }
         this.setChanged();
         level.sendBlockUpdated(pos, state, state, 2);

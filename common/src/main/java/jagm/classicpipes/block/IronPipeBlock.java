@@ -28,17 +28,15 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class IronPipeBlock extends AbstractPipeBlock {
+public class IronPipeBlock extends BasicPipeBlock {
 
-    public static final EnumProperty<Direction> FACING_PRIMARY = EnumProperty.create("primary", Direction.class, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN);
-    public static final EnumProperty<Direction> FACING_SECONDARY = EnumProperty.create("secondary", Direction.class, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.UP, Direction.DOWN);
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 
     public IronPipeBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
-                .setValue(FACING_PRIMARY, Direction.DOWN)
-                .setValue(FACING_SECONDARY, Direction.UP)
+                .setValue(FACING, Direction.DOWN)
                 .setValue(ENABLED, false)
         );
     }
@@ -56,20 +54,12 @@ public class IronPipeBlock extends AbstractPipeBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING_PRIMARY, FACING_SECONDARY, ENABLED);
+        builder.add(FACING, ENABLED);
     }
 
-    private static Direction getSecondaryDirection(Direction primaryDirection, BlockState state) {
-        if (state.getValue(PROPERTY_BY_DIRECTION.get(primaryDirection.getOpposite()))) {
+    private Direction getSecondaryDirection(Direction primaryDirection, BlockState state) {
+        if (this.isPipeConnected(state, primaryDirection.getOpposite())) {
             return primaryDirection.getOpposite();
-        } else {
-            Direction direction = primaryDirection;
-            for (int i = 0; i < 5; i++) {
-                direction = MiscUtil.nextDirection(direction);
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
-                    return direction;
-                }
-            }
         }
         return primaryDirection;
     }
@@ -79,8 +69,8 @@ public class IronPipeBlock extends AbstractPipeBlock {
         BlockState superState = super.getStateForPlacement(context);
         if (superState != null) {
             for (Direction direction : Direction.values()) {
-                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
-                    return superState.trySetValue(FACING_PRIMARY, direction).trySetValue(FACING_SECONDARY, getSecondaryDirection(direction, superState));
+                if (this.isPipeConnected(superState, direction)) {
+                    return superState.trySetValue(FACING, direction);
                 }
             }
             return superState;
@@ -91,10 +81,10 @@ public class IronPipeBlock extends AbstractPipeBlock {
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pipePos, Direction initialDirection, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         BlockState superState = super.updateShape(state, level, scheduledTickAccess, pipePos, initialDirection, neighborPos, neighborState, random);
-        Direction direction = superState.getValue(FACING_PRIMARY);
+        Direction direction = superState.getValue(FACING);
         for (int i = 0; i < 6; i++) {
-            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
-                return superState.setValue(FACING_PRIMARY, direction).setValue(FACING_SECONDARY, getSecondaryDirection(direction, superState));
+            if (this.isPipeConnected(superState, direction)) {
+                return superState.setValue(FACING, direction);
             }
             direction = MiscUtil.nextDirection(direction);
         }
@@ -104,10 +94,10 @@ public class IronPipeBlock extends AbstractPipeBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (player.getAbilities().mayBuild && !MiscUtil.itemIsPipe(player.getMainHandItem())) {
-            Direction direction = MiscUtil.nextDirection(state.getValue(FACING_PRIMARY));
+            Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
             for (int i = 0; i < 5; i++) {
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction))) {
-                    level.setBlock(pos, state.setValue(FACING_PRIMARY, direction).setValue(FACING_SECONDARY, getSecondaryDirection(direction, state)), 3);
+                if (this.isPipeConnected(state, direction)) {
+                    level.setBlock(pos, state.setValue(FACING, direction), 3);
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
@@ -137,9 +127,9 @@ public class IronPipeBlock extends AbstractPipeBlock {
 
     private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
         if (state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.setValue(ENABLED, false), 2);
+            level.setBlock(pos, state.setValue(ENABLED, false).setValue(FACING, this.getSecondaryDirection(state.getValue(FACING), state)), 2);
         } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.setValue(ENABLED, true), 2);
+            level.setBlock(pos, state.setValue(ENABLED, true).setValue(FACING, this.getSecondaryDirection(state.getValue(FACING), state)), 2);
         }
         if (level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe) {
             for (ItemInPipe item : pipe.getContents()) {

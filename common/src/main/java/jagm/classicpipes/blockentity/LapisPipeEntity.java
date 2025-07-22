@@ -2,6 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.LapisPipeBlock;
+import jagm.classicpipes.util.FacingOrNone;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -32,9 +33,9 @@ public class LapisPipeEntity extends RoundRobinPipeEntity {
     @Override
     protected List<Direction> getValidDirections(BlockState state, ItemInPipe item) {
         List<Direction> validDirections = new ArrayList<>();
-        Direction facing = state.getValue(LapisPipeBlock.FACING);
-        boolean attached = state.getValue(LapisPipeBlock.ATTACHED);
-        if (!item.getFromDirection().equals(facing) && this.isPipeConnected(state, facing) && attached) {
+        Direction facing = state.getValue(LapisPipeBlock.FACING).getDirection();
+        boolean attached = state.getValue(LapisPipeBlock.FACING) != FacingOrNone.NONE;
+        if (attached && !item.getFromDirection().equals(facing) && this.isPipeConnected(state, facing)) {
             validDirections.add(facing);
         } else {
             Direction direction = MiscUtil.nextDirection(item.getFromDirection());

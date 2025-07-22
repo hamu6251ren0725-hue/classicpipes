@@ -1,6 +1,5 @@
 package jagm.classicpipes.blockentity;
 
-import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.NetheritePipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.LogisticalNetwork;
@@ -115,10 +114,10 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                 validTargets.addAll(this.logisticalNetwork.getDefaultRoutes());
             }
             if (this.getLevel() instanceof ServerLevel serverLevel) {
-                if (this instanceof NetheriteBasicPipeEntity && validTargets.contains(this)) {
+                if (this instanceof NetheriteBasicPipeEntity && validTargets.contains(this) && state.getBlock() instanceof NetheritePipeBlock logisticalBlock) {
                     List<Direction> validDirections = new ArrayList<>();
                     for (Direction direction : Direction.values()) {
-                        if (state.getValue(AbstractPipeBlock.PROPERTY_BY_DIRECTION.get(direction)) && !state.getValue(NetheritePipeBlock.LINKED_PROPERTY_BY_DIRECTION.get(direction))) {
+                        if (this.isPipeConnected(state, direction) && !logisticalBlock.isLinked(state, direction)) {
                             validDirections.add(direction);
                         }
                     }

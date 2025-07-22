@@ -5,8 +5,7 @@
         "model": "classicpipes:block/netherite_pipe_side_unlinked"
       },
       "when": {
-        "north": "true",
-        "linked_north": "false"
+        "north": "unlinked"
       }
     },
     {
@@ -14,8 +13,7 @@
         "model": "classicpipes:block/netherite_pipe_side_linked"
       },
       "when": {
-        "north": "true",
-        "linked_north": "true"
+        "north": "linked"
       }
     },
     {
@@ -23,7 +21,7 @@
         "model": "classicpipes:block/netherite_pipe_middle"
       },
       "when": {
-        "north": "false"
+        "north": "none"
       }
     },
     {
@@ -33,8 +31,7 @@
         "y": 90
       },
       "when": {
-        "east": "true",
-        "linked_east": "false"
+        "east": "unlinked"
       }
     },
     {
@@ -44,8 +41,7 @@
         "y": 90
       },
       "when": {
-        "east": "true",
-        "linked_east": "true"
+        "east": "linked"
       }
     },
     {
@@ -55,7 +51,7 @@
         "y": 90
       },
       "when": {
-        "east": "false"
+        "east": "none"
       }
     },
     {
@@ -65,8 +61,7 @@
         "y": 180
       },
       "when": {
-        "south": "true",
-        "linked_south": "false"
+        "south": "unlinked"
       }
     },
     {
@@ -76,8 +71,7 @@
         "y": 180
       },
       "when": {
-        "south": "true",
-        "linked_south": "true"
+        "south": "linked"
       }
     },
     {
@@ -87,7 +81,7 @@
         "y": 180
       },
       "when": {
-        "south": "false"
+        "south": "none"
       }
     },
     {
@@ -97,8 +91,7 @@
         "y": 270
       },
       "when": {
-        "west": "true",
-        "linked_west": "false"
+        "west": "unlinked"
       }
     },
     {
@@ -108,8 +101,7 @@
         "y": 270
       },
       "when": {
-        "west": "true",
-        "linked_west": "true"
+        "west": "linked"
       }
     },
     {
@@ -119,7 +111,7 @@
         "y": 270
       },
       "when": {
-        "west": "false"
+        "west": "none"
       }
     },
     {
@@ -129,8 +121,7 @@
         "x": 270
       },
       "when": {
-        "up": "true",
-        "linked_up": "false"
+        "up": "unlinked"
       }
     },
     {
@@ -140,8 +131,7 @@
         "x": 270
       },
       "when": {
-        "up": "true",
-        "linked_up": "true"
+        "up": "linked"
       }
     },
     {
@@ -151,7 +141,7 @@
         "x": 270
       },
       "when": {
-        "up": "false"
+        "up": "none"
       }
     },
     {
@@ -161,8 +151,7 @@
         "x": 90
       },
       "when": {
-        "down": "true",
-        "linked_down": "false"
+        "down": "unlinked"
       }
     },
     {
@@ -172,8 +161,7 @@
         "x": 90
       },
       "when": {
-        "down": "true",
-        "linked_down": "true"
+        "down": "linked"
       }
     },
     {
@@ -183,7 +171,7 @@
         "x": 90
       },
       "when": {
-        "down": "false"
+        "down": "none"
       }
     }
   ]

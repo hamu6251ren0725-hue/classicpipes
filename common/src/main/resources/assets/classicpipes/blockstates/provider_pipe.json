@@ -2,37 +2,11 @@
   "multipart": [
     {
       "apply": {
-        "model": "classicpipes:block/provider_pipe_side"
-      },
-      "when": {
-        "north": "true",
-        "facing": "north",
-        "attached": "true"
-      }
-    },
-    {
-      "apply": {
         "model": "classicpipes:block/netherite_pipe_side_unlinked"
       },
       "when": {
-        "AND": [
-          {
-            "north": "true"
-          },
-          {
-            "linked_north": "false"
-          },
-          {
-            "OR": [
-              {
-                "attached": "false"
-              },
-              {
-                "facing": "east|south|west|up|down"
-              }
-            ]
-          }
-        ]
+        "north": "unlinked",
+        "facing": "east|south|west|up|down|none"
       }
     },
     {
@@ -40,8 +14,16 @@
         "model": "classicpipes:block/netherite_pipe_side_linked"
       },
       "when": {
-        "north": "true",
-        "linked_north": "true"
+        "north": "linked",
+        "facing": "east|south|west|up|down|none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side"
+      },
+      "when": {
+        "facing": "north"
       }
     },
     {
@@ -49,19 +31,7 @@
         "model": "classicpipes:block/provider_pipe_middle"
       },
       "when": {
-        "north": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/provider_pipe_side",
-        "uvlock": true,
-        "y": 90
-      },
-      "when": {
-        "east": "true",
-        "facing": "east",
-        "attached": "true"
+        "north": "none"
       }
     },
     {
@@ -71,24 +41,8 @@
         "y": 90
       },
       "when": {
-        "AND": [
-          {
-            "east": "true"
-          },
-          {
-            "linked_east": "false"
-          },
-          {
-            "OR": [
-              {
-                "attached": "false"
-              },
-              {
-                "facing": "north|south|west|up|down"
-              }
-            ]
-          }
-        ]
+        "east": "unlinked",
+        "facing": "north|south|west|up|down|none"
       }
     },
     {
@@ -98,8 +52,18 @@
         "y": 90
       },
       "when": {
-        "east": "true",
-        "linked_east": "true"
+        "east": "linked",
+        "facing": "north|south|west|up|down|none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "facing": "east"
       }
     },
     {
@@ -109,19 +73,7 @@
         "y": 90
       },
       "when": {
-        "east": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/provider_pipe_side",
-        "uvlock": true,
-        "y": 180
-      },
-      "when": {
-        "south": "true",
-        "facing": "south",
-        "attached": "true"
+        "east": "none"
       }
     },
     {
@@ -131,24 +83,8 @@
         "y": 180
       },
       "when": {
-        "AND": [
-          {
-            "south": "true"
-          },
-          {
-            "linked_south": "false"
-          },
-          {
-            "OR": [
-              {
-                "attached": "false"
-              },
-              {
-                "facing": "north|east|west|up|down"
-              }
-            ]
-          }
-        ]
+        "south": "unlinked",
+        "facing": "north|east|west|up|down|none"
       }
     },
     {
@@ -158,8 +94,18 @@
         "y": 180
       },
       "when": {
-        "south": "true",
-        "linked_south": "true"
+        "south": "linked",
+        "facing": "north|east|west|up|down|none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "facing": "south"
       }
     },
     {
@@ -169,19 +115,7 @@
         "y": 180
       },
       "when": {
-        "south": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/provider_pipe_side",
-        "uvlock": true,
-        "y": 270
-      },
-      "when": {
-        "west": "true",
-        "facing": "west",
-        "attached": "true"
+        "south": "none"
       }
     },
     {
@@ -191,24 +125,8 @@
         "y": 270
       },
       "when": {
-        "AND": [
-          {
-            "west": "true"
-          },
-          {
-            "linked_west": "false"
-          },
-          {
-            "OR": [
-              {
-                "attached": "false"
-              },
-              {
-                "facing": "north|east|south|up|down"
-              }
-            ]
-          }
-        ]
+        "west": "unlinked",
+        "facing": "north|east|south|up|down|none"
       }
     },
     {
@@ -218,8 +136,18 @@
         "y": 270
       },
       "when": {
-        "west": "true",
-        "linked_west": "true"
+        "west": "linked",
+        "facing": "north|east|south|up|down|none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "facing": "west"
       }
     },
     {
@@ -229,19 +157,7 @@
         "y": 270
       },
       "when": {
-        "west": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/provider_pipe_side",
-        "uvlock": true,
-        "x": 270
-      },
-      "when": {
-        "up": "true",
-        "facing": "up",
-        "attached": "true"
+        "west": "none"
       }
     },
     {
@@ -251,24 +167,8 @@
         "x": 270
       },
       "when": {
-        "AND": [
-          {
-            "up": "true"
-          },
-          {
-            "linked_up": "false"
-          },
-          {
-            "OR": [
-              {
-                "attached": "false"
-              },
-              {
-                "facing": "north|east|south|west|down"
-              }
-            ]
-          }
-        ]
+        "up": "unlinked",
+        "facing": "north|east|south|west|down|none"
       }
     },
     {
@@ -278,8 +178,18 @@
         "x": 270
       },
       "when": {
-        "up": "true",
-        "linked_up": "true"
+        "up": "linked",
+        "facing": "north|east|south|west|down|none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "facing": "up"
       }
     },
     {
@@ -289,19 +199,7 @@
         "x": 270
       },
       "when": {
-        "up": "false"
-      }
-    },
-    {
-      "apply": {
-        "model": "classicpipes:block/provider_pipe_side",
-        "uvlock": true,
-        "x": 90
-      },
-      "when": {
-        "down": "true",
-        "facing": "down",
-        "attached": "true"
+        "up": "none"
       }
     },
     {
@@ -311,24 +209,8 @@
         "x": 90
       },
       "when": {
-        "AND": [
-          {
-            "down": "true"
-          },
-          {
-            "linked_down": "false"
-          },
-          {
-            "OR": [
-              {
-                "attached": "false"
-              },
-              {
-                "facing": "north|east|south|west|up"
-              }
-            ]
-          }
-        ]
+        "down": "unlinked",
+        "facing": "north|east|south|west|up|none"
       }
     },
     {
@@ -338,8 +220,18 @@
         "x": 90
       },
       "when": {
-        "down": "true",
-        "linked_down": "true"
+        "down": "linked",
+        "facing": "north|east|south|west|up|none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/provider_pipe_side",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "facing": "down"
       }
     },
     {
@@ -349,7 +241,7 @@
         "x": 90
       },
       "when": {
-        "down": "false"
+        "down": "none"
       }
     }
   ]

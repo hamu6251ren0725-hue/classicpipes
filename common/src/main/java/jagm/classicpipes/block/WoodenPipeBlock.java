@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class WoodenPipeBlock extends AbstractPipeBlock {
+public class WoodenPipeBlock extends BasicPipeBlock {
 
     public WoodenPipeBlock(Properties properties) {
         super(properties);

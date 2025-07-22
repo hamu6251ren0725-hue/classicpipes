@@ -4,6 +4,7 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.LapisPipeEntity;
 import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.FacingOrNone;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -23,19 +24,16 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class LapisPipeBlock extends AbstractPipeBlock {
+public class LapisPipeBlock extends BasicPipeBlock {
 
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
-    public static final BooleanProperty ATTACHED = BlockStateProperties.ATTACHED;
+    public static final EnumProperty<FacingOrNone> FACING = FacingOrNone.BLOCK_PROPERTY;
 
     public LapisPipeBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.DOWN).setValue(ATTACHED, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, FacingOrNone.NONE));
     }
 
     @Override
@@ -51,7 +49,7 @@ public class LapisPipeBlock extends AbstractPipeBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING, ATTACHED);
+        builder.add(FACING);
     }
 
     @Override
@@ -59,11 +57,11 @@ public class LapisPipeBlock extends AbstractPipeBlock {
         BlockState superState = super.getStateForPlacement(context);
         if (superState != null) {
             for (Direction direction : Direction.values()) {
-                if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.LOADER_SERVICE.canAccessContainer(context.getLevel(), context.getClickedPos().relative(direction), direction.getOpposite())) {
-                    return superState.trySetValue(FACING, direction).trySetValue(ATTACHED, true);
+                if (this.isPipeConnected(superState, direction) && Services.LOADER_SERVICE.canAccessContainer(context.getLevel(), context.getClickedPos().relative(direction), direction.getOpposite())) {
+                    return superState.trySetValue(FACING, FacingOrNone.with(direction));
                 }
             }
-            return superState.trySetValue(FACING, Direction.DOWN).trySetValue(ATTACHED, false);
+            return superState.trySetValue(FACING, FacingOrNone.NONE);
         }
         return this.defaultBlockState();
     }
@@ -71,23 +69,23 @@ public class LapisPipeBlock extends AbstractPipeBlock {
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pipePos, Direction initialDirection, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         BlockState superState = super.updateShape(state, level, scheduledTickAccess, pipePos, initialDirection, neighborPos, neighborState, random);
-        Direction direction = superState.getValue(FACING);
+        Direction direction = superState.getValue(FACING) == FacingOrNone.NONE ? Direction.DOWN : superState.getValue(FACING).getDirection();
         for (int i = 0; i < 6; i++) {
-            if (superState.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.LOADER_SERVICE.canAccessContainer((Level) level, pipePos.relative(direction), direction.getOpposite())) {
-                return superState.setValue(FACING, direction).setValue(ATTACHED, true);
+            if (this.isPipeConnected(superState, direction) && Services.LOADER_SERVICE.canAccessContainer((Level) level, pipePos.relative(direction), direction.getOpposite())) {
+                return superState.setValue(FACING, FacingOrNone.with(direction));
             }
             direction = MiscUtil.nextDirection(direction);
         }
-        return superState.setValue(ATTACHED, false);
+        return superState.setValue(FACING, FacingOrNone.NONE);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pipePos, Player player, BlockHitResult hitResult) {
-        if (player.getAbilities().mayBuild && !MiscUtil.itemIsPipe(player.getMainHandItem())) {
-            Direction direction = MiscUtil.nextDirection(state.getValue(FACING));
+        if (player.getAbilities().mayBuild && !MiscUtil.itemIsPipe(player.getMainHandItem()) && state.getValue(FACING) != FacingOrNone.NONE) {
+            Direction direction = MiscUtil.nextDirection(state.getValue(FACING).getDirection());
             for (int i = 0; i < 5; i++) {
-                if (state.getValue(PROPERTY_BY_DIRECTION.get(direction)) && Services.LOADER_SERVICE.canAccessContainer(level, pipePos.relative(direction), direction.getOpposite())) {
-                    level.setBlock(pipePos, state.setValue(FACING, direction).setValue(ATTACHED, true), 3);
+                if (this.isPipeConnected(state, direction) && Services.LOADER_SERVICE.canAccessContainer(level, pipePos.relative(direction), direction.getOpposite())) {
+                    level.setBlock(pipePos, state.setValue(FACING, FacingOrNone.with(direction)), 3);
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pipePos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }

@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class FlintPipeBlock extends AbstractPipeBlock {
+public class FlintPipeBlock extends BasicPipeBlock {
 
     public FlintPipeBlock(Properties properties) {
         super(properties);

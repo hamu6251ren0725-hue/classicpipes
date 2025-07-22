@@ -15,7 +15,7 @@ public class IronPipeEntity extends AbstractPipeEntity {
     @Override
     public void routeItem(BlockState state, ItemInPipe item) {
         item.setEjecting(false);
-        item.setTargetDirection(state.getValue(IronPipeBlock.ENABLED) ? state.getValue(IronPipeBlock.FACING_SECONDARY) : state.getValue(IronPipeBlock.FACING_PRIMARY));
+        item.setTargetDirection(state.getValue(IronPipeBlock.FACING));
     }
 
     @Override

@@ -32,7 +32,6 @@ public class NeoForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegister(RegisterEvent event) {
-            ClassicPipes.LOGGER.info(event.getRegistryKey().toString());
             event.register(Registries.BLOCK, helper -> {
                 ClassicPipes.BLOCKS.forEach((name, block) -> helper.register(MiscUtil.resourceLocation(name), block));
             });
