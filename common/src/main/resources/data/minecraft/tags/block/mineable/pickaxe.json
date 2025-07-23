@@ -1,0 +1,14 @@
+{
+  "values": [
+    "classicpipes:copper_pipe",
+    "classicpipes:iron_pipe",
+    "classicpipes:lapis_pipe",
+    "classicpipes:golden_pipe",
+    "classicpipes:diamond_pipe",
+    "classicpipes:flint_pipe",
+    "classicpipes:brick_pipe",
+    "classicpipes:obsidian_pipe",
+    "classicpipes:routing_pipe",
+    "classicpipes:provider_pipe"
+  ]
+}
