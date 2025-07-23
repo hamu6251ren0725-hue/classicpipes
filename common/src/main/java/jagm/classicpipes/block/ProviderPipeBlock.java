@@ -80,13 +80,10 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
-            if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe) {
-                Services.LOADER_SERVICE.openMenu((ServerPlayer) player, providerPipe, providerPipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
-            }
-            return InteractionResult.SUCCESS;
+        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe) {
+            Services.LOADER_SERVICE.openMenu((ServerPlayer) player, providerPipe, providerPipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
         }
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
 }

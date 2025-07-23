@@ -6,7 +6,6 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
 import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
 import jagm.classicpipes.services.Services;
-import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -101,13 +100,10 @@ public class RoutingPipeBlock extends AbstractPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
-            if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RoutingPipeEntity routingPipe) {
-                Services.LOADER_SERVICE.openMenu((ServerPlayer) player, routingPipe, new ClientBoundRoutingPipePayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()), ClientBoundRoutingPipePayload.STREAM_CODEC);
-            }
-            return InteractionResult.SUCCESS;
+        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RoutingPipeEntity routingPipe) {
+            Services.LOADER_SERVICE.openMenu((ServerPlayer) player, routingPipe, new ClientBoundRoutingPipePayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()), ClientBoundRoutingPipePayload.STREAM_CODEC);
         }
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     public enum ConnectionState implements StringRepresentable {
