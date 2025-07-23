@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class ProviderPipeBlock extends NetheritePipeBlock {
+public class ProviderPipeBlock extends RoutingPipeBlock {
 
     public static final EnumProperty<FacingOrNone> FACING = FacingOrNone.BLOCK_PROPERTY;
 

@@ -1,7 +1,0 @@
-{
-  "parent": "classicpipes:block/pipe_side",
-  "textures": {
-    "texture": "classicpipes:block/netherite_pipe_unlinked",
-    "particle": "classicpipes:block/netherite_pipe_unlinked"
-  }
-}

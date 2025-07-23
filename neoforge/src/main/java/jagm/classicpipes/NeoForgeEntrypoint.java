@@ -2,8 +2,8 @@ package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
-import jagm.classicpipes.client.screen.NetheriteBasicPipeScreen;
 import jagm.classicpipes.client.screen.ProviderPipeScreen;
+import jagm.classicpipes.client.screen.RoutingPipeScreen;
 import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
@@ -47,7 +47,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("flint_pipe"), ClassicPipes.FLINT_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("lapis_pipe"), ClassicPipes.LAPIS_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("obsidian_pipe"), ClassicPipes.OBSIDIAN_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("netherite_pipe"), ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_ENTITY);
             });
             event.register(Registries.SOUND_EVENT, helper -> {
@@ -58,7 +58,7 @@ public class NeoForgeEntrypoint {
             });
             event.register(Registries.MENU, helper -> {
                 helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("netherite_pipe"), ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_MENU);
             });
         }
@@ -85,7 +85,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.FLINT_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
-            event.registerBlockEntityRenderer(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.ROUTING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
         }
 
@@ -99,7 +99,7 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterScreens(RegisterMenuScreensEvent event) {
             event.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
-            event.register(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, NetheriteBasicPipeScreen::new);
+            event.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);
             event.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
         }
 

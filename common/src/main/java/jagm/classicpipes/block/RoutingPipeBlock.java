@@ -3,8 +3,8 @@ package jagm.classicpipes.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.NetheriteBasicPipeEntity;
-import jagm.classicpipes.network.ClientBoundNetheritePipePayload;
+import jagm.classicpipes.blockentity.RoutingPipeEntity;
+import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -28,7 +28,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Map;
 
-public class NetheritePipeBlock extends AbstractPipeBlock {
+public class RoutingPipeBlock extends AbstractPipeBlock {
 
     public static final EnumProperty<ConnectionState> NORTH = EnumProperty.create("north", ConnectionState.class, ConnectionState.values());
     public static final EnumProperty<ConnectionState> EAST = EnumProperty.create("east", ConnectionState.class, ConnectionState.values());
@@ -38,7 +38,7 @@ public class NetheritePipeBlock extends AbstractPipeBlock {
     public static final EnumProperty<ConnectionState> DOWN = EnumProperty.create("down", ConnectionState.class, ConnectionState.values());
     private static final Map<Direction, EnumProperty<ConnectionState>> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN)));
 
-    public NetheritePipeBlock(BlockBehaviour.Properties properties) {
+    public RoutingPipeBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(NORTH, ConnectionState.NONE)
@@ -70,12 +70,12 @@ public class NetheritePipeBlock extends AbstractPipeBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new NetheriteBasicPipeEntity(pos, state);
+        return new RoutingPipeEntity(pos, state);
     }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return blockEntityType == ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY ? NetheriteBasicPipeEntity::tick : null;
+        return blockEntityType == ClassicPipes.ROUTING_PIPE_ENTITY ? RoutingPipeEntity::tick : null;
     }
 
     @Override
@@ -102,8 +102,8 @@ public class NetheritePipeBlock extends AbstractPipeBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!MiscUtil.itemIsPipe(player.getMainHandItem())) {
-            if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof NetheriteBasicPipeEntity netheritePipe) {
-                Services.LOADER_SERVICE.openMenu((ServerPlayer) player, netheritePipe, new ClientBoundNetheritePipePayload(netheritePipe.shouldMatchComponents(), netheritePipe.isDefaultRoute()), ClientBoundNetheritePipePayload.STREAM_CODEC);
+            if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RoutingPipeEntity routingPipe) {
+                Services.LOADER_SERVICE.openMenu((ServerPlayer) player, routingPipe, new ClientBoundRoutingPipePayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()), ClientBoundRoutingPipePayload.STREAM_CODEC);
             }
             return InteractionResult.SUCCESS;
         }

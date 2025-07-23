@@ -31,11 +31,11 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("flint_pipe", ClassicPipes.FLINT_PIPE_ENTITY);
         registerBlockEntity("lapis_pipe", ClassicPipes.LAPIS_PIPE_ENTITY);
         registerBlockEntity("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
-        registerBlockEntity("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY);
+        registerBlockEntity("routing_pipe", ClassicPipes.ROUTING_PIPE_ENTITY);
         registerBlockEntity("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
-        registerMenu("netherite_pipe", ClassicPipes.NETHERITE_BASIC_PIPE_MENU);
+        registerMenu("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);
         registerMenu("provider_pipe", ClassicPipes.PROVIDER_PIPE_MENU);
 
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);

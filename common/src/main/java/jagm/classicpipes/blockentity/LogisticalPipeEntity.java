@@ -1,6 +1,6 @@
 package jagm.classicpipes.blockentity;
 
-import jagm.classicpipes.block.NetheritePipeBlock;
+import jagm.classicpipes.block.RoutingPipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.LogisticalNetwork;
 import jagm.classicpipes.util.ScheduledRoute;
@@ -104,8 +104,8 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
             return;
         }
         if (!this.checkRoutingSchedule(item)) {
-            List<NetheriteBasicPipeEntity> validTargets = new ArrayList<>();
-            for (NetheriteBasicPipeEntity routingPipe : this.logisticalNetwork.getRoutingPipes()) {
+            List<RoutingPipeEntity> validTargets = new ArrayList<>();
+            for (RoutingPipeEntity routingPipe : this.logisticalNetwork.getRoutingPipes()) {
                 if (routingPipe.canRouteItemHere(item.getStack())) {
                     validTargets.add(routingPipe);
                 }
@@ -114,7 +114,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                 validTargets.addAll(this.logisticalNetwork.getDefaultRoutes());
             }
             if (this.getLevel() instanceof ServerLevel serverLevel) {
-                if (this instanceof NetheriteBasicPipeEntity && validTargets.contains(this) && state.getBlock() instanceof NetheritePipeBlock logisticalBlock) {
+                if (this instanceof RoutingPipeEntity && validTargets.contains(this) && state.getBlock() instanceof RoutingPipeBlock logisticalBlock) {
                     List<Direction> validDirections = new ArrayList<>();
                     for (Direction direction : Direction.values()) {
                         if (this.isPipeConnected(state, direction) && !logisticalBlock.isLinked(state, direction)) {

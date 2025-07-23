@@ -2,7 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
-import jagm.classicpipes.block.NetheritePipeBlock;
+import jagm.classicpipes.block.RoutingPipeBlock;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
@@ -276,7 +276,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 }
             }
         }
-        if (this instanceof LogisticalPipeEntity logisticalPipe && state.getBlock() instanceof NetheritePipeBlock logisticalBlock) {
+        if (this instanceof LogisticalPipeEntity logisticalPipe && state.getBlock() instanceof RoutingPipeBlock logisticalBlock) {
             boolean wasLinked = logisticalBlock.isLinked(state, nextDirection);
             boolean isLinked = this.logistics.containsKey(nextDirection);
             if (wasLinked != isLinked && logisticalPipe.hasLogisticalNetwork()) {
@@ -284,7 +284,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             }
             level.setBlock(pos, logisticalBlock.setLinked(state, nextDirection, isLinked), 3);
         }
-        if (nextPipe instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.getBlockState().getBlock() instanceof NetheritePipeBlock logisticalBlock) {
+        if (nextPipe instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.getBlockState().getBlock() instanceof RoutingPipeBlock logisticalBlock) {
             boolean wasLinked = logisticalBlock.isLinked(logisticalPipe.getBlockState(), nextDirection.getOpposite());
             boolean isLinked = logisticalPipe.logistics.containsKey(nextDirection.getOpposite());
             if (wasLinked != isLinked && logisticalPipe.hasLogisticalNetwork()) {

@@ -1,6 +1,6 @@
 package jagm.classicpipes.client.screen;
 
-import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
+import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
 import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
@@ -13,11 +13,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class NetheriteBasicPipeScreen extends AbstractContainerScreen<NetheriteBasicPipeMenu> {
+public class RoutingPipeScreen extends AbstractContainerScreen<RoutingPipeMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/netherite_pipe.png");
 
-    public NetheriteBasicPipeScreen(NetheriteBasicPipeMenu menu, Inventory playerInventory, Component title) {
+    public RoutingPipeScreen(RoutingPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 

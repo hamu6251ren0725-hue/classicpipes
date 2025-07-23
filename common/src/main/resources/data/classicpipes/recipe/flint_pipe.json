@@ -3,12 +3,10 @@
   "category": "misc",
   "key": {
     "O": "minecraft:flint",
-    "W": "minecraft:glass",
-    "X": "minecraft:redstone"
+    "W": "minecraft:glass"
   },
   "pattern": [
-    "OWO",
-    " X "
+    "OWO"
   ],
   "result": {
     "count": 8,

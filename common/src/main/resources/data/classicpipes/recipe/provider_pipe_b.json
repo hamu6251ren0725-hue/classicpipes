@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "classicpipes:netherite_pipe",
+    "O": "classicpipes:routing_pipe",
     "W": "minecraft:copper_ingot"
   },
   "pattern": [

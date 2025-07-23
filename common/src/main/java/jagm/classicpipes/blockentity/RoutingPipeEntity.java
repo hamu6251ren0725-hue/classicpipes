@@ -2,7 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
+import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.ItemStackWithSlot;
@@ -15,13 +15,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements MenuProvider {
+public class RoutingPipeEntity extends LogisticalPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
     private boolean defaultRoute;
 
-    public NetheriteBasicPipeEntity(BlockPos pos, BlockState state) {
-        super(ClassicPipes.NETHERITE_BASIC_PIPE_ENTITY, pos, state);
+    public RoutingPipeEntity(BlockPos pos, BlockState state) {
+        super(ClassicPipes.ROUTING_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 9, false);
         this.defaultRoute = false;
     }
@@ -59,7 +59,7 @@ public class NetheriteBasicPipeEntity extends LogisticalPipeEntity implements Me
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new NetheriteBasicPipeMenu(id, playerInventory, this.filter, this.defaultRoute);
+        return new RoutingPipeMenu(id, playerInventory, this.filter, this.defaultRoute);
     }
 
     public boolean shouldMatchComponents() {

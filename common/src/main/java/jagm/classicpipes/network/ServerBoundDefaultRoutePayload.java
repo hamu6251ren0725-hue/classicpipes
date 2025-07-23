@@ -1,6 +1,6 @@
 package jagm.classicpipes.network;
 
-import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
+import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -23,7 +23,7 @@ public record ServerBoundDefaultRoutePayload(boolean defaultRoute) implements Cu
     }
 
     public void handle(Player player) {
-        if (player != null && player.containerMenu instanceof NetheriteBasicPipeMenu menu) {
+        if (player != null && player.containerMenu instanceof RoutingPipeMenu menu) {
             menu.setDefaultRoute(this.defaultRoute());
         }
     }

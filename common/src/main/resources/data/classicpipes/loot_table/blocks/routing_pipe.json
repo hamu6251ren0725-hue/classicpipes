@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "classicpipes:netherite_pipe"
+          "name": "classicpipes:routing_pipe"
         }
       ],
       "conditions": [

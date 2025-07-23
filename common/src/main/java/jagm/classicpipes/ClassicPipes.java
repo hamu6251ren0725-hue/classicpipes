@@ -3,9 +3,9 @@ package jagm.classicpipes;
 import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
-import jagm.classicpipes.inventory.menu.NetheriteBasicPipeMenu;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
-import jagm.classicpipes.network.ClientBoundNetheritePipePayload;
+import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
+import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
@@ -66,7 +66,7 @@ public class ClassicPipes {
     public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT), translateDesc("flint_pipe"));
     public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT), translateDesc("brick_pipe"));
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT), translateDesc("obsidian_pipe"));
-    public static final Block NETHERITE_BASIC_PIPE = createPipe("netherite_pipe", NetheritePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("netherite_pipe.a"), translateDesc("netherite_pipe.b"));
+    public static final Block ROUTING_PIPE = createPipe("routing_pipe", RoutingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
     public static final Block PROVIDER_PIPE = createPipe("provider_pipe", ProviderPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER), translateDesc("provider_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
@@ -77,7 +77,7 @@ public class ClassicPipes {
     public static final BlockEntityType<FlintPipeEntity> FLINT_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(FlintPipeEntity::new, FLINT_PIPE);
     public static final BlockEntityType<LapisPipeEntity> LAPIS_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(LapisPipeEntity::new, LAPIS_PIPE);
     public static final BlockEntityType<ObsidianPipeEntity> OBSIDIAN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(ObsidianPipeEntity::new, OBSIDIAN_PIPE);
-    public static final BlockEntityType<NetheriteBasicPipeEntity> NETHERITE_BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(NetheriteBasicPipeEntity::new, NETHERITE_BASIC_PIPE);
+    public static final BlockEntityType<RoutingPipeEntity> ROUTING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoutingPipeEntity::new, ROUTING_PIPE);
     public static final BlockEntityType<ProviderPipeEntity> PROVIDER_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(ProviderPipeEntity::new, PROVIDER_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
@@ -88,7 +88,7 @@ public class ClassicPipes {
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
     public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
-    public static final MenuType<NetheriteBasicPipeMenu> NETHERITE_BASIC_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(NetheriteBasicPipeMenu::new, ClientBoundNetheritePipePayload.STREAM_CODEC);
+    public static final MenuType<RoutingPipeMenu> ROUTING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RoutingPipeMenu::new, ClientBoundRoutingPipePayload.STREAM_CODEC);
     public static final MenuType<ProviderPipeMenu> PROVIDER_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(ProviderPipeMenu::new, ByteBufCodecs.BOOL);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {

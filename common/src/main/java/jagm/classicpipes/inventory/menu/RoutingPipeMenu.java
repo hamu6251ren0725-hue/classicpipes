@@ -1,22 +1,22 @@
 package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.NetheriteBasicPipeEntity;
+import jagm.classicpipes.blockentity.RoutingPipeEntity;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.network.ClientBoundNetheritePipePayload;
+import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
 import net.minecraft.world.entity.player.Inventory;
 
-public class NetheriteBasicPipeMenu extends FilterMenu {
+public class RoutingPipeMenu extends FilterMenu {
 
     private boolean defaultRoute;
 
-    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, ClientBoundNetheritePipePayload payload) {
+    public RoutingPipeMenu(int id, Inventory playerInventory, ClientBoundRoutingPipePayload payload) {
         this(id, playerInventory, new FilterContainer(null, 9, payload.matchComponents()), payload.defaultRoute());
     }
 
-    public NetheriteBasicPipeMenu(int id, Inventory playerInventory, Filter filter, boolean defaultRoute) {
-        super(ClassicPipes.NETHERITE_BASIC_PIPE_MENU, id, filter);
+    public RoutingPipeMenu(int id, Inventory playerInventory, Filter filter, boolean defaultRoute) {
+        super(ClassicPipes.ROUTING_PIPE_MENU, id, filter);
         this.defaultRoute = defaultRoute;
         for (int j = 0; j < 9; j++) {
             this.addSlot(new FilterSlot(filter, j, 8 + j * 18, 18));
@@ -30,8 +30,8 @@ public class NetheriteBasicPipeMenu extends FilterMenu {
 
     public void setDefaultRoute(boolean defaultRoute) {
         this.defaultRoute = defaultRoute;
-        if (this.getFilter().getPipe() instanceof NetheriteBasicPipeEntity netheritePipe) {
-            netheritePipe.setDefaultRoute(defaultRoute);
+        if (this.getFilter().getPipe() instanceof RoutingPipeEntity routingPipe) {
+            routingPipe.setDefaultRoute(defaultRoute);
         }
     }
 
