@@ -4,9 +4,7 @@
   "package": "jagm.classicpipes.mixin",
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "ProviderPipeUpdaterMixin"
-  ],
+  "mixins": [],
   "client": [],
   "server": [],
   "injectors": {

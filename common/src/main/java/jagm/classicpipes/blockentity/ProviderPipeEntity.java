@@ -28,6 +28,7 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
     private final FilterContainer filter;
     private boolean leaveOne;
     private List<ItemStack> cache;
+    private boolean cacheInitialised = false;
 
     public ProviderPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.PROVIDER_PIPE_ENTITY, pos, state);
@@ -38,8 +39,9 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     @Override
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
-        if (this.cache.isEmpty() && !state.getValue(ProviderPipeBlock.FACING).equals(FacingOrNone.NONE)) {
+        if (!this.cacheInitialised && !state.getValue(ProviderPipeBlock.FACING).equals(FacingOrNone.NONE)) {
             this.updateCache(level, pos, state.getValue(ProviderPipeBlock.FACING).getDirection());
+            this.cacheInitialised = true;
         }
         super.tickServer(level, pos, state);
     }

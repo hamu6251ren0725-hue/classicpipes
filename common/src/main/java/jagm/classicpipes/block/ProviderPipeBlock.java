@@ -91,11 +91,13 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
         return InteractionResult.SUCCESS;
     }
 
-    /*@Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, Orientation orientation, boolean movedByPiston) {
-        if (!state.getValue(FACING).equals(FacingOrNone.NONE) && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe) {
-            providerPipe.updateCache(serverLevel, pos, state.getValue(ProviderPipeBlock.FACING).getDirection());
+    // Overrides method present in Forge (IForgeBlock) and NeoForge (IBlockExtension) but not in Fabric.
+    @SuppressWarnings("unused")
+    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+        Direction facing = state.getValue(FACING).getDirection();
+        if (level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe && level instanceof ServerLevel serverLevel && neighbor.equals(pos.relative(facing))) {
+            providerPipe.updateCache(serverLevel, pos, facing);
         }
-    }*/
+    }
 
 }
