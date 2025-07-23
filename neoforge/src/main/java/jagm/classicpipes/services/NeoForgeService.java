@@ -25,6 +25,8 @@ import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.function.TriFunction;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -110,6 +112,30 @@ public class NeoForgeService implements LoaderService {
             }
         }
         return false;
+    }
+
+    @Override
+    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face) {
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face);
+        if (itemHandler != null) {
+            List<ItemStack> stacks = new ArrayList<>();
+            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+                ItemStack slotStack = itemHandler.extractItem(slot, itemHandler.getSlotLimit(slot), true);
+                boolean matched = false;
+                for (ItemStack stack : stacks) {
+                    if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
+                        stack.setCount(stack.getCount() + slotStack.getCount());
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    stacks.add(slotStack);
+                }
+            }
+            return stacks;
+        }
+        return List.of();
     }
 
 }

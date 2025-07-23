@@ -1,10 +1,15 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.block.ProviderPipeBlock;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
+import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.FacingOrNone;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,15 +20,28 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
     private boolean leaveOne;
+    private List<ItemStack> cache;
 
     public ProviderPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.PROVIDER_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 9, false);
         this.leaveOne = false;
+        this.cache = new ArrayList<>();
+    }
+
+    @Override
+    public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        if (this.cache.isEmpty() && !state.getValue(ProviderPipeBlock.FACING).equals(FacingOrNone.NONE)) {
+            this.updateCache(level, pos, state.getValue(ProviderPipeBlock.FACING).getDirection());
+        }
+        super.tickServer(level, pos, state);
     }
 
     @Override
@@ -72,6 +90,10 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     public boolean shouldLeaveOne() {
         return this.leaveOne;
+    }
+
+    public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
+        this.cache = Services.LOADER_SERVICE.getExtractableItems(level, pos.relative(facing), facing.getOpposite());
     }
 
 }

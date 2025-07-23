@@ -91,4 +91,11 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
         return InteractionResult.SUCCESS;
     }
 
+    /*@Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, Orientation orientation, boolean movedByPiston) {
+        if (!state.getValue(FACING).equals(FacingOrNone.NONE) && level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe) {
+            providerPipe.updateCache(serverLevel, pos, state.getValue(ProviderPipeBlock.FACING).getDirection());
+        }
+    }*/
+
 }

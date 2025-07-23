@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -148,6 +149,31 @@ public class FabricService implements LoaderService {
             }
         }
         return false;
+    }
+
+    @Override
+    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face) {
+        Storage<ItemVariant> itemHandler = ItemStorage.SIDED.find(level, pos, face);
+        if (itemHandler != null) {
+            List<ItemStack> stacks = new ArrayList<>();
+            Iterator<StorageView<ItemVariant>> iterator = itemHandler.nonEmptyIterator();
+            while (iterator.hasNext()) {
+                StorageView<ItemVariant> itemView = iterator.next();
+                boolean matched = false;
+                for (ItemStack stack : stacks) {
+                    if (itemView.getResource().matches(stack)) {
+                        stack.setCount(stack.getCount() + (int) itemView.getAmount());
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    stacks.add(itemView.getResource().toStack((int) itemView.getAmount()));
+                }
+            }
+            return stacks;
+        }
+        return List.of();
     }
 
 }

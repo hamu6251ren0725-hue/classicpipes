@@ -34,6 +34,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         this.loadAttempts = 0;
     }
 
+    @Override
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
         if (!this.routingSchedule.isEmpty()) {
