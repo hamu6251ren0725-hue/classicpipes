@@ -95,7 +95,7 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
     @SuppressWarnings("unused")
     public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
         Direction facing = state.getValue(FACING).getDirection();
-        if (level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe && level instanceof ServerLevel serverLevel && neighbor.equals(pos.relative(facing))) {
+        if (level instanceof ServerLevel serverLevel && facing != null && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe && neighbor.equals(pos.relative(facing))) {
             providerPipe.updateCache(serverLevel, pos, facing);
         }
     }
