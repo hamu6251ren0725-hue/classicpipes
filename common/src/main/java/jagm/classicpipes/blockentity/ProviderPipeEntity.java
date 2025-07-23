@@ -18,10 +18,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
+    private boolean leaveOne;
 
     public ProviderPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.PROVIDER_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 9, false);
+        this.leaveOne = false;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
             this.filter.setItem(slotStack.slot(), slotStack.stack());
         }
         this.filter.setMatchComponents(valueInput.getBooleanOr("match_components", false));
+        this.leaveOne = valueInput.getBooleanOr("leave_one", false);
     }
 
     @Override
@@ -46,6 +49,7 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
             }
         }
         valueOutput.putBoolean("match_components", this.filter.shouldMatchComponents());
+        valueOutput.putBoolean("leave_one", this.leaveOne);
     }
 
     @Override
@@ -55,11 +59,19 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new ProviderPipeMenu(id, playerInventory, this.filter);
+        return new ProviderPipeMenu(id, playerInventory, this.filter, this.leaveOne);
     }
 
     public boolean shouldMatchComponents() {
         return this.filter.shouldMatchComponents();
+    }
+
+    public void setLeaveOne(boolean leaveOne) {
+        this.leaveOne = leaveOne;
+    }
+
+    public boolean shouldLeaveOne() {
+        return this.leaveOne;
     }
 
 }

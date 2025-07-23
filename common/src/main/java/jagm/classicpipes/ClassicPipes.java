@@ -5,6 +5,7 @@ import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
+import jagm.classicpipes.network.ClientBoundProviderPipePayload;
 import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -89,7 +90,7 @@ public class ClassicPipes {
 
     public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
     public static final MenuType<RoutingPipeMenu> ROUTING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RoutingPipeMenu::new, ClientBoundRoutingPipePayload.STREAM_CODEC);
-    public static final MenuType<ProviderPipeMenu> PROVIDER_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(ProviderPipeMenu::new, ByteBufCodecs.BOOL);
+    public static final MenuType<ProviderPipeMenu> PROVIDER_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(ProviderPipeMenu::new, ClientBoundProviderPipePayload.STREAM_CODEC);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

@@ -1,6 +1,7 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
+import jagm.classicpipes.network.ServerBoundLeaveOnePayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.api.ModInitializer;
@@ -9,6 +10,9 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,10 +45,9 @@ public class FabricEntrypoint implements ModInitializer {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
 
-        PayloadTypeRegistry.playC2S().register(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ServerBoundMatchComponentsPayload.TYPE, (payload, context) -> payload.handle(context.player()));
-        PayloadTypeRegistry.playC2S().register(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ServerBoundDefaultRoutePayload.TYPE, (payload, context) -> payload.handle(context.player()));
+        registerServerPayload(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+        registerServerPayload(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+        registerServerPayload(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
 
     }
 
@@ -54,6 +57,11 @@ public class FabricEntrypoint implements ModInitializer {
 
     private static <T extends AbstractContainerMenu> void registerMenu(String name, MenuType<T> menuType) {
         Registry.register(BuiltInRegistries.MENU, MiscUtil.resourceLocation(name), menuType);
+    }
+
+    private static <T extends CustomPacketPayload> void registerServerPayload(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ServerPlayNetworking.PlayPayloadHandler<T> handler) {
+        PayloadTypeRegistry.playC2S().register(type, codec);
+        ServerPlayNetworking.registerGlobalReceiver(type, handler);
     }
 
 }

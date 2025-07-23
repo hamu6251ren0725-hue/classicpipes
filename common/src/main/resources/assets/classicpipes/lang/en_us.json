@@ -39,6 +39,7 @@
   "subtitle.classicpipes.obsidian_pipe_destroy_item": "Item destroyed",
   "container.classicpipes.diamond_pipe": "Route by direction:",
   "container.classicpipes.routing_pipe": "Items to route here:",
+  "container.classicpipes.provider_pipe": "Items to provide, blank for all:",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
   "direction.classicpipes.south": "South",
@@ -47,6 +48,8 @@
   "direction.classicpipes.down": "Down",
   "widget.classicpipes.match_components": "Match components",
   "widget.classicpipes.default_route": "Default route",
+  "widget.classicpipes.leave_one": "Leave one",
   "tooltip.classicpipes.match_components": "If this is checked, the components of an item (damage, enchantments, etc.) must match the item in the filter.",
-  "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go."
+  "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go.",
+  "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will be left in the container."
 }

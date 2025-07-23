@@ -54,7 +54,7 @@ public class RoutingPipeEntity extends LogisticalPipeEntity implements MenuProvi
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("container." + ClassicPipes.MOD_ID + ".netherite_pipe");
+        return Component.translatable("container." + ClassicPipes.MOD_ID + ".routing_pipe");
     }
 
     @Override

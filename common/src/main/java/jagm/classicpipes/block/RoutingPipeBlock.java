@@ -101,7 +101,12 @@ public class RoutingPipeBlock extends AbstractPipeBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RoutingPipeEntity routingPipe) {
-            Services.LOADER_SERVICE.openMenu((ServerPlayer) player, routingPipe, new ClientBoundRoutingPipePayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()), ClientBoundRoutingPipePayload.STREAM_CODEC);
+            Services.LOADER_SERVICE.openMenu(
+                    (ServerPlayer) player,
+                    routingPipe,
+                    new ClientBoundRoutingPipePayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()),
+                    ClientBoundRoutingPipePayload.STREAM_CODEC
+            );
         }
         return InteractionResult.SUCCESS;
     }

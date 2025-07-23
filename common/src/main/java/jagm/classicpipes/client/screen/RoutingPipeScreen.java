@@ -25,7 +25,7 @@ public class RoutingPipeScreen extends AbstractContainerScreen<RoutingPipeMenu> 
     protected void init() {
         super.init();
         this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 36)
+                .pos(this.leftPos + 8, this.topPos + 38)
                 .onValueChange(this::matchComponentsCheckboxChanged)
                 .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
                 .selected(this.getMenu().getFilter().shouldMatchComponents())
@@ -33,7 +33,7 @@ public class RoutingPipeScreen extends AbstractContainerScreen<RoutingPipeMenu> 
                 .build()
         );
         this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 49)
+                .pos(this.leftPos + 8, this.topPos + 54)
                 .onValueChange(this::defaultRouteCheckboxChanged)
                 .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.default_route")))
                 .selected(this.getMenu().isDefaultRoute())

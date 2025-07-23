@@ -2,12 +2,12 @@ package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
+import jagm.classicpipes.network.ClientBoundProviderPipePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -81,7 +81,12 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe) {
-            Services.LOADER_SERVICE.openMenu((ServerPlayer) player, providerPipe, providerPipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
+            Services.LOADER_SERVICE.openMenu(
+                    (ServerPlayer) player,
+                    providerPipe,
+                    new ClientBoundProviderPipePayload(providerPipe.shouldMatchComponents(), providerPipe.shouldLeaveOne()),
+                    ClientBoundProviderPipePayload.STREAM_CODEC
+            );
         }
         return InteractionResult.SUCCESS;
     }

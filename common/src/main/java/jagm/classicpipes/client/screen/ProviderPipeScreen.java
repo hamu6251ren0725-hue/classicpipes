@@ -1,6 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
+import jagm.classicpipes.network.ServerBoundLeaveOnePayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -24,11 +25,19 @@ public class ProviderPipeScreen extends AbstractContainerScreen<ProviderPipeMenu
     protected void init() {
         super.init();
         this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 36)
+                .pos(this.leftPos + 8, this.topPos + 38)
                 .onValueChange(this::matchComponentsCheckboxChanged)
                 .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
                 .selected(this.getMenu().getFilter().shouldMatchComponents())
                 .label(Component.translatable("widget.classicpipes.match_components"), this.font)
+                .build()
+        );
+        this.addRenderableWidget(SmallerCheckbox.builder()
+                .pos(this.leftPos + 8, this.topPos + 54)
+                .onValueChange(this::leaveOneCheckboxChanged)
+                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.leave_one")))
+                .selected(this.getMenu().shouldLeaveOne())
+                .label(Component.translatable("widget.classicpipes.leave_one"), this.font)
                 .build()
         );
     }
@@ -48,6 +57,10 @@ public class ProviderPipeScreen extends AbstractContainerScreen<ProviderPipeMenu
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
         Services.LOADER_SERVICE.sendToServer(new ServerBoundMatchComponentsPayload(checked));
+    }
+
+    private void leaveOneCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
+        Services.LOADER_SERVICE.sendToServer(new ServerBoundLeaveOnePayload(checked));
     }
 
 }

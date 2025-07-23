@@ -13,6 +13,7 @@ public class ForgePacketHandler {
     public static void register() {
         INSTANCE.play().serverbound().add(ServerBoundMatchComponentsPayload.class, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
         INSTANCE.play().serverbound().add(ServerBoundDefaultRoutePayload.class, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
+        INSTANCE.play().serverbound().add(ServerBoundLeaveOnePayload.class, ServerBoundLeaveOnePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.getSender()));
     }
 
     public static void sendToServer(CustomPacketPayload payload) {
