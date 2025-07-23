@@ -52,16 +52,16 @@ public class NetheritePipeBlock extends AbstractPipeBlock {
 
     @Override
     public boolean isPipeConnected(BlockState state, Direction direction) {
-        return state.getValue(PROPERTY_BY_DIRECTION.get(direction)) != ConnectionState.NONE;
+        return !state.getValue(PROPERTY_BY_DIRECTION.get(direction)).equals(ConnectionState.NONE);
     }
 
     @Override
     public BlockState setPipeConnected(BlockState state, Direction direction, boolean connected) {
-        return state.setValue(PROPERTY_BY_DIRECTION.get(direction), connected ? ConnectionState.UNLINKED : ConnectionState.NONE);
+        return state.setValue(PROPERTY_BY_DIRECTION.get(direction), connected ? (this.isLinked(state, direction) ? ConnectionState.LINKED : ConnectionState.UNLINKED) : ConnectionState.NONE);
     }
 
     public boolean isLinked(BlockState state, Direction direction) {
-        return state.getValue(PROPERTY_BY_DIRECTION.get(direction)) == ConnectionState.LINKED;
+        return state.getValue(PROPERTY_BY_DIRECTION.get(direction)).equals(ConnectionState.LINKED);
     }
 
     public BlockState setLinked(BlockState state, Direction direction, boolean linked) {
