@@ -21,6 +21,7 @@
   "item.classicpipes.obsidian_pipe": "Obsidian Pipe",
   "item.classicpipes.routing_pipe": "Logistical Routing Pipe",
   "item.classicpipes.provider_pipe": "Logistical Provider Pipe",
+  "item.classicpipes.request_pipe": "Logistical Request Pipe",
   "item.classicpipes.wooden_pipe.desc": "Basic item pipe.",
   "item.classicpipes.golden_pipe.desc": "Accelerates items.",
   "item.classicpipes.copper_pipe.desc": "Extracts items from containers.",
@@ -33,6 +34,7 @@
   "item.classicpipes.routing_pipe.a.desc": "Basic logistical pipe for routing items smartly.",
   "item.classicpipes.routing_pipe.b.desc": "Place at the junctions of your network.",
   "item.classicpipes.provider_pipe.desc": "Allows a network to pull from the adjacent container.",
+  "item.classicpipes.request_pipe.desc": "Requests items from a logistical network.",
   "itemGroup.classicpipes.pipes": "Classic Pipes",
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
   "subtitle.classicpipes.pipe_adjust": "Pipe adjusted",
@@ -51,5 +53,5 @@
   "widget.classicpipes.leave_one": "Leave one",
   "tooltip.classicpipes.match_components": "If this is checked, the components of an item (damage, enchantments, etc.) must match the item in the filter.",
   "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go.",
-  "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will be left in the container."
+  "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network."
 }

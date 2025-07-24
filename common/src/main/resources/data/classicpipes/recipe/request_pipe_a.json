@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:netherite_scrap",
+    "W": "minecraft:glass",
+    "X": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    "OWO",
+    " X "
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:request_pipe"
+  }
+}

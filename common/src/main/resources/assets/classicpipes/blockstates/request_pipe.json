@@ -1,0 +1,178 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_unlinked"
+      },
+      "when": {
+        "north": "unlinked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_linked"
+      },
+      "when": {
+        "north": "linked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/request_pipe_middle"
+      },
+      "when": {
+        "north": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_unlinked",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "unlinked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_linked",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "linked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/request_pipe_middle",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_unlinked",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "unlinked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_linked",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "linked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/request_pipe_middle",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_unlinked",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "unlinked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_linked",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "linked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/request_pipe_middle",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_unlinked",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "unlinked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_linked",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "linked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/request_pipe_middle",
+        "uvlock": true,
+        "x": 270
+      },
+      "when": {
+        "up": "none"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_unlinked",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "unlinked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/routing_pipe_side_linked",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "linked"
+      }
+    },
+    {
+      "apply": {
+        "model": "classicpipes:block/request_pipe_middle",
+        "uvlock": true,
+        "x": 90
+      },
+      "when": {
+        "down": "none"
+      }
+    }
+  ]
+}

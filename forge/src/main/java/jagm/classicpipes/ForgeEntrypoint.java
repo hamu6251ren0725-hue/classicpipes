@@ -19,6 +19,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 
 @Mod(ClassicPipes.MOD_ID)
+@SuppressWarnings("unused")
 public class ForgeEntrypoint {
 
     public ForgeEntrypoint(FMLJavaModLoadingContext context) {
@@ -30,12 +31,12 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegister(RegisterEvent event) {
-            event.register(ForgeRegistries.Keys.BLOCKS, helper -> {
-                ClassicPipes.BLOCKS.forEach(helper::register);
-            });
-            event.register(ForgeRegistries.Keys.ITEMS, helper -> {
-                ClassicPipes.ITEMS.forEach(helper::register);
-            });
+
+            event.register(ForgeRegistries.Keys.BLOCKS, helper -> ClassicPipes.BLOCKS.forEach(helper::register));
+            event.register(ForgeRegistries.Keys.ITEMS, helper -> ClassicPipes.ITEMS.forEach(helper::register));
+            event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> ClassicPipes.SOUNDS.forEach(helper::register));
+            event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB));
+
             event.register(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, helper -> {
                 helper.register("basic_pipe", ClassicPipes.BASIC_PIPE_ENTITY);
                 helper.register("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
@@ -47,18 +48,15 @@ public class ForgeEntrypoint {
                 helper.register("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
                 helper.register("routing_pipe", ClassicPipes.ROUTING_PIPE_ENTITY);
                 helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
+                helper.register("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
             });
-            event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> {
-                ClassicPipes.SOUNDS.forEach(helper::register);
-            });
-            event.register(Registries.CREATIVE_MODE_TAB, helper -> {
-                helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
-            });
+
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
                 helper.register("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
                 helper.register("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);
                 helper.register("provider_pipe",ClassicPipes.PROVIDER_PIPE_MENU);
             });
+
         }
 
         @SubscribeEvent
@@ -83,11 +81,12 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.ROUTING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
         public static void onFillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
-            if(event.getTabKey() == ClassicPipes.PIPES_TAB_KEY) {
+            if (event.getTabKey() == ClassicPipes.PIPES_TAB_KEY) {
                 ClassicPipes.ITEMS.forEach((name, item) -> event.accept(item));
             }
         }

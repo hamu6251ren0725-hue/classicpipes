@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "classicpipes:routing_pipe",
+    "W": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    "OOO",
+    "OWO",
+    "OOO"
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:request_pipe"
+  }
+}

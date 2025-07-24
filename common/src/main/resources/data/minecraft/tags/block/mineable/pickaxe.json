@@ -9,6 +9,7 @@
     "classicpipes:brick_pipe",
     "classicpipes:obsidian_pipe",
     "classicpipes:routing_pipe",
-    "classicpipes:provider_pipe"
+    "classicpipes:provider_pipe",
+    "classicpipes:request_pipe"
   ]
 }

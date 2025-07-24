@@ -15,11 +15,13 @@ public class LogisticalNetwork {
     private final Set<RoutingPipeEntity> routingPipes;
     private final Set<RoutingPipeEntity> defaultRoutes;
     private final Set<ProviderPipeEntity> providerPipes;
+    private final Set<LogisticalPipeEntity> otherPipes;
 
     public LogisticalNetwork(BlockPos pos, LogisticalPipeEntity... pipes) {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
         this.providerPipes = new HashSet<>();
+        this.otherPipes = new HashSet<>();
         for (LogisticalPipeEntity pipe : pipes) {
             this.addPipe(pipe);
         }
@@ -38,6 +40,7 @@ public class LogisticalNetwork {
         Set<LogisticalPipeEntity> allPipes = new HashSet<>();
         allPipes.addAll(this.routingPipes);
         allPipes.addAll(this.providerPipes);
+        allPipes.addAll(this.otherPipes);
         return allPipes;
     }
 
@@ -65,6 +68,8 @@ public class LogisticalNetwork {
             }
         } else if (pipe instanceof ProviderPipeEntity providerPipe) {
             this.providerPipes.add(providerPipe);
+        } else {
+            this.otherPipes.add(pipe);
         }
     }
 

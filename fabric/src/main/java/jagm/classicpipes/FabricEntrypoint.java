@@ -18,6 +18,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
+@SuppressWarnings("unused")
 public class FabricEntrypoint implements ModInitializer {
 
     @Override
@@ -26,6 +27,7 @@ public class FabricEntrypoint implements ModInitializer {
         ClassicPipes.ITEMS.forEach((name, item) -> Registry.register(BuiltInRegistries.ITEM, MiscUtil.resourceLocation(name), item));
         ClassicPipes.BLOCKS.forEach((name, block) -> Registry.register(BuiltInRegistries.BLOCK, MiscUtil.resourceLocation(name), block));
         ClassicPipes.SOUNDS.forEach((name, soundEvent) -> Registry.register(BuiltInRegistries.SOUND_EVENT, MiscUtil.resourceLocation(name), soundEvent));
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
 
         registerBlockEntity("basic_pipe", ClassicPipes.BASIC_PIPE_ENTITY);
         registerBlockEntity("golden_pipe", ClassicPipes.GOLDEN_PIPE_ENTITY);
@@ -37,12 +39,12 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
         registerBlockEntity("routing_pipe", ClassicPipes.ROUTING_PIPE_ENTITY);
         registerBlockEntity("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
+        registerBlockEntity("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);
         registerMenu("provider_pipe", ClassicPipes.PROVIDER_PIPE_MENU);
 
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB);
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
 
         registerServerPayload(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));

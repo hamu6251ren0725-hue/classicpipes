@@ -69,6 +69,7 @@ public class ClassicPipes {
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("obsidian_pipe"));
     public static final Block ROUTING_PIPE = createPipe("routing_pipe", RoutingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
     public static final Block PROVIDER_PIPE = createPipe("provider_pipe", ProviderPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("provider_pipe"));
+    public static final Block REQUEST_PIPE = createPipe("request_pipe", RequestPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("request_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
@@ -80,6 +81,7 @@ public class ClassicPipes {
     public static final BlockEntityType<ObsidianPipeEntity> OBSIDIAN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(ObsidianPipeEntity::new, OBSIDIAN_PIPE);
     public static final BlockEntityType<RoutingPipeEntity> ROUTING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoutingPipeEntity::new, ROUTING_PIPE);
     public static final BlockEntityType<ProviderPipeEntity> PROVIDER_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(ProviderPipeEntity::new, PROVIDER_PIPE);
+    public static final BlockEntityType<RequestPipeEntity> REQUEST_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RequestPipeEntity::new, REQUEST_PIPE);
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
