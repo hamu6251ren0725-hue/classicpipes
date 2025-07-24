@@ -88,6 +88,10 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     public void setLeaveOne(boolean leaveOne) {
         this.leaveOne = leaveOne;
+        Direction facing = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
+        if (this.getLevel() instanceof ServerLevel serverLevel && facing != null) {
+            this.updateCache(serverLevel, this.getBlockPos(), facing);
+        }
     }
 
     public boolean shouldLeaveOne() {
@@ -95,7 +99,7 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
     }
 
     public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
-        this.cache = Services.LOADER_SERVICE.getExtractableItems(level, pos.relative(facing), facing.getOpposite());
+        this.cache = Services.LOADER_SERVICE.getExtractableItems(level, pos.relative(facing), facing.getOpposite(), this.shouldLeaveOne());
     }
 
 }

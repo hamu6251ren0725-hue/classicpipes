@@ -40,6 +40,6 @@ public interface LoaderService {
 
     boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
 
-    List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face);
+    List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face, boolean leaveOne);
 
 }
