@@ -1,6 +1,7 @@
 package jagm.classicpipes.inventory.container;
 
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +34,7 @@ public class FilterContainer implements Filter {
 
     @Override
     public boolean isEmpty() {
-        return this.filter.isEmpty();
+        return this.filter.stream().allMatch(ItemStack::isEmpty);
     }
 
     @Override
@@ -59,15 +60,18 @@ public class FilterContainer implements Filter {
 
     @Override
     public void setChanged() {
-        if (pipe != null) {
-            pipe.setChanged();
+        if (this.pipe != null) {
+            this.pipe.setChanged();
+            if (this.pipe instanceof ProviderPipeEntity providerPipe) {
+                providerPipe.updateCache();
+            }
         }
     }
 
     @Override
     public boolean stillValid(Player player) {
-        if (pipe != null) {
-            return Container.stillValidBlockEntity(pipe, player);
+        if (this.pipe != null) {
+            return Container.stillValidBlockEntity(this.pipe, player);
         } else {
             return true;
         }

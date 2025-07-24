@@ -152,7 +152,7 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face, boolean leaveOne) {
+    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face) {
         Storage<ItemVariant> itemHandler = ItemStorage.SIDED.find(level, pos, face);
         if (itemHandler != null) {
             List<ItemStack> stacks = new ArrayList<>();
@@ -169,16 +169,6 @@ public class FabricService implements LoaderService {
                 }
                 if (!matched) {
                     stacks.add(itemView.getResource().toStack((int) itemView.getAmount()));
-                }
-            }
-            if (leaveOne) {
-                Iterator<ItemStack> stackIterator = stacks.iterator();
-                while (stackIterator.hasNext()) {
-                    ItemStack stack = stackIterator.next();
-                    stack.shrink(1);
-                    if (stack.isEmpty()) {
-                        stackIterator.remove();
-                    }
                 }
             }
             return stacks;

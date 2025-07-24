@@ -6,6 +6,7 @@ import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProvider {
@@ -49,6 +51,7 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
     @Override
     protected void loadAdditional(ValueInput valueInput) {
         this.filter.clearContent();
+        this.cacheInitialised = false;
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<ItemStackWithSlot> filterList = valueInput.listOrEmpty("filter", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : filterList) {
@@ -79,6 +82,12 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+        if (MiscUtil.DEBUG_MODE) {
+            ClassicPipes.LOGGER.info("===========");
+            for (ItemStack stack : this.cache) {
+                ClassicPipes.LOGGER.info("Providing {}x {}.", stack.getCount(), stack.getItem().getName().getString());
+            }
+        }
         return new ProviderPipeMenu(id, playerInventory, this.filter, this.leaveOne);
     }
 
@@ -99,7 +108,27 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
     }
 
     public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
-        this.cache = Services.LOADER_SERVICE.getExtractableItems(level, pos.relative(facing), facing.getOpposite(), this.shouldLeaveOne());
+        List<ItemStack> stacks = Services.LOADER_SERVICE.getExtractableItems(level, pos.relative(facing), facing.getOpposite());
+        Iterator<ItemStack> iterator = stacks.iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            if (!this.filter.isEmpty() && !this.filter.matches(stack)) {
+                iterator.remove();
+            } else if (this.shouldLeaveOne()) {
+                stack.shrink(1);
+                if (stack.isEmpty()) {
+                    iterator.remove();
+                }
+            }
+        }
+        this.cache = stacks;
+    }
+
+    public void updateCache() {
+        Direction facing = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
+        if (this.getLevel() instanceof ServerLevel serverLevel && facing != null) {
+            this.updateCache(serverLevel, this.getBlockPos(), facing);
+        }
     }
 
 }

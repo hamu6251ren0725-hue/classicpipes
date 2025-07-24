@@ -28,7 +28,10 @@ import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.function.TriFunction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 public class ForgeService implements LoaderService {
@@ -158,7 +161,7 @@ public class ForgeService implements LoaderService {
     }
 
     @Override
-    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face, boolean leaveOne) {
+    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity != null) {
             Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
@@ -180,16 +183,6 @@ public class ForgeService implements LoaderService {
                     }
                     if (!matched) {
                         stacks.add(slotStack);
-                    }
-                }
-                if (leaveOne) {
-                    Iterator<ItemStack> stackIterator = stacks.iterator();
-                    while (stackIterator.hasNext()) {
-                        ItemStack stack = stackIterator.next();
-                        stack.shrink(1);
-                        if (stack.isEmpty()) {
-                            stackIterator.remove();
-                        }
                     }
                 }
                 return stacks;

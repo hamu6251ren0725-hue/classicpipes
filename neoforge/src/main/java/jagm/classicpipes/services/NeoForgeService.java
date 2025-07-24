@@ -26,7 +26,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -116,7 +115,7 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face, boolean leaveOne) {
+    public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face) {
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face);
         if (itemHandler != null) {
             List<ItemStack> stacks = new ArrayList<>();
@@ -135,16 +134,6 @@ public class NeoForgeService implements LoaderService {
                 }
                 if (!matched) {
                     stacks.add(slotStack);
-                }
-            }
-            if (leaveOne) {
-                Iterator<ItemStack> stackIterator = stacks.iterator();
-                while (stackIterator.hasNext()) {
-                    ItemStack stack = stackIterator.next();
-                    stack.shrink(1);
-                    if (stack.isEmpty()) {
-                        stackIterator.remove();
-                    }
                 }
             }
             return stacks;

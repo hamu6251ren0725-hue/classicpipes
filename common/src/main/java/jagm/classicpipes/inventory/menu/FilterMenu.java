@@ -29,6 +29,7 @@ public abstract class FilterMenu extends AbstractContainerMenu {
                 } else {
                     slot.set(this.getCarried().copyWithCount(1));
                 }
+                slot.setChanged();
             }
         }
     }
@@ -43,7 +44,9 @@ public abstract class FilterMenu extends AbstractContainerMenu {
             } else {
                 for (int i = 0; i < this.filter.getContainerSize(); i++) {
                     if (!this.slots.get(i).hasItem()) {
-                        this.slots.get(i).set(slot.getItem().copyWithCount(1));
+                        Slot toSlot = this.slots.get(i);
+                        toSlot.set(slot.getItem().copyWithCount(1));
+                        toSlot.setChanged();
                         break;
                     }
                 }

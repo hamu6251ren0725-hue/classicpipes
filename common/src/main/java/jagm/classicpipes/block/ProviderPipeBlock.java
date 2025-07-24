@@ -91,8 +91,8 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
         return InteractionResult.SUCCESS;
     }
 
-    // Overrides method present in Forge (IForgeBlock) and NeoForge (IBlockExtension) but not in Fabric.
-    @SuppressWarnings("unused")
+    // Overrides method present in Forge (IForgeBlock) and NeoForge (IBlockExtension).
+    // Called from ProviderPipeUpdaterMixin in Fabric.
     public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
         Direction facing = state.getValue(FACING).getDirection();
         if (level instanceof ServerLevel serverLevel && facing != null && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe && neighbor.equals(pos.relative(facing))) {
