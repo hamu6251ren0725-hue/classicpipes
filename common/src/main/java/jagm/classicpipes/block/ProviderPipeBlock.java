@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -80,6 +81,23 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        Direction facing = state.getValue(FACING).getDirection();
+        if (player.getAbilities().mayBuild && player.isCrouching() && !MiscUtil.itemIsPipe(player.getMainHandItem()) && facing != null) {
+            Direction direction = MiscUtil.nextDirection(facing);
+            for (int i = 0; i < 5; i++) {
+                BlockPos nextPos = pos.relative(direction);
+                if (this.isPipeConnected(state, direction) && Services.LOADER_SERVICE.canAccessContainer(level, nextPos, direction.getOpposite())) {
+                    BlockState newState = state.setValue(FACING, FacingOrNone.with(direction));
+                    level.setBlock(pos, newState, 3);
+                    if (level instanceof ServerLevel serverLevel) {
+                        serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
+                        this.onNeighborChange(newState, serverLevel, pos, nextPos);
+                    }
+                    return InteractionResult.SUCCESS;
+                }
+                direction = MiscUtil.nextDirection(direction);
+            }
+        }
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof ProviderPipeEntity providerPipe) {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
