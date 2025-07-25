@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
-import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
+import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -104,8 +104,8 @@ public class RoutingPipeBlock extends AbstractPipeBlock {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
                     routingPipe,
-                    new ClientBoundRoutingPipePayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()),
-                    ClientBoundRoutingPipePayload.STREAM_CODEC
+                    new ClientBoundTwoBoolsPayload(routingPipe.shouldMatchComponents(), routingPipe.isDefaultRoute()),
+                    ClientBoundTwoBoolsPayload.STREAM_CODEC
             );
         }
         return InteractionResult.SUCCESS;

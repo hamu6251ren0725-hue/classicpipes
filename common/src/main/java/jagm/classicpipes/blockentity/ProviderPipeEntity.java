@@ -131,4 +131,8 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
         }
     }
 
+    public List<ItemStack> getCache() {
+        return this.cache;
+    }
+
 }

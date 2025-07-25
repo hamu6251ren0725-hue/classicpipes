@@ -4,9 +4,11 @@ import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
+import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
-import jagm.classicpipes.network.ClientBoundProviderPipePayload;
-import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
+import jagm.classicpipes.network.ClientBoundBoolPayload;
+import jagm.classicpipes.network.ClientBoundItemListPayload;
+import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
@@ -14,7 +16,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -90,9 +91,10 @@ public class ClassicPipes {
     public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");
 
-    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(DiamondPipeMenu::new, ByteBufCodecs.BOOL);
-    public static final MenuType<RoutingPipeMenu> ROUTING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RoutingPipeMenu::new, ClientBoundRoutingPipePayload.STREAM_CODEC);
-    public static final MenuType<ProviderPipeMenu> PROVIDER_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(ProviderPipeMenu::new, ClientBoundProviderPipePayload.STREAM_CODEC);
+    public static final MenuType<DiamondPipeMenu> DIAMOND_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(DiamondPipeMenu::new, ClientBoundBoolPayload.STREAM_CODEC);
+    public static final MenuType<RoutingPipeMenu> ROUTING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RoutingPipeMenu::new, ClientBoundTwoBoolsPayload.STREAM_CODEC);
+    public static final MenuType<ProviderPipeMenu> PROVIDER_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(ProviderPipeMenu::new, ClientBoundTwoBoolsPayload.STREAM_CODEC);
+    public static final MenuType<RequestMenu> REQUEST_MENU = Services.LOADER_SERVICE.createMenuType((id, inventory, payload) -> new RequestMenu(id, payload), ClientBoundItemListPayload.STREAM_CODEC);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

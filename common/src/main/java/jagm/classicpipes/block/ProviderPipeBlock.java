@@ -2,7 +2,7 @@ package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
-import jagm.classicpipes.network.ClientBoundProviderPipePayload;
+import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
 import jagm.classicpipes.util.MiscUtil;
@@ -102,8 +102,8 @@ public class ProviderPipeBlock extends RoutingPipeBlock {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
                     providerPipe,
-                    new ClientBoundProviderPipePayload(providerPipe.shouldMatchComponents(), providerPipe.shouldLeaveOne()),
-                    ClientBoundProviderPipePayload.STREAM_CODEC
+                    new ClientBoundTwoBoolsPayload(providerPipe.shouldMatchComponents(), providerPipe.shouldLeaveOne()),
+                    ClientBoundTwoBoolsPayload.STREAM_CODEC
             );
         }
         return InteractionResult.SUCCESS;

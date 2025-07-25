@@ -4,15 +4,15 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.network.ClientBoundRoutingPipePayload;
+import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import net.minecraft.world.entity.player.Inventory;
 
 public class RoutingPipeMenu extends FilterMenu {
 
     private boolean defaultRoute;
 
-    public RoutingPipeMenu(int id, Inventory playerInventory, ClientBoundRoutingPipePayload payload) {
-        this(id, playerInventory, new FilterContainer(null, 9, payload.matchComponents()), payload.defaultRoute());
+    public RoutingPipeMenu(int id, Inventory playerInventory, ClientBoundTwoBoolsPayload payload) {
+        this(id, playerInventory, new FilterContainer(null, 9, payload.first()), payload.second());
     }
 
     public RoutingPipeMenu(int id, Inventory playerInventory, Filter filter, boolean defaultRoute) {

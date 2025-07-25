@@ -4,15 +4,15 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.network.ClientBoundProviderPipePayload;
+import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import net.minecraft.world.entity.player.Inventory;
 
 public class ProviderPipeMenu extends FilterMenu {
 
     private boolean leaveOne;
 
-    public ProviderPipeMenu(int id, Inventory playerInventory, ClientBoundProviderPipePayload payload) {
-        this(id, playerInventory, new FilterContainer(null, 9, payload.matchComponents()), payload.leaveOne());
+    public ProviderPipeMenu(int id, Inventory playerInventory, ClientBoundTwoBoolsPayload payload) {
+        this(id, playerInventory, new FilterContainer(null, 9, payload.first()), payload.second());
     }
 
     public ProviderPipeMenu(int id, Inventory playerInventory, Filter filter, boolean leaveOne) {

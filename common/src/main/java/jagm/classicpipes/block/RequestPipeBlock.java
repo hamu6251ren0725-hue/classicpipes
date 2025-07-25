@@ -2,7 +2,11 @@ package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.RequestPipeEntity;
+import jagm.classicpipes.network.ClientBoundItemListPayload;
+import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -30,7 +34,15 @@ public class RequestPipeBlock extends RoutingPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return InteractionResult.FAIL;
+        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RequestPipeEntity requestPipe) {
+            Services.LOADER_SERVICE.openMenu(
+                    (ServerPlayer) player,
+                    requestPipe.getLogisticalNetwork(),
+                    requestPipe.getLogisticalNetwork().requestItemList("", 0),
+                    ClientBoundItemListPayload.STREAM_CODEC
+            );
+        }
+        return InteractionResult.SUCCESS;
     }
 
 }

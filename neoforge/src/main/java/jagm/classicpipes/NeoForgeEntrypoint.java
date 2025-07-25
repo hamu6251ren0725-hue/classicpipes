@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.client.PipeRenderer;
 import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.ProviderPipeScreen;
+import jagm.classicpipes.client.screen.RequestScreen;
 import jagm.classicpipes.client.screen.RoutingPipeScreen;
 import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
 import jagm.classicpipes.network.ServerBoundLeaveOnePayload;
@@ -58,6 +59,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("request"), ClassicPipes.REQUEST_MENU);
             });
 
         }
@@ -102,6 +104,7 @@ public class NeoForgeEntrypoint {
             event.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
             event.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);
             event.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
+            event.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
         }
 
     }

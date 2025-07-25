@@ -25,6 +25,9 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.commons.lang3.function.TriFunction;
 
@@ -189,6 +192,11 @@ public class ForgeService implements LoaderService {
             }
         }
         return List.of();
+    }
+
+    @Override
+    public String getModName(String modId) {
+        return ModList.get().getModContainerById(modId).map(ModContainer::getModInfo).map(IModInfo::getDisplayName).orElse(modId);
     }
 
 }

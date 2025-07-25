@@ -2,9 +2,9 @@ package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.DiamondPipeEntity;
+import jagm.classicpipes.network.ClientBoundBoolPayload;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -35,7 +35,7 @@ public class DiamondPipeBlock extends BasicPipeBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof DiamondPipeEntity diamondPipe) {
-            Services.LOADER_SERVICE.openMenu((ServerPlayer) player, diamondPipe, diamondPipe.shouldMatchComponents(), ByteBufCodecs.BOOL);
+            Services.LOADER_SERVICE.openMenu((ServerPlayer) player, diamondPipe, new ClientBoundBoolPayload(diamondPipe.shouldMatchComponents()), ClientBoundBoolPayload.STREAM_CODEC);
         }
         return InteractionResult.SUCCESS;
     }

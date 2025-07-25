@@ -3,12 +3,13 @@ package jagm.classicpipes.inventory.menu;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.DirectionalFilterContainer;
 import jagm.classicpipes.inventory.container.Filter;
+import jagm.classicpipes.network.ClientBoundBoolPayload;
 import net.minecraft.world.entity.player.Inventory;
 
 public class DiamondPipeMenu extends FilterMenu {
 
-    public DiamondPipeMenu(int id, Inventory playerInventory, boolean matchComponents) {
-        this(id, playerInventory, new DirectionalFilterContainer(null, matchComponents));
+    public DiamondPipeMenu(int id, Inventory playerInventory, ClientBoundBoolPayload matchComponents) {
+        this(id, playerInventory, new DirectionalFilterContainer(null, matchComponents.value()));
     }
 
     public DiamondPipeMenu(int id, Inventory playerInventory, Filter filter) {
