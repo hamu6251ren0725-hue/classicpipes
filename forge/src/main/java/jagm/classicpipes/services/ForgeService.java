@@ -1,11 +1,11 @@
 package jagm.classicpipes.services;
 
-import io.netty.buffer.ByteBuf;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.network.ForgePacketHandler;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
@@ -45,13 +45,13 @@ public class ForgeService implements LoaderService {
     }
 
     @Override
-    public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<ByteBuf, D> codec) {
-        return IForgeMenuType.create((id, inventory, buffer) -> menuSupplier.apply(id, inventory, codec.decode(buffer)));
+    public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
+        return IForgeMenuType.create((id, inventory, buffer) -> menuSupplier.apply(id, inventory, codec.decode(new RegistryFriendlyByteBuf(buffer, inventory.player.registryAccess()))));
     }
 
     @Override
-    public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec) {
-        player.openMenu(menuProvider, buffer -> codec.encode(buffer, payload));
+    public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
+        player.openMenu(menuProvider, buffer -> codec.encode(new RegistryFriendlyByteBuf(buffer, player.registryAccess()), payload));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package jagm.classicpipes.services;
 
-import io.netty.buffer.ByteBuf;
 import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
@@ -18,6 +17,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -49,12 +49,12 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<ByteBuf, D> codec) {
+    public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
         return new ExtendedScreenHandlerType<>(menuSupplier::apply, codec);
     }
 
     @Override
-    public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<ByteBuf, D> codec) {
+    public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
         player.openMenu(new ExtendedScreenHandlerFactory<D>() {
 
             @Override
