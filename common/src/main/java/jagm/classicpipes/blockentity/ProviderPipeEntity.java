@@ -6,7 +6,6 @@ import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
-import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -82,12 +81,6 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        if (MiscUtil.DEBUG_MODE) {
-            ClassicPipes.LOGGER.info("===========");
-            for (ItemStack stack : this.cache) {
-                ClassicPipes.LOGGER.info("Providing {}x {}.", stack.getCount(), stack.getItem().getName().getString());
-            }
-        }
         return new ProviderPipeMenu(id, playerInventory, this.filter, this.leaveOne);
     }
 

@@ -67,9 +67,9 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
-            registrar.playToServer(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
-            registrar.playToServer(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
-            registrar.playToServer(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+            registrar.playToServer(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
+            registrar.playToServer(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
+            registrar.playToServer(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
         }
 
     }

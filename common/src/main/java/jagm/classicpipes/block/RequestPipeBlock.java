@@ -38,7 +38,7 @@ public class RequestPipeBlock extends RoutingPipeBlock {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
                     requestPipe.getLogisticalNetwork(),
-                    requestPipe.getLogisticalNetwork().requestItemList("", 0),
+                    requestPipe.getLogisticalNetwork().requestItemList(),
                     ClientBoundItemListPayload.STREAM_CODEC
             );
         }

@@ -42,6 +42,7 @@
   "container.classicpipes.diamond_pipe": "Route by direction:",
   "container.classicpipes.routing_pipe": "Items to route here:",
   "container.classicpipes.provider_pipe": "Items to provide, blank for all:",
+  "container.classicpipes.request": "Request from network",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
   "direction.classicpipes.south": "South",

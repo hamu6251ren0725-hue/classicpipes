@@ -5,22 +5,19 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
-
 public class RequestMenuContainer implements Container {
 
-    NonNullList<ItemStack> contents;
+    private static final int DISPLAY_SIZE = 8 * 9;
 
-    public RequestMenuContainer(List<ItemStack> contents) {
-        this.contents = NonNullList.withSize(72, ItemStack.EMPTY);
-        for (int i = 0; i < contents.size(); i++) {
-            this.contents.set(i, contents.get(i));
-        }
+    private NonNullList<ItemStack> contents;
+
+    public RequestMenuContainer() {
+        this.contents = NonNullList.withSize(DISPLAY_SIZE, ItemStack.EMPTY);
     }
 
     @Override
     public int getContainerSize() {
-        return 72;
+        return DISPLAY_SIZE;
     }
 
     @Override
@@ -60,7 +57,7 @@ public class RequestMenuContainer implements Container {
 
     @Override
     public void clearContent() {
-        this.contents = NonNullList.withSize(72, ItemStack.EMPTY);
+        this.contents = NonNullList.withSize(DISPLAY_SIZE, ItemStack.EMPTY);
     }
 
 }
