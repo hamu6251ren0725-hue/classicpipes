@@ -2,13 +2,17 @@ package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.util.MiscUtil;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
@@ -18,7 +22,6 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
     public RequestScreen(RequestMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.inventoryLabelY = -100;
         this.imageHeight = 222;
     }
 
@@ -48,6 +51,75 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
+    }
+
+    @Override
+    protected void renderSlot(GuiGraphics graphics, Slot slot) {
+        ItemStack stack = slot.getItem();
+        int seed = slot.x + slot.y * this.imageWidth;
+        graphics.renderItem(stack, slot.x, slot.y, seed);
+        if (!stack.isEmpty()) {
+            graphics.pose().pushMatrix();
+            this.renderItemBar(graphics, stack, slot.x, slot.y);
+            this.renderItemCount(graphics, this.font, stack, slot.x, slot.y);
+            graphics.pose().popMatrix();
+        }
+    }
+
+    private void renderItemBar(GuiGraphics graphics, ItemStack stack, int x, int y) {
+        if (stack.isBarVisible()) {
+            int i = x + 2;
+            int j = y + 13;
+            graphics.fill(RenderPipelines.GUI, i, j, i + 13, j + 2, -16777216);
+            graphics.fill(RenderPipelines.GUI, i, j, i + stack.getBarWidth(), j + 1, ARGB.opaque(stack.getBarColor()));
+        }
+    }
+
+    private void renderItemCount(GuiGraphics graphics, Font font, ItemStack stack, int x, int y) {
+        int count = stack.getCount();
+        if (count != 1) {
+            String s = stringForCount(count);
+            float countScale = 1.0F;
+            if (this.minecraft != null) {
+                final int guiScale = this.minecraft.getWindow().getGuiScale();
+                int numerator = guiScale;
+                while (font.width(s) * countScale > 16 && numerator > 1) {
+                    numerator--;
+                    countScale = (float) numerator / guiScale;
+                }
+            }
+            float positionMultiplier = 1 / countScale;
+            graphics.pose().pushMatrix();
+            graphics.pose().scale(countScale);
+            graphics.drawString(font, s, Math.round(positionMultiplier * (x + 16) - font.width(s)), Math.round(positionMultiplier * (y + 16) - 8), -1, true);
+            graphics.pose().popMatrix();
+        }
+
+    }
+
+    private static String stringForCount(int count) {
+        if (count < 100) {
+            return String.valueOf(count);
+        } else if (count < 1000) {
+            return String.valueOf(count);
+        } else if (count < 10000) {
+            return String.format("%.1f", (float) count / 1000) + "K";
+        } else if (count < 1000000) {
+            return count / 1000 + "K";
+        } else if (count < 10000000) {
+            return String.format("%.1f", (float) count / 1000000) + "M";
+        } else if (count < 1000000000) {
+            return count / 1000000 + "M";
+        } else if (count < Integer.MAX_VALUE) {
+            return String.format("%.1f", (float) count / 1000000000) + "B";
+        } else {
+            return "INF";
+        }
     }
 
     @Override
