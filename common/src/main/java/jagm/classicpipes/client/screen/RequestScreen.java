@@ -93,32 +93,31 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
                     countScale = (float) numerator / guiScale;
                 }
             }
-            float positionMultiplier = 1 / countScale;
+            int slotOffset = countScale == 1.0F ? 17 : 16;
             graphics.pose().pushMatrix();
+            graphics.pose().translate(x + slotOffset, y + slotOffset);
             graphics.pose().scale(countScale);
-            graphics.drawString(font, s, Math.round(positionMultiplier * (x + 16) - font.width(s)), Math.round(positionMultiplier * (y + 16) - 8), -1, true);
+            graphics.drawString(font, s, -font.width(s), -8, -1, true);
             graphics.pose().popMatrix();
         }
 
     }
 
     private static String stringForCount(int count) {
-        if (count < 100) {
-            return String.valueOf(count);
-        } else if (count < 1000) {
+        if (count < 1000) {
             return String.valueOf(count);
         } else if (count < 10000) {
-            return String.format("%.1f", (float) count / 1000) + "K";
+            return String.format("%.1f", (float) count / 1000 - 0.049F) + "K";
         } else if (count < 1000000) {
             return count / 1000 + "K";
         } else if (count < 10000000) {
-            return String.format("%.1f", (float) count / 1000000) + "M";
+            return String.format("%.1f", (float) count / 1000000 - 0.049F) + "M";
         } else if (count < 1000000000) {
             return count / 1000000 + "M";
         } else if (count < Integer.MAX_VALUE) {
-            return String.format("%.1f", (float) count / 1000000000) + "B";
+            return String.format("%.1f", (float) count / 1000000000 - 0.049F) + "B";
         } else {
-            return "INF";
+            return "MAX";
         }
     }
 
