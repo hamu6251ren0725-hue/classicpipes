@@ -2,16 +2,24 @@ package jagm.classicpipes.util;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
+import jagm.classicpipes.services.Services;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Comparator;
+
 public class MiscUtil {
 
     public static final boolean DEBUG_MODE = true;
+    public static final Comparator<ItemStack> AMOUNT = Comparator.comparing(ItemStack::getCount);
+    public static final Comparator<ItemStack> NAME = Comparator.comparing(stack -> stack.getItem().getName().getString());
+    public static final Comparator<ItemStack> MOD = Comparator.comparing(stack -> Services.LOADER_SERVICE.getModName(MiscUtil.modFromItem(stack)));
+    public static final Comparator<ItemStack> CRAFTABLE = Comparator.comparing(stack -> stack.getCount() == 0 ? 1 : 0);
 
     public static ResourceLocation resourceLocation(String name) {
         return ResourceLocation.fromNamespaceAndPath(ClassicPipes.MOD_ID, name);
@@ -30,6 +38,10 @@ public class MiscUtil {
             return blockItem.getBlock() instanceof AbstractPipeBlock;
         }
         return false;
+    }
+
+    public static String modFromItem(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().split(":")[0];
     }
 
 }

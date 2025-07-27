@@ -4,6 +4,7 @@ import jagm.classicpipes.block.RoutingPipeBlock;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.LogisticalNetwork;
 import jagm.classicpipes.util.ScheduledRoute;
+import jagm.classicpipes.util.SortingMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -242,6 +243,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         this.setController(valueInput.getBooleanOr("controller", false));
         if (this.isController()) {
             this.logisticalNetwork = new LogisticalNetwork(this.getBlockPos(), this);
+            this.logisticalNetwork.setSortingMode(SortingMode.fromByte(valueInput.getByteOr("sorting_mode", (byte) 1)));
             this.toLoad = this.getBlockPos();
         } else {
             valueInput.read("network_pos", BlockPos.CODEC).ifPresent(pos -> this.toLoad = pos);
@@ -258,8 +260,11 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         super.saveAdditional(valueOutput);
         if (this.hasLogisticalNetwork()) {
             valueOutput.store("network_pos", BlockPos.CODEC, this.getLogisticalNetwork().getPos());
+            if (this.isController()) {
+                valueOutput.putByte("sorting_mode", this.getLogisticalNetwork().getSortingMode().getValue());
+            }
+            valueOutput.putBoolean("controller", this.isController());
         }
-        valueOutput.putBoolean("controller", this.isController());
         ValueOutput.TypedOutputList<ItemStackWithSlot> routingList = valueOutput.list("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStack stack : this.routingSchedule.keySet()) {
             routingList.add(new ItemStackWithSlot(this.routingSchedule.get(stack).getDirection().get3DDataValue(), stack));

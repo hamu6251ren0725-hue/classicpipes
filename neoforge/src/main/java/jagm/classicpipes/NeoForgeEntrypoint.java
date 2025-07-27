@@ -5,11 +5,12 @@ import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.ProviderPipeScreen;
 import jagm.classicpipes.client.screen.RequestScreen;
 import jagm.classicpipes.client.screen.RoutingPipeScreen;
-import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
-import jagm.classicpipes.network.ServerBoundLeaveOnePayload;
-import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
+import jagm.classicpipes.network.*;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -67,9 +68,14 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
             final PayloadRegistrar registrar = event.registrar("1");
-            registrar.playToServer(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
-            registrar.playToServer(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
-            registrar.playToServer(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
+            registerServerPayload(registrar, ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC);
+            registerServerPayload(registrar, ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC);
+            registerServerPayload(registrar, ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
+            registerServerPayload(registrar, ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
+        }
+
+        private static <T extends SelfHandler> void registerServerPayload(PayloadRegistrar registrar, CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
+            registrar.playToServer(type, codec, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
         }
 
     }

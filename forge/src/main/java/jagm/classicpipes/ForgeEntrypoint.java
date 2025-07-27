@@ -5,7 +5,7 @@ import jagm.classicpipes.client.screen.DiamondPipeScreen;
 import jagm.classicpipes.client.screen.ProviderPipeScreen;
 import jagm.classicpipes.client.screen.RequestScreen;
 import jagm.classicpipes.client.screen.RoutingPipeScreen;
-import jagm.classicpipes.network.ForgePacketHandler;
+import jagm.classicpipes.network.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraftforge.api.distmarker.Dist;
@@ -63,7 +63,12 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onCommonSetup(FMLCommonSetupEvent event) {
-            event.enqueueWork(ForgePacketHandler::register);
+            event.enqueueWork(() -> {
+                ForgePacketHandler.registerServerPayload(ServerBoundMatchComponentsPayload.class, ServerBoundMatchComponentsPayload.STREAM_CODEC);
+                ForgePacketHandler.registerServerPayload(ServerBoundDefaultRoutePayload.class, ServerBoundDefaultRoutePayload.STREAM_CODEC);
+                ForgePacketHandler.registerServerPayload(ServerBoundLeaveOnePayload.class, ServerBoundLeaveOnePayload.STREAM_CODEC);
+                ForgePacketHandler.registerServerPayload(ServerBoundSortingModePayload.class, ServerBoundSortingModePayload.STREAM_CODEC);
+            });
         }
 
     }

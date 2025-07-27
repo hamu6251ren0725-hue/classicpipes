@@ -1,9 +1,12 @@
 package jagm.classicpipes.client.screen;
 
+import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.util.MiscUtil;
+import jagm.classicpipes.util.SortingMode;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -21,6 +24,8 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     private EditBox searchBar;
     private PageButton prev_page;
     private PageButton next_page;
+    private Button sort_type;
+    private Button sort_direction;
 
     public RequestScreen(RequestMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -43,7 +48,11 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.searchBar.setEditable(true);
         this.prev_page = new PageButton(this.width / 2 - 32 - 8, this.topPos + 180, true, false, button -> this.changePage(-1));
         this.next_page = new PageButton(this.width / 2 + 32, this.topPos + 180, false, this.menu.getMaxPage() > 0, button -> this.changePage(1));
+        this.sort_type = Button.builder(this.menu.getSortingMode().getType(), this::changeSortType).bounds(this.width / 2 - 25, this.topPos + 198, 50, 16).build();
+        this.sort_direction = Button.builder(this.menu.getSortingMode().getDirection(), this::changeSortDirection).bounds(this.width / 2 + 27, this.topPos + 198, 50, 16).build();
 
+        this.addRenderableWidget(this.sort_type);
+        this.addRenderableWidget(this.sort_direction);
         this.addRenderableWidget(this.searchBar);
         this.addRenderableWidget(this.prev_page);
         this.addRenderableWidget(this.next_page);
@@ -65,10 +74,12 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
-        Component pageIndicator = Component.translatable("widget.classicpipes.page", this.menu.getPage() + 1, this.menu.getMaxPage() + 1);
-        guiGraphics.drawString(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
+        Component pageIndicator = Component.translatable("widget." + ClassicPipes.MOD_ID + ".page", this.menu.getPage() + 1, this.menu.getMaxPage() + 1);
+        graphics.drawString(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
+        Component sortBy = Component.translatable("widget." + ClassicPipes.MOD_ID + ".sort_by");
+        graphics.drawString(this.font, sortBy, this.imageWidth / 2 - 29 - this.font.width(sortBy), 202, -12566464, false);
     }
 
     @Override
@@ -117,7 +128,9 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     private static String stringForCount(int count) {
-        if (count < 1000) {
+        if (count == 0) {
+            return "+";
+        } else if (count < 1000) {
             return String.valueOf(count);
         } else if (count < 10000) {
             return String.format("%.1f", (float) count / 1000 - 0.049F) + "K";
@@ -161,6 +174,20 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     private void updatePageButtons() {
         this.prev_page.active = this.menu.getPage() > 0;
         this.next_page.active = this.menu.getPage() < this.menu.getMaxPage();
+    }
+
+    private void changeSortType(Button button) {
+        SortingMode nextMode = this.menu.getSortingMode().nextType();
+        this.sort_type.setMessage(nextMode.getType());
+        this.sort_direction.setMessage(nextMode.getDirection());
+        this.menu.setSortingMode(nextMode);
+    }
+
+    private void changeSortDirection(Button button) {
+        SortingMode nextMode = this.menu.getSortingMode().otherDirection();
+        this.sort_type.setMessage(nextMode.getType());
+        this.sort_direction.setMessage(nextMode.getDirection());
+        this.menu.setSortingMode(nextMode);
     }
 
 }

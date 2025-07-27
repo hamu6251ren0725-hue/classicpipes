@@ -8,7 +8,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerBoundLeaveOnePayload(boolean leaveOne) implements CustomPacketPayload {
+public record ServerBoundLeaveOnePayload(boolean leaveOne) implements SelfHandler {
 
     public static final Type<ServerBoundLeaveOnePayload> TYPE = new Type<>(MiscUtil.resourceLocation("leave_one"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerBoundLeaveOnePayload> STREAM_CODEC = StreamCodec.composite(
@@ -22,6 +22,7 @@ public record ServerBoundLeaveOnePayload(boolean leaveOne) implements CustomPack
         return TYPE;
     }
 
+    @Override
     public void handle(Player player) {
         if (player != null && player.containerMenu instanceof ProviderPipeMenu menu) {
             menu.setLeaveOne(this.leaveOne());

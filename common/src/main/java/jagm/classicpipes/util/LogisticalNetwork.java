@@ -27,12 +27,14 @@ public class LogisticalNetwork implements MenuProvider {
     private final Set<RoutingPipeEntity> defaultRoutes;
     private final Set<ProviderPipeEntity> providerPipes;
     private final Set<LogisticalPipeEntity> otherPipes;
+    private SortingMode sortingMode;
 
     public LogisticalNetwork(BlockPos pos, LogisticalPipeEntity... pipes) {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
         this.providerPipes = new HashSet<>();
         this.otherPipes = new HashSet<>();
+        this.sortingMode = SortingMode.AMOUNT_DESCENDING;
         for (LogisticalPipeEntity pipe : pipes) {
             this.addPipe(pipe);
         }
@@ -114,7 +116,14 @@ public class LogisticalNetwork implements MenuProvider {
                 }
             }
         }
-        return new ClientBoundItemListPayload(stacks);
+        return new ClientBoundItemListPayload(stacks, this.sortingMode, this.pos);
+    }
+    public void setSortingMode(SortingMode sortingMode) {
+        this.sortingMode = sortingMode;
+    }
+
+    public SortingMode getSortingMode() {
+        return this.sortingMode;
     }
 
 }

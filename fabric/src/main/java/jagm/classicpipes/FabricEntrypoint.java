@@ -1,8 +1,6 @@
 package jagm.classicpipes;
 
-import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
-import jagm.classicpipes.network.ServerBoundLeaveOnePayload;
-import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
+import jagm.classicpipes.network.*;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -48,9 +46,10 @@ public class FabricEntrypoint implements ModInitializer {
 
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
 
-        registerServerPayload(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
-        registerServerPayload(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
-        registerServerPayload(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC, (payload, context) -> payload.handle(context.player()));
+        registerServerPayload(ServerBoundMatchComponentsPayload.TYPE, ServerBoundMatchComponentsPayload.STREAM_CODEC);
+        registerServerPayload(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC);
+        registerServerPayload(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
+        registerServerPayload(ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
 
     }
 
@@ -62,9 +61,9 @@ public class FabricEntrypoint implements ModInitializer {
         Registry.register(BuiltInRegistries.MENU, MiscUtil.resourceLocation(name), menuType);
     }
 
-    private static <T extends CustomPacketPayload> void registerServerPayload(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec, ServerPlayNetworking.PlayPayloadHandler<T> handler) {
+    private static <T extends SelfHandler> void registerServerPayload(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
         PayloadTypeRegistry.playC2S().register(type, codec);
-        ServerPlayNetworking.registerGlobalReceiver(type, handler);
+        ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> payload.handle(context.player()));
     }
 
 }

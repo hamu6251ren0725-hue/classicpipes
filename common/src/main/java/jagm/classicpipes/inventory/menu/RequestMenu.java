@@ -3,8 +3,11 @@ package jagm.classicpipes.inventory.menu;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.RequestMenuContainer;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
+import jagm.classicpipes.network.ServerBoundSortingModePayload;
 import jagm.classicpipes.services.Services;
-import net.minecraft.core.registries.BuiltInRegistries;
+import jagm.classicpipes.util.MiscUtil;
+import jagm.classicpipes.util.SortingMode;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,17 +25,21 @@ public class RequestMenu extends AbstractContainerMenu {
 
     private static final Pattern MOD_LOOKUP = Pattern.compile("@\\S+");
     private static final Pattern TAG_LOOKUP = Pattern.compile("#\\S+");
-    private static final Comparator<ItemStack> SORT_BY_NAME = Comparator.comparing(stack -> stack.getItem().getName().getString());
 
     private List<ItemStack> networkItems;
     private final Container toDisplay;
     private String search;
     private int page;
     private int maxPage;
+    private SortingMode sortingMode;
+    private final BlockPos networkPos;
 
     public RequestMenu(int id, ClientBoundItemListPayload payload) {
         super(ClassicPipes.REQUEST_MENU, id);
         this.networkItems = payload.networkItems();
+        this.networkPos = payload.networkPos();
+        this.sortingMode = payload.sortingMode();
+        this.networkItems.sort(this.sortingMode.getComparator());
         this.toDisplay = new RequestMenuContainer();
         this.search = "";
         this.page = 0;
@@ -105,6 +111,17 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.search;
     }
 
+    public SortingMode getSortingMode() {
+        return this.sortingMode;
+    }
+
+    public void setSortingMode(SortingMode sortingMode) {
+        this.sortingMode = sortingMode;
+        Services.LOADER_SERVICE.sendToServer(new ServerBoundSortingModePayload(sortingMode));
+        this.networkItems.sort(this.sortingMode.getComparator());
+        this.updateSearch();
+    }
+
     public void setSearch(String search) {
         this.search = search;
         this.updateSearch();
@@ -124,13 +141,17 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.page;
     }
 
+    public BlockPos getNetworkPos() {
+        return this.networkPos;
+    }
+
     private static boolean itemMatchesSearch(ItemStack stack, String search) {
         Matcher modMatcher = MOD_LOOKUP.matcher(search);
         if (modMatcher.find()) {
             String match = modMatcher.group();
             search = search.replace(match, "");
             String searchedMod = normalise(match.replaceFirst("@", ""));
-            String itemModID = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().split(":")[0];
+            String itemModID = MiscUtil.modFromItem(stack);
             String itemModName = normalise(Services.LOADER_SERVICE.getModName(itemModID));
             if (!normalise(itemModID).contains(searchedMod) && !itemModName.contains(searchedMod)) {
                 return false;

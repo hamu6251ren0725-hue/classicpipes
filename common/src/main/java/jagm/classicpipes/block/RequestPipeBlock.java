@@ -34,7 +34,7 @@ public class RequestPipeBlock extends RoutingPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RequestPipeEntity requestPipe) {
+        if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof RequestPipeEntity requestPipe && requestPipe.hasLogisticalNetwork()) {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
                     requestPipe.getLogisticalNetwork(),
