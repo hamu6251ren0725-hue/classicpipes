@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,9 +26,10 @@ public class RequestMenu extends AbstractContainerMenu {
     private static final Comparator<ItemStack> SORT_BY_NAME = Comparator.comparing(stack -> stack.getItem().getName().getString());
 
     private List<ItemStack> networkItems;
-    private Container toDisplay;
+    private final Container toDisplay;
     private String search;
     private int page;
+    private int maxPage;
 
     public RequestMenu(int id, ClientBoundItemListPayload payload) {
         super(ClassicPipes.REQUEST_MENU, id);
@@ -35,6 +37,7 @@ public class RequestMenu extends AbstractContainerMenu {
         this.toDisplay = new RequestMenuContainer();
         this.search = "";
         this.page = 0;
+        this.maxPage = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 9; j++) {
                 this.addSlot(new FilterSlot(this.toDisplay, i * 9 + j, 8 + j * 18, 36 + i * 18));
@@ -50,22 +53,31 @@ public class RequestMenu extends AbstractContainerMenu {
 
     public void updateSearch() {
         this.toDisplay.clearContent();
-        int index = 0;
         int display = this.toDisplay.getContainerSize();
-        if (this.networkItems.size() < (this.page + 1) * display) {
-            this.page = Math.min(this.networkItems.size() / display, this.page);
-        }
+        List<ItemStack> matchingItems = new ArrayList<>();
         for (ItemStack stack : this.networkItems) {
             if (itemMatchesSearch(stack, this.search)) {
-                if (index >= (this.page + 1) * display) {
-                    break;
-                }
-                if (index >= this.page * display) {
-                    this.toDisplay.setItem(index % display, stack);
-                }
-                index++;
+                matchingItems.add(stack);
             }
         }
+        this.maxPage = matchingItems.size() / display;
+        if (this.page > this.maxPage) {
+            this.page = this.maxPage;
+        }
+        int index = 0;
+        for (ItemStack stack : matchingItems) {
+            if (index >= (this.page + 1) * display) {
+                break;
+            }
+            if (index >= this.page * display) {
+                this.toDisplay.setItem(index % display, stack);
+            }
+            index++;
+        }
+    }
+
+    public int getMaxPage() {
+        return this.maxPage;
     }
 
     @Override
@@ -96,6 +108,20 @@ public class RequestMenu extends AbstractContainerMenu {
     public void setSearch(String search) {
         this.search = search;
         this.updateSearch();
+    }
+
+    public void changePage(int increment) {
+        this.page += increment;
+        if (this.page < 0) {
+            this.page = 0;
+        } else if (this.page > this.maxPage) {
+            this.page = this.maxPage;
+        }
+        this.updateSearch();
+    }
+
+    public int getPage() {
+        return this.page;
     }
 
     private static boolean itemMatchesSearch(ItemStack stack, String search) {

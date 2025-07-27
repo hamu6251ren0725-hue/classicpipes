@@ -52,6 +52,7 @@
   "widget.classicpipes.match_components": "Match components",
   "widget.classicpipes.default_route": "Default route",
   "widget.classicpipes.leave_one": "Leave one",
+  "widget.classicpipes.page": "Page %s/%s",
   "tooltip.classicpipes.match_components": "If this is checked, the components of an item (damage, enchantments, etc.) must match the item in the filter.",
   "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go.",
   "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network."

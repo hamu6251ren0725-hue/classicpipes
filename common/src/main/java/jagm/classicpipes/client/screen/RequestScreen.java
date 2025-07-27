@@ -19,6 +19,8 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/request.png");
 
     private EditBox searchBar;
+    private PageButton prev_page;
+    private PageButton next_page;
 
     public RequestScreen(RequestMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -27,7 +29,9 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
     @Override
     protected void init() {
+
         super.init();
+
         this.searchBar = new EditBox(this.font, this.leftPos + 21, this.topPos + 22, 146, 12, Component.translatable("container.classicpipes.search"));
         this.searchBar.setCanLoseFocus(false);
         this.searchBar.setMaxLength(32);
@@ -36,12 +40,19 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.searchBar.setTextColorUneditable(-1);
         this.searchBar.setBordered(false);
         this.searchBar.setResponder(this.menu::setSearch);
-        this.addRenderableWidget(this.searchBar);
         this.searchBar.setEditable(true);
+        this.prev_page = new PageButton(this.width / 2 - 32 - 8, this.topPos + 180, true, false, button -> this.changePage(-1));
+        this.next_page = new PageButton(this.width / 2 + 32, this.topPos + 180, false, this.menu.getMaxPage() > 0, button -> this.changePage(1));
+
+        this.addRenderableWidget(this.searchBar);
+        this.addRenderableWidget(this.prev_page);
+        this.addRenderableWidget(this.next_page);
+
     }
 
     @Override
     public void render(GuiGraphics graphics, int x, int y, float f) {
+        this.updatePageButtons();
         super.render(graphics, x, y, f);
         this.renderTooltip(graphics, x, y);
     }
@@ -56,6 +67,8 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
+        Component pageIndicator = Component.translatable("widget.classicpipes.page", this.menu.getPage() + 1, this.menu.getMaxPage() + 1);
+        guiGraphics.drawString(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
     }
 
     @Override
@@ -131,7 +144,23 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
         }
+        this.setFocused(this.searchBar);
         return this.searchBar.keyPressed(keyCode, scanCode, modifiers) || this.searchBar.canConsumeInput() || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        this.changePage((int) -scrollY);
+        return true;
+    }
+
+    private void changePage(int increment) {
+        this.menu.changePage(increment);
+    }
+
+    private void updatePageButtons() {
+        this.prev_page.active = this.menu.getPage() > 0;
+        this.next_page.active = this.menu.getPage() < this.menu.getMaxPage();
     }
 
 }
