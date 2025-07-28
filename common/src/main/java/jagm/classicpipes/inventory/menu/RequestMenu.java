@@ -54,6 +54,7 @@ public class RequestMenu extends AbstractContainerMenu {
 
     public void update(List<ItemStack> networkItems) {
         this.networkItems = networkItems;
+        this.networkItems.sort(this.sortingMode.getComparator());
         this.updateSearch();
     }
 

@@ -4,6 +4,7 @@ import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
@@ -91,6 +92,11 @@ public class FabricService implements LoaderService {
     @Override
     public void sendToServer(CustomPacketPayload payload) {
         ClientPlayNetworking.send(payload);
+    }
+
+    @Override
+    public void sendToClient(ServerPlayer player, CustomPacketPayload payload) {
+        ServerPlayNetworking.send(player, payload);
     }
 
     @Override

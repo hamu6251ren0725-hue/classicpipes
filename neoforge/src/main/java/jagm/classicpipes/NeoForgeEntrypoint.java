@@ -72,10 +72,15 @@ public class NeoForgeEntrypoint {
             registerServerPayload(registrar, ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
+            registerClientPayload(registrar, ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
         }
 
         private static <T extends SelfHandler> void registerServerPayload(PayloadRegistrar registrar, CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
             registrar.playToServer(type, codec, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
+        }
+
+        private static <T extends SelfHandler> void registerClientPayload(PayloadRegistrar registrar, CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
+            registrar.playToClient(type, codec, (payload, context) -> context.enqueueWork(() -> payload.handle(context.player())));
         }
 
     }

@@ -60,6 +60,11 @@ public class ForgeService implements LoaderService {
     }
 
     @Override
+    public void sendToClient(ServerPlayer player, CustomPacketPayload payload) {
+        ForgePacketHandler.sendToClient(player, payload);
+    }
+
+    @Override
     public boolean canAccessContainer(Level level, BlockPos containerPos, Direction face) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof AbstractPipeEntity) {

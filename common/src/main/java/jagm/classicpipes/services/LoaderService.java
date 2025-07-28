@@ -30,9 +30,11 @@ public interface LoaderService {
 
     <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<RegistryFriendlyByteBuf, D> codec);
 
+    <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<RegistryFriendlyByteBuf, D> codec);
+
     void sendToServer(CustomPacketPayload payload);
 
-    <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<RegistryFriendlyByteBuf, D> codec);
+    void sendToClient(ServerPlayer player, CustomPacketPayload payload);
 
     boolean canAccessContainer(Level level, BlockPos containerPos, Direction face);
 

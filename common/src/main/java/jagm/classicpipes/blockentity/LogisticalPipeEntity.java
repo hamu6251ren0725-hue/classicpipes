@@ -23,14 +23,12 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     private final Map<ItemStack, ScheduledRoute> routingSchedule;
     private LogisticalNetwork logisticalNetwork;
     private boolean controller;
-    private byte sortingModeByte;
 
     public LogisticalPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
         super(blockEntityType, pos, state);
         this.routingSchedule = new HashMap<>();
         this.logisticalNetwork = null;
         this.controller = false;
-        this.sortingModeByte = (byte) 1;
     }
 
     @Override
@@ -47,12 +45,15 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                 }
             }
         }
+        if (this.isController()) {
+            this.getLogisticalNetwork().tick(level);
+        }
     }
 
     @Override
     protected void initialiseLogistics(ServerLevel level, BlockState state, BlockPos pos) {
-        if (this.isController()) {
-            this.distributeLogisticalNetwork(level, this.getBlockPos(), new HashSet<>(), new LogisticalNetwork(this.getBlockPos(), SortingMode.fromByte(this.sortingModeByte)));
+        if (this.isController() && this.hasLogisticalNetwork()) {
+            this.distributeLogisticalNetwork(level, this.getBlockPos(), new HashSet<>(), this.getLogisticalNetwork());
         }
         super.initialiseLogistics(level, state, pos);
     }
@@ -297,7 +298,7 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         this.routingSchedule.clear();
         this.setController(valueInput.getBooleanOr("controller", false));
         if (this.isController()) {
-            this.sortingModeByte = valueInput.getByteOr("sorting_mode", (byte) 1);
+            this.logisticalNetwork = new LogisticalNetwork(this.getBlockPos(), SortingMode.fromByte(valueInput.getByteOr("sorting_mode", (byte) 1)));
         }
         ValueInput.TypedInputList<ItemStackWithSlot> routingList = valueInput.listOrEmpty("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : routingList) {

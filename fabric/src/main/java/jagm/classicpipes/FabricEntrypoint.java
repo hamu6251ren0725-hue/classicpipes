@@ -3,6 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.network.*;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -51,6 +52,8 @@ public class FabricEntrypoint implements ModInitializer {
         registerServerPayload(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
         registerServerPayload(ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
 
+        registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
+
     }
 
     private static <T extends BlockEntity> void registerBlockEntity(String name, BlockEntityType<T> blockEntityType) {
@@ -64,6 +67,11 @@ public class FabricEntrypoint implements ModInitializer {
     private static <T extends SelfHandler> void registerServerPayload(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
         PayloadTypeRegistry.playC2S().register(type, codec);
         ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) -> payload.handle(context.player()));
+    }
+
+    private static <T extends SelfHandler> void registerClientPayload(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
+        PayloadTypeRegistry.playS2C().register(type, codec);
+        ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> payload.handle(context.player()));
     }
 
 }

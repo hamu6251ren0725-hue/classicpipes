@@ -6,8 +6,11 @@ import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
+import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -21,11 +24,15 @@ import java.util.Set;
 
 public class LogisticalNetwork implements MenuProvider {
 
+    private static final byte DEFAULT_COOLDOWN = 40; // 2 seconds between client updates.
+
     private final BlockPos pos;
     private final Set<RoutingPipeEntity> routingPipes;
     private final Set<RoutingPipeEntity> defaultRoutes;
     private final Set<ProviderPipeEntity> providerPipes;
     private SortingMode sortingMode;
+    private boolean cacheChanged;
+    private byte cacheCooldown;
 
     public LogisticalNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
@@ -33,10 +40,28 @@ public class LogisticalNetwork implements MenuProvider {
         this.providerPipes = new HashSet<>();
         this.sortingMode = sortingMode;
         this.pos = pos;
+        this.cacheChanged = false;
+        this.cacheCooldown = (byte) 0;
     }
 
     public LogisticalNetwork(BlockPos pos) {
         this(pos, SortingMode.AMOUNT_DESCENDING);
+    }
+
+    public void tick(ServerLevel level) {
+        if (this.cacheChanged && this.cacheCooldown <= 0) {
+            List<ServerPlayer> playerList = level.getPlayers(player -> player.containerMenu instanceof RequestMenu menu && menu.getNetworkPos().equals(this.getPos()));
+            if (!playerList.isEmpty()) {
+                ClientBoundItemListPayload toSend = this.requestItemList();
+                for (ServerPlayer player : playerList) {
+                    Services.LOADER_SERVICE.sendToClient(player, toSend);
+                }
+            }
+            this.cacheChanged = false;
+            this.cacheCooldown = DEFAULT_COOLDOWN;
+        } else if (this.cacheCooldown > 0) {
+            cacheCooldown--;
+        }
     }
 
     public Set<RoutingPipeEntity> getRoutingPipes() {
@@ -105,6 +130,11 @@ public class LogisticalNetwork implements MenuProvider {
         }
         return new ClientBoundItemListPayload(stacks, this.sortingMode, this.pos);
     }
+
+    public void cacheUpdated() {
+        this.cacheChanged = true;
+    }
+
     public void setSortingMode(SortingMode sortingMode) {
         this.sortingMode = sortingMode;
     }

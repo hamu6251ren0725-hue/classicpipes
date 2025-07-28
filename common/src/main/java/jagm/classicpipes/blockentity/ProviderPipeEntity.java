@@ -115,6 +115,9 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
             }
         }
         this.cache = stacks;
+        if (this.hasLogisticalNetwork()) {
+            this.getLogisticalNetwork().cacheUpdated();
+        }
     }
 
     public void updateCache() {
