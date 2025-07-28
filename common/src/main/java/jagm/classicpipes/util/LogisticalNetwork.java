@@ -8,7 +8,6 @@ import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -26,35 +25,18 @@ public class LogisticalNetwork implements MenuProvider {
     private final Set<RoutingPipeEntity> routingPipes;
     private final Set<RoutingPipeEntity> defaultRoutes;
     private final Set<ProviderPipeEntity> providerPipes;
-    private final Set<LogisticalPipeEntity> otherPipes;
     private SortingMode sortingMode;
 
-    public LogisticalNetwork(BlockPos pos, LogisticalPipeEntity... pipes) {
+    public LogisticalNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
         this.providerPipes = new HashSet<>();
-        this.otherPipes = new HashSet<>();
-        this.sortingMode = SortingMode.AMOUNT_DESCENDING;
-        for (LogisticalPipeEntity pipe : pipes) {
-            this.addPipe(pipe);
-        }
+        this.sortingMode = sortingMode;
         this.pos = pos;
     }
 
-    public void merge(ServerLevel level, LogisticalNetwork otherNetwork) {
-        otherNetwork.getAllPipes().forEach(pipe -> {
-            this.addPipe(pipe);
-            pipe.setLogisticalNetwork(this, level, pipe.getBlockPos(), pipe.getBlockState());
-            pipe.setController(false);
-        });
-    }
-
-    public Set<LogisticalPipeEntity> getAllPipes() {
-        Set<LogisticalPipeEntity> allPipes = new HashSet<>();
-        allPipes.addAll(this.routingPipes);
-        allPipes.addAll(this.providerPipes);
-        allPipes.addAll(this.otherPipes);
-        return allPipes;
+    public LogisticalNetwork(BlockPos pos) {
+        this(pos, SortingMode.AMOUNT_DESCENDING);
     }
 
     public Set<RoutingPipeEntity> getRoutingPipes() {
@@ -69,10 +51,6 @@ public class LogisticalNetwork implements MenuProvider {
         return this.pos;
     }
 
-    public void destroy(ServerLevel level) {
-        this.getAllPipes().forEach(pipe -> pipe.disconnect(level));
-    }
-
     public void addPipe(LogisticalPipeEntity pipe) {
         if (pipe instanceof RoutingPipeEntity routingPipe) {
             this.routingPipes.add(routingPipe);
@@ -81,8 +59,17 @@ public class LogisticalNetwork implements MenuProvider {
             }
         } else if (pipe instanceof ProviderPipeEntity providerPipe) {
             this.providerPipes.add(providerPipe);
-        } else {
-            this.otherPipes.add(pipe);
+        }
+    }
+
+    public void removePipe(LogisticalPipeEntity pipe) {
+        if (pipe instanceof RoutingPipeEntity routingPipe) {
+            this.routingPipes.remove(routingPipe);
+            if (routingPipe.isDefaultRoute()) {
+                this.defaultRoutes.remove(routingPipe);
+            }
+        } else if (pipe instanceof ProviderPipeEntity providerPipe) {
+            this.providerPipes.remove(providerPipe);
         }
     }
 

@@ -60,13 +60,8 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                 font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
                 poses.popPose();
             }
-            if (pipe instanceof LogisticalPipeEntity logisticalPipe) {
-                Component component;
-                if (logisticalPipe.toLoad != null) {
-                    component = Component.literal("[ " + logisticalPipe.toLoad.getX() + " " + logisticalPipe.toLoad.getY() + " " + logisticalPipe.toLoad.getZ() + " ]");
-                } else {
-                    component = Component.literal("null");
-                }
+            if (pipe instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.isController()) {
+                Component component = Component.literal("CONTROLLER");
                 poses.pushPose();
                 poses.translate(0.5F, 0.5F, 0.5F);
                 poses.mulPose(this.context.getEntityRenderer().cameraOrientation());

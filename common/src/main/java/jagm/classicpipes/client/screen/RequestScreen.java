@@ -124,7 +124,6 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
             graphics.drawString(font, s, -font.width(s), -8, -1, true);
             graphics.pose().popMatrix();
         }
-
     }
 
     private static String stringForCount(int count) {
