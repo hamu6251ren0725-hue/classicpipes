@@ -283,6 +283,14 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
     }
 
     @Override
+    public void setRemoved() {
+        if (this.getLevel() instanceof ServerLevel serverLevel) {
+            this.disconnect(serverLevel);
+        }
+        super.setRemoved();
+    }
+
+    @Override
     public short getTargetSpeed() {
         return ItemInPipe.SPEED_LIMIT;
     }

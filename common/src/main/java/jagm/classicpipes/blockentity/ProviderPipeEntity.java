@@ -48,6 +48,14 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
     }
 
     @Override
+    public void disconnect(ServerLevel level) {
+        if (this.hasLogisticalNetwork()) {
+            this.getLogisticalNetwork().cacheUpdated();
+        }
+        super.disconnect(level);
+    }
+
+    @Override
     protected void loadAdditional(ValueInput valueInput) {
         this.filter.clearContent();
         this.cacheInitialised = false;

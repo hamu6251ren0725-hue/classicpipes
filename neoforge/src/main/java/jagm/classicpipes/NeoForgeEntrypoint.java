@@ -12,7 +12,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
@@ -26,10 +25,6 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 @Mod(ClassicPipes.MOD_ID)
 @SuppressWarnings("unused")
 public class NeoForgeEntrypoint {
-
-    public NeoForgeEntrypoint(IEventBus eventBus) {
-
-    }
 
     @EventBusSubscriber(modid = ClassicPipes.MOD_ID)
     public static class ModEventHandler {
