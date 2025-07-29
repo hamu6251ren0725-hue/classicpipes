@@ -1,6 +1,5 @@
 package jagm.classicpipes.util;
 
-import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.LogisticalPipeEntity;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
@@ -8,13 +7,8 @@ import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -22,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LogisticalNetwork implements MenuProvider {
+public class LogisticalNetwork {
 
     private static final byte DEFAULT_COOLDOWN = 40; // 2 seconds between client updates.
 
@@ -52,7 +46,7 @@ public class LogisticalNetwork implements MenuProvider {
         if (this.cacheChanged && this.cacheCooldown <= 0) {
             List<ServerPlayer> playerList = level.getPlayers(player -> player.containerMenu instanceof RequestMenu menu && menu.getNetworkPos().equals(this.getPos()));
             if (!playerList.isEmpty()) {
-                ClientBoundItemListPayload toSend = this.requestItemList();
+                ClientBoundItemListPayload toSend = this.requestItemList(BlockPos.ZERO);
                 for (ServerPlayer player : playerList) {
                     Services.LOADER_SERVICE.sendToClient(player, toSend);
                 }
@@ -60,7 +54,7 @@ public class LogisticalNetwork implements MenuProvider {
             this.cacheChanged = false;
             this.cacheCooldown = DEFAULT_COOLDOWN;
         } else if (this.cacheCooldown > 0) {
-            cacheCooldown--;
+            this.cacheCooldown--;
         }
     }
 
@@ -98,17 +92,7 @@ public class LogisticalNetwork implements MenuProvider {
         }
     }
 
-    @Override
-    public Component getDisplayName() {
-        return Component.translatable("container." + ClassicPipes.MOD_ID + ".request");
-    }
-
-    @Override
-    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new RequestMenu(id, this.requestItemList());
-    }
-
-    public ClientBoundItemListPayload requestItemList() {
+    public ClientBoundItemListPayload requestItemList(BlockPos requestPos) {
         List<ItemStack> stacks = new ArrayList<>();
         for (ProviderPipeEntity providerPipe : this.providerPipes) {
             for (ItemStack stack : providerPipe.getCache()) {
@@ -128,7 +112,7 @@ public class LogisticalNetwork implements MenuProvider {
                 }
             }
         }
-        return new ClientBoundItemListPayload(stacks, this.sortingMode, this.pos);
+        return new ClientBoundItemListPayload(stacks, this.sortingMode, this.pos, requestPos);
     }
 
     public void cacheUpdated() {

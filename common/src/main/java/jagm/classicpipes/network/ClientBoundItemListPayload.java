@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ClientBoundItemListPayload(List<ItemStack> networkItems, SortingMode sortingMode, BlockPos networkPos) implements SelfHandler {
+public record ClientBoundItemListPayload(List<ItemStack> networkItems, SortingMode sortingMode, BlockPos networkPos, BlockPos requestPos) implements SelfHandler {
 
     public static final Type<ClientBoundItemListPayload> TYPE = new Type<>(MiscUtil.resourceLocation("item_list"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientBoundItemListPayload> STREAM_CODEC = StreamCodec.composite(
@@ -24,7 +24,9 @@ public record ClientBoundItemListPayload(List<ItemStack> networkItems, SortingMo
             payload -> payload.sortingMode().getValue(),
             BlockPos.STREAM_CODEC,
             ClientBoundItemListPayload::networkPos,
-            (networkItems, value, networkPos) -> new ClientBoundItemListPayload(networkItems, SortingMode.fromByte(value), networkPos)
+            BlockPos.STREAM_CODEC,
+            ClientBoundItemListPayload::requestPos,
+            (networkItems, value, networkPos, requestPos) -> new ClientBoundItemListPayload(networkItems, SortingMode.fromByte(value), networkPos, requestPos)
     );
 
     @Override

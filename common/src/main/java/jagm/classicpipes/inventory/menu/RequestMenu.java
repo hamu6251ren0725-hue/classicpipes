@@ -1,6 +1,7 @@
 package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.blockentity.LogisticalPipeEntity;
 import jagm.classicpipes.inventory.container.RequestMenuContainer;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.network.ServerBoundSortingModePayload;
@@ -10,11 +11,14 @@ import jagm.classicpipes.util.SortingMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +37,19 @@ public class RequestMenu extends AbstractContainerMenu {
     private int maxPage;
     private SortingMode sortingMode;
     private final BlockPos networkPos;
+    private final BlockEntity controllerPipe;
+    private final BlockEntity requestPipe;
 
-    public RequestMenu(int id, ClientBoundItemListPayload payload) {
+    public RequestMenu(int id, Inventory inventory, ClientBoundItemListPayload payload) {
         super(ClassicPipes.REQUEST_MENU, id);
         this.networkItems = payload.networkItems();
         this.networkPos = payload.networkPos();
         this.sortingMode = payload.sortingMode();
         this.networkItems.sort(this.sortingMode.getComparator());
         this.toDisplay = new RequestMenuContainer();
+        Level level = inventory.player.level();
+        this.controllerPipe = level.getBlockEntity(this.networkPos);
+        this.requestPipe = level.getBlockEntity(payload.requestPos());
         this.search = "";
         this.page = 0;
         this.maxPage = 0;
@@ -105,7 +114,10 @@ public class RequestMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        if (this.controllerPipe instanceof LogisticalPipeEntity controller && this.requestPipe instanceof LogisticalPipeEntity requester) {
+            return player.level().getBlockEntity(controller.getBlockPos()) == controller && Container.stillValidBlockEntity(requester, player) && controller.isController();
+        }
+        return false;
     }
 
     public String getSearch() {
