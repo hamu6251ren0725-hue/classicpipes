@@ -4,6 +4,7 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.LogisticalPipeEntity;
 import jagm.classicpipes.inventory.container.RequestMenuContainer;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
+import jagm.classicpipes.network.ServerBoundRequestPayload;
 import jagm.classicpipes.network.ServerBoundSortingModePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -37,6 +38,7 @@ public class RequestMenu extends AbstractContainerMenu {
     private int maxPage;
     private SortingMode sortingMode;
     private final BlockPos networkPos;
+    private final BlockPos requestPos;
     private final BlockEntity controllerPipe;
     private final BlockEntity requestPipe;
 
@@ -44,12 +46,13 @@ public class RequestMenu extends AbstractContainerMenu {
         super(ClassicPipes.REQUEST_MENU, id);
         this.networkItems = payload.networkItems();
         this.networkPos = payload.networkPos();
+        this.requestPos = payload.requestPos();
         this.sortingMode = payload.sortingMode();
         this.networkItems.sort(this.sortingMode.getComparator());
         this.toDisplay = new RequestMenuContainer();
         Level level = inventory.player.level();
         this.controllerPipe = level.getBlockEntity(this.networkPos);
-        this.requestPipe = level.getBlockEntity(payload.requestPos());
+        this.requestPipe = level.getBlockEntity(this.requestPos);
         this.search = "";
         this.page = 0;
         this.maxPage = 0;
@@ -72,7 +75,7 @@ public class RequestMenu extends AbstractContainerMenu {
         int display = this.toDisplay.getContainerSize();
         List<ItemStack> matchingItems = new ArrayList<>();
         for (ItemStack stack : this.networkItems) {
-            if (itemMatchesSearch(stack, this.search)) {
+            if (this.search.isEmpty() || itemMatchesSearch(stack, this.search)) {
                 matchingItems.add(stack);
             }
         }
@@ -98,11 +101,22 @@ public class RequestMenu extends AbstractContainerMenu {
 
     @Override
     public void clicked(int index, int button, ClickType clickType, Player player) {
+        // Planned behaviour:
+        // Right click to quick-request one.
+        // Shift click to quick-request a stack (does not auto-craft unless there are none left)
+        // Left click to open a window and request a specific amount.
         if (index >= 0 && index < this.toDisplay.getContainerSize()) {
             if (clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) {
-                // TODO open request subscreen
-            } else if (clickType == ClickType.SWAP) {
-                // TODO quick-request items
+                ItemStack toRequest = this.toDisplay.getItem(index);
+                if (toRequest != ItemStack.EMPTY) {
+                    int amount = clickType == ClickType.QUICK_MOVE && !toRequest.isEmpty() ? Math.min(toRequest.getCount(), toRequest.getMaxStackSize()) : 1;
+                    if (player.level().isClientSide()) {
+                        Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.requestPos));
+                    }
+                    toRequest.shrink(amount);
+                    this.networkItems.sort(this.sortingMode.getComparator());
+                    this.updateSearch();
+                }
             }
         }
     }
@@ -115,7 +129,7 @@ public class RequestMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (this.controllerPipe instanceof LogisticalPipeEntity controller && this.requestPipe instanceof LogisticalPipeEntity requester) {
-            return player.level().getBlockEntity(controller.getBlockPos()) == controller && Container.stillValidBlockEntity(requester, player) && controller.isController();
+            return player.level().getBlockEntity(controller.getBlockPos()) == controller && Container.stillValidBlockEntity(requester, player) && controller.isController() && controller.getLogisticalNetwork() == requester.getLogisticalNetwork();
         }
         return false;
     }

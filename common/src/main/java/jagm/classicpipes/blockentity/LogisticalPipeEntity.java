@@ -1,10 +1,7 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.block.RoutingPipeBlock;
-import jagm.classicpipes.util.ItemInPipe;
-import jagm.classicpipes.util.LogisticalNetwork;
-import jagm.classicpipes.util.ScheduledRoute;
-import jagm.classicpipes.util.SortingMode;
+import jagm.classicpipes.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -79,37 +76,62 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
             super.routeItem(state, item);
             return;
         }
-        if (!this.checkRoutingSchedule(item)) {
-            List<RoutingPipeEntity> validTargets = new ArrayList<>();
-            for (RoutingPipeEntity routingPipe : this.logisticalNetwork.getRoutingPipes()) {
-                if (routingPipe.canRouteItemHere(item.getStack())) {
-                    validTargets.add(routingPipe);
+        if (!this.checkRoutingSchedule(item) && this.getLevel() instanceof ServerLevel serverLevel) {
+            List<LogisticalPipeEntity> validTargets = new ArrayList<>();
+            RequestedItem thisRequestedItem = null;
+            ItemInPipe spareItems = null;
+            for (RequestedItem requestedItem : this.getLogisticalNetwork().getRequestedItems()) {
+                if (requestedItem.matches(item) && this.getLevel() != null) {
+                    LogisticalPipeEntity target = requestedItem.getTarget(this.getLevel());
+                    if (target != null) {
+                        if (item.getStack().getCount() > requestedItem.getAmountRemaining()) {
+                            spareItems = new ItemInPipe(item.getStack().copyWithCount(item.getStack().getCount() - requestedItem.getAmountRemaining()), item.getSpeed(), item.getProgress(), item.getFromDirection(), item.getTargetDirection(), item.isEjecting(), (short) 0);
+                            item.getStack().setCount(requestedItem.getAmountRemaining());
+                        }
+                        thisRequestedItem = requestedItem;
+                        validTargets.add(target);
+                        break; // First requested item prioritised.
+                    }
+                }
+            }
+            if (validTargets.isEmpty()) {
+                for (RoutingPipeEntity routingPipe : this.logisticalNetwork.getRoutingPipes()) {
+                    if (routingPipe.canRouteItemHere(item.getStack())) {
+                        validTargets.add(routingPipe);
+                    }
                 }
             }
             if (validTargets.isEmpty()) {
                 validTargets.addAll(this.logisticalNetwork.getDefaultRoutes());
             }
-            if (this.getLevel() instanceof ServerLevel serverLevel) {
-                if (this instanceof RoutingPipeEntity && validTargets.contains(this) && state.getBlock() instanceof RoutingPipeBlock logisticalBlock) {
-                    List<Direction> validDirections = new ArrayList<>();
-                    for (Direction direction : Direction.values()) {
-                        if (this.isPipeConnected(state, direction) && !logisticalBlock.isLinked(state, direction)) {
-                            validDirections.add(direction);
-                        }
+            if (validTargets.contains(this) && state.getBlock() instanceof RoutingPipeBlock logisticalBlock) {
+                List<Direction> validDirections = new ArrayList<>();
+                for (Direction direction : Direction.values()) {
+                    if (this.isPipeConnected(state, direction) && !logisticalBlock.isLinked(state, direction)) {
+                        validDirections.add(direction);
                     }
-                    if (!validDirections.isEmpty()) {
-                        item.setEjecting(false);
-                        item.setTargetDirection(validDirections.get(serverLevel.getRandom().nextInt(validDirections.size())));
-                    } else {
-                        item.setEjecting(true);
-                        item.setTargetDirection(item.getFromDirection().getOpposite());
-                    }
-                } else if (!validTargets.isEmpty()) {
-                    this.schedulePath(serverLevel, item, validTargets.get(serverLevel.getRandom().nextInt(validTargets.size())));
-                    this.checkRoutingSchedule(item);
-                } else {
-                    super.routeItem(state, item);
                 }
+                if (!validDirections.isEmpty()) {
+                    item.setEjecting(false);
+                    item.setTargetDirection(validDirections.get(serverLevel.getRandom().nextInt(validDirections.size())));
+                } else {
+                    item.setEjecting(true);
+                    item.setTargetDirection(item.getFromDirection().getOpposite());
+                }
+                if (thisRequestedItem != null) {
+                    thisRequestedItem.arrived(item.getStack().getCount());
+                    if (thisRequestedItem.isDelivered()) {
+                        this.getLogisticalNetwork().removeRequestedItem(thisRequestedItem);
+                    }
+                }
+            } else if (!validTargets.isEmpty()) {
+                this.schedulePath(serverLevel, item, validTargets.get(serverLevel.getRandom().nextInt(validTargets.size())));
+                this.checkRoutingSchedule(item);
+            } else {
+                super.routeItem(state, item);
+            }
+            if (spareItems != null) {
+                this.routeItem(state, spareItems);
             }
         }
     }
@@ -307,6 +329,10 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         this.setController(valueInput.getBooleanOr("controller", false));
         if (this.isController()) {
             this.logisticalNetwork = new LogisticalNetwork(this.getBlockPos(), SortingMode.fromByte(valueInput.getByteOr("sorting_mode", (byte) 1)));
+            ValueInput.TypedInputList<RequestedItem> requestedItems = valueInput.listOrEmpty("requested_items", RequestedItem.CODEC);
+            for (RequestedItem requestedItem : requestedItems) {
+                this.logisticalNetwork.addRequestedItem(requestedItem);
+            }
         }
         ValueInput.TypedInputList<ItemStackWithSlot> routingList = valueInput.listOrEmpty("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : routingList) {
@@ -320,6 +346,10 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         valueOutput.putBoolean("controller", this.isController());
         if (this.hasLogisticalNetwork() && this.isController()) {
             valueOutput.putByte("sorting_mode", this.getLogisticalNetwork().getSortingMode().getValue());
+            ValueOutput.TypedOutputList<RequestedItem> requestedItems = valueOutput.list("requested_items", RequestedItem.CODEC);
+            for (RequestedItem requestedItem : this.getLogisticalNetwork().getRequestedItems()) {
+                requestedItems.add(requestedItem);
+            }
         }
         ValueOutput.TypedOutputList<ItemStackWithSlot> routingList = valueOutput.list("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStack stack : this.routingSchedule.keySet()) {

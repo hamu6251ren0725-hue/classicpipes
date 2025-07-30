@@ -139,4 +139,12 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
         return this.cache;
     }
 
+    public boolean extractItem(ServerLevel level, ItemStack stack) {
+        Direction direction = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
+        if (direction != null) {
+            return Services.LOADER_SERVICE.extractSpecificItem(this, level, this.getBlockPos().relative(direction), direction.getOpposite(), stack);
+        }
+        return false;
+    }
+
 }

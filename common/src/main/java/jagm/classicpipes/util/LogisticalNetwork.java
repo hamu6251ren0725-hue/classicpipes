@@ -9,12 +9,10 @@ import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class LogisticalNetwork {
 
@@ -27,6 +25,7 @@ public class LogisticalNetwork {
     private SortingMode sortingMode;
     private boolean cacheChanged;
     private byte cacheCooldown;
+    private final List<RequestedItem> requestedItems;
 
     public LogisticalNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
@@ -36,10 +35,45 @@ public class LogisticalNetwork {
         this.pos = pos;
         this.cacheChanged = false;
         this.cacheCooldown = (byte) 0;
+        this.requestedItems = new ArrayList<>();
     }
 
     public LogisticalNetwork(BlockPos pos) {
         this(pos, SortingMode.AMOUNT_DESCENDING);
+    }
+
+    public List<ItemStack> request(ServerLevel level, ItemStack stack, BlockPos requestPos, Player player) {
+        ItemStack originalStack = stack.copy();
+        Map<ProviderPipeEntity, Integer> extractionSchedule = new HashMap<>();
+        List<ItemStack> missingItems = new ArrayList<>();
+        for (ProviderPipeEntity providerPipe : this.providerPipes) {
+            if (stack.isEmpty()) {
+                break;
+            }
+            for (ItemStack cacheStack : providerPipe.getCache()) {
+                if (ItemStack.isSameItemSameComponents(stack, cacheStack)) {
+                    int amount = Math.min(stack.getCount(), cacheStack.getCount());
+                    extractionSchedule.put(providerPipe, amount);
+                    stack.shrink(amount);
+                    break;
+                }
+            }
+        }
+        if (stack.isEmpty()) {
+            for (ProviderPipeEntity providerPipe : extractionSchedule.keySet()) {
+                ItemStack toExtract = originalStack.copyWithCount(extractionSchedule.get(providerPipe));
+                if (!providerPipe.extractItem(level, toExtract)) {
+                    missingItems.add(toExtract);
+                    break;
+                }
+            }
+            if (missingItems.isEmpty()) {
+                this.requestedItems.add(new RequestedItem(originalStack, requestPos, player.getName().getString()));
+            }
+        } else {
+            missingItems.add(stack);
+        }
+        return missingItems;
     }
 
     public void tick(ServerLevel level) {
@@ -56,6 +90,7 @@ public class LogisticalNetwork {
         } else if (this.cacheCooldown > 0) {
             this.cacheCooldown--;
         }
+        this.getRequestedItems().removeIf(RequestedItem::timedOut);
     }
 
     public Set<RoutingPipeEntity> getRoutingPipes() {
@@ -127,4 +162,15 @@ public class LogisticalNetwork {
         return this.sortingMode;
     }
 
+    public List<RequestedItem> getRequestedItems() {
+        return this.requestedItems;
+    }
+
+    public void removeRequestedItem(RequestedItem requestedItem) {
+        this.requestedItems.remove(requestedItem);
+    }
+
+    public void addRequestedItem(RequestedItem requestedItem) {
+        this.requestedItems.add(requestedItem);
+    }
 }

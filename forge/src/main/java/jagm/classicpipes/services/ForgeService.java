@@ -200,6 +200,31 @@ public class ForgeService implements LoaderService {
     }
 
     @Override
+    public boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
+        BlockEntity blockEntity = level.getBlockEntity(containerPos);
+        if (blockEntity != null) {
+            ItemStack target = stack.copy();
+            Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
+            if (itemHandlerOptional.isPresent()) {
+                IItemHandler itemHandler = itemHandlerOptional.get();
+                for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
+                    if (ItemStack.isSameItemSameComponents(stack, itemHandler.getStackInSlot(slot))) {
+                        ItemStack extracted = itemHandler.extractItem(slot, target.getCount(), false);
+                        if (!extracted.isEmpty()) {
+                            target.shrink(extracted.getCount());
+                            pipe.setItem(face.getOpposite().get3DDataValue(), extracted);
+                            if (target.isEmpty()) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String getModName(String modId) {
         return ModList.get().getModContainerById(modId).map(ModContainer::getModInfo).map(IModInfo::getDisplayName).orElse(modId);
     }

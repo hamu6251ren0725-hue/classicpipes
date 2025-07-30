@@ -63,6 +63,7 @@ public class ForgeEntrypoint {
                 ForgePacketHandler.registerServerPayload(ServerBoundDefaultRoutePayload.class, ServerBoundDefaultRoutePayload.STREAM_CODEC);
                 ForgePacketHandler.registerServerPayload(ServerBoundLeaveOnePayload.class, ServerBoundLeaveOnePayload.STREAM_CODEC);
                 ForgePacketHandler.registerServerPayload(ServerBoundSortingModePayload.class, ServerBoundSortingModePayload.STREAM_CODEC);
+                ForgePacketHandler.registerServerPayload(ServerBoundRequestPayload.class, ServerBoundRequestPayload.STREAM_CODEC);
                 ForgePacketHandler.registerClientPayload(ClientBoundItemListPayload.class, ClientBoundItemListPayload.STREAM_CODEC);
             });
         }

@@ -124,6 +124,27 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
+    public boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
+        ItemStack target = stack.copy();
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, face);
+        if (itemHandler != null) {
+            for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
+                if (ItemStack.isSameItemSameComponents(stack, itemHandler.getStackInSlot(slot))) {
+                    ItemStack extracted = itemHandler.extractItem(slot, target.getCount(), false);
+                    if (!extracted.isEmpty()) {
+                        target.shrink(extracted.getCount());
+                        pipe.setItem(face.getOpposite().get3DDataValue(), extracted);
+                        if (target.isEmpty()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
     public List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face) {
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face);
         if (itemHandler != null) {

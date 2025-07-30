@@ -51,6 +51,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerServerPayload(ServerBoundDefaultRoutePayload.TYPE, ServerBoundDefaultRoutePayload.STREAM_CODEC);
         registerServerPayload(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
         registerServerPayload(ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
+        registerServerPayload(ServerBoundRequestPayload.TYPE, ServerBoundRequestPayload.STREAM_CODEC);
 
         registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
 
