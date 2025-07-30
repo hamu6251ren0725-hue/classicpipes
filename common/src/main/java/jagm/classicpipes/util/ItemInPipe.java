@@ -60,6 +60,10 @@ public class ItemInPipe {
         this(stack, speed, progress, Direction.from3DDataValue(fromDirection), Direction.from3DDataValue(targetDirection), ejecting, age);
     }
 
+    public ItemInPipe copyWithCount(int count) {
+        return new ItemInPipe(this.getStack().copyWithCount(count), this.speed, this.progress, this.fromDirection, this.targetDirection, this.ejecting, this.age);
+    }
+
     public void move(short targetSpeed, short acceleration) {
         if (this.speed < targetSpeed) {
             this.speed = (short) Math.min(this.speed + acceleration, Math.min(targetSpeed, SPEED_LIMIT));

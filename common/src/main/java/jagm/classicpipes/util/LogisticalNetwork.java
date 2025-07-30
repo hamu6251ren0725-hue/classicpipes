@@ -60,6 +60,8 @@ public class LogisticalNetwork {
             }
         }
         if (stack.isEmpty()) {
+            RequestedItem requestedItem = new RequestedItem(originalStack, requestPos, player.getName().getString());
+            this.requestedItems.add(requestedItem);
             for (ProviderPipeEntity providerPipe : extractionSchedule.keySet()) {
                 ItemStack toExtract = originalStack.copyWithCount(extractionSchedule.get(providerPipe));
                 if (!providerPipe.extractItem(level, toExtract)) {
@@ -67,8 +69,8 @@ public class LogisticalNetwork {
                     break;
                 }
             }
-            if (missingItems.isEmpty()) {
-                this.requestedItems.add(new RequestedItem(originalStack, requestPos, player.getName().getString()));
+            if (!missingItems.isEmpty()) {
+                this.requestedItems.remove(requestedItem);
             }
         } else {
             missingItems.add(stack);

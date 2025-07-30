@@ -20,10 +20,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Iterator;
+
 public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/request.png");
     private static final WidgetSprites X_BUTTON = new WidgetSprites(MiscUtil.resourceLocation("widget/x"), MiscUtil.resourceLocation("widget/x_hovered"));
+    private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
+    private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
 
     private EditBox searchBar;
     private PageButton prev_page;
@@ -65,10 +69,47 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, float f) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.updatePageButtons();
-        super.render(graphics, x, y, f);
-        this.renderTooltip(graphics, x, y);
+        this.renderContents(graphics, mouseX, mouseY, partialTicks);
+        this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    @Override
+    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.renderContents(graphics, mouseX, mouseY, partialTicks);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate((float) this.leftPos, (float) this.topPos);
+        this.hoveredSlot = this.getHoveredSlot(mouseX, mouseY);
+        if (this.hoveredSlot != null && this.hoveredSlot.isHighlightable()) {
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, this.hoveredSlot.x - 4, this.hoveredSlot.y - 4, 24, 24);
+        }
+        this.renderSlots(graphics);
+        if (this.hoveredSlot != null && this.hoveredSlot.isHighlightable()) {
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, this.hoveredSlot.x - 4, this.hoveredSlot.y - 4, 24, 24);
+        }
+        graphics.pose().popMatrix();
+    }
+
+    private Slot getHoveredSlot(double mouseX, double mouseY) {
+        Iterator<Slot> var5 = this.menu.displaySlots.iterator();
+        Slot slot;
+        do {
+            if (!var5.hasNext()) {
+                return null;
+            }
+            slot = var5.next();
+        } while(!slot.isActive() || !this.isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY));
+        return slot;
+    }
+
+    @Override
+    protected void renderSlots(GuiGraphics graphics) {
+        for (Slot slot : this.menu.displaySlots) {
+            if (slot.isActive()) {
+                this.renderSlot(graphics, slot);
+            }
+        }
     }
 
     @Override
@@ -149,6 +190,15 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         } else {
             return "MAX";
         }
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        Slot slot = this.getHoveredSlot(mouseX, mouseY);
+        if (slot != null) {
+            this.menu.clickSlot(slot, button == 1, hasShiftDown());
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override

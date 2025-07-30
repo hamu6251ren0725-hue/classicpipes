@@ -79,13 +79,13 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
         if (!this.checkRoutingSchedule(item) && this.getLevel() instanceof ServerLevel serverLevel) {
             List<LogisticalPipeEntity> validTargets = new ArrayList<>();
             RequestedItem thisRequestedItem = null;
-            ItemInPipe spareItems = null;
+            List<ItemInPipe> spareItems = new ArrayList<>();
             for (RequestedItem requestedItem : this.getLogisticalNetwork().getRequestedItems()) {
                 if (requestedItem.matches(item) && this.getLevel() != null) {
                     LogisticalPipeEntity target = requestedItem.getTarget(this.getLevel());
                     if (target != null) {
                         if (item.getStack().getCount() > requestedItem.getAmountRemaining()) {
-                            spareItems = new ItemInPipe(item.getStack().copyWithCount(item.getStack().getCount() - requestedItem.getAmountRemaining()), item.getSpeed(), item.getProgress(), item.getFromDirection(), item.getTargetDirection(), item.isEjecting(), (short) 0);
+                            spareItems.add(item.copyWithCount(item.getStack().getCount() - requestedItem.getAmountRemaining()));
                             item.getStack().setCount(requestedItem.getAmountRemaining());
                         }
                         thisRequestedItem = requestedItem;
@@ -119,9 +119,15 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
                     item.setTargetDirection(item.getFromDirection().getOpposite());
                 }
                 if (thisRequestedItem != null) {
+                    int remaining = thisRequestedItem.getAmountRemaining();
+                    int leftover = item.getStack().getCount() - remaining;
                     thisRequestedItem.arrived(item.getStack().getCount());
                     if (thisRequestedItem.isDelivered()) {
                         this.getLogisticalNetwork().removeRequestedItem(thisRequestedItem);
+                    }
+                    if (leftover > 0) {
+                        item.setStack(item.getStack().copyWithCount(remaining));
+                        spareItems.add(item.copyWithCount(leftover));
                     }
                 }
             } else if (!validTargets.isEmpty()) {
@@ -130,8 +136,9 @@ public abstract class LogisticalPipeEntity extends RoundRobinPipeEntity {
             } else {
                 super.routeItem(state, item);
             }
-            if (spareItems != null) {
-                this.routeItem(state, spareItems);
+            for (ItemInPipe spareItem : spareItems) {
+                this.insertPipeItem(serverLevel, spareItem);
+                this.routeItem(state, spareItem);
             }
         }
     }

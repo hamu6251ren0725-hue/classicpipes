@@ -10,12 +10,13 @@ import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.SortingMode;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -33,6 +34,7 @@ public class RequestMenu extends AbstractContainerMenu {
 
     private List<ItemStack> networkItems;
     private final Container toDisplay;
+    public final NonNullList<Slot> displaySlots = NonNullList.create();
     private String search;
     private int page;
     private int maxPage;
@@ -58,7 +60,7 @@ public class RequestMenu extends AbstractContainerMenu {
         this.maxPage = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 9; j++) {
-                this.addSlot(new FilterSlot(this.toDisplay, i * 9 + j, 8 + j * 18, 36 + i * 18));
+                displaySlots.add(new FilterSlot(this.toDisplay, i * 9 + j, 8 + j * 18, 36 + i * 18));
             }
         }
         this.updateSearch();
@@ -99,25 +101,21 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.maxPage;
     }
 
-    @Override
-    public void clicked(int index, int button, ClickType clickType, Player player) {
+    public void clickSlot(Slot slot, boolean rightClick, boolean holdingShift) {
         // Planned behaviour:
         // Right click to quick-request one.
         // Shift click to quick-request a stack (does not auto-craft unless there are none left)
         // Left click to open a window and request a specific amount.
-        if (index >= 0 && index < this.toDisplay.getContainerSize()) {
-            if (clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) {
-                ItemStack toRequest = this.toDisplay.getItem(index);
-                if (toRequest != ItemStack.EMPTY) {
-                    int amount = clickType == ClickType.QUICK_MOVE && !toRequest.isEmpty() ? Math.min(toRequest.getCount(), toRequest.getMaxStackSize()) : 1;
-                    if (player.level().isClientSide()) {
-                        Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.requestPos));
-                    }
-                    toRequest.shrink(amount);
-                    this.networkItems.sort(this.sortingMode.getComparator());
-                    this.updateSearch();
-                }
+        ItemStack toRequest = slot.getItem();
+        if (toRequest != ItemStack.EMPTY) {
+            int amount = holdingShift && !toRequest.isEmpty() ? Math.min(toRequest.getCount(), toRequest.getMaxStackSize()) : 1;
+            Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.requestPos));
+            toRequest.shrink(amount);
+            if (toRequest.isEmpty()) {
+                this.networkItems.remove(toRequest);
             }
+            this.networkItems.sort(this.sortingMode.getComparator());
+            this.updateSearch();
         }
     }
 

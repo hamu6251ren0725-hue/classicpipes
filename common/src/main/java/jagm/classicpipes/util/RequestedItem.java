@@ -63,7 +63,7 @@ public class RequestedItem {
         return this.stack;
     }
 
-    private BlockPos getDestination() {
+    public BlockPos getDestination() {
         return this.destination;
     }
 

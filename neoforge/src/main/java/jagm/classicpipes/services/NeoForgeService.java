@@ -129,7 +129,7 @@ public class NeoForgeService implements LoaderService {
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, face);
         if (itemHandler != null) {
             for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
-                if (ItemStack.isSameItemSameComponents(stack, itemHandler.getStackInSlot(slot))) {
+                if (ItemStack.isSameItemSameComponents(target, itemHandler.getStackInSlot(slot))) {
                     ItemStack extracted = itemHandler.extractItem(slot, target.getCount(), false);
                     if (!extracted.isEmpty()) {
                         target.shrink(extracted.getCount());
