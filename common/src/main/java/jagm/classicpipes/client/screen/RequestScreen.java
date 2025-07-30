@@ -8,6 +8,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -20,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/request.png");
+    private static final WidgetSprites X_BUTTON = new WidgetSprites(MiscUtil.resourceLocation("widget/x"), MiscUtil.resourceLocation("widget/x_hovered"));
 
     private EditBox searchBar;
     private PageButton prev_page;
@@ -56,6 +60,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.addRenderableWidget(this.searchBar);
         this.addRenderableWidget(this.prev_page);
         this.addRenderableWidget(this.next_page);
+        this.addRenderableWidget(new ImageButton(this.leftPos + this.imageWidth - 12, this.topPos + 5, 7, 7, X_BUTTON, button -> this.onClose()));
 
     }
 
@@ -176,7 +181,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     private void changeSortType(Button button) {
-        SortingMode nextMode = this.menu.getSortingMode().nextType();
+        SortingMode nextMode = Screen.hasShiftDown() ? this.menu.getSortingMode().prevType() : this.menu.getSortingMode().nextType();
         this.sort_type.setMessage(nextMode.getType());
         this.sort_direction.setMessage(nextMode.getDirection());
         this.menu.setSortingMode(nextMode);

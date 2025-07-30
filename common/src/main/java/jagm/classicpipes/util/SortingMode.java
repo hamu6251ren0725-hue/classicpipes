@@ -54,6 +54,19 @@ public enum SortingMode {
         };
     }
 
+    public SortingMode prevType() {
+        return switch (this) {
+            case AMOUNT_ASCENDING -> CRAFTABLE_Z_TO_A;
+            case AMOUNT_DESCENDING -> CRAFTABLE_A_TO_Z;
+            case A_TO_Z -> AMOUNT_DESCENDING;
+            case Z_TO_A -> AMOUNT_ASCENDING;
+            case MOD_A_TO_Z -> A_TO_Z;
+            case MOD_Z_TO_A -> Z_TO_A;
+            case CRAFTABLE_A_TO_Z -> MOD_A_TO_Z;
+            case CRAFTABLE_Z_TO_A -> MOD_Z_TO_A;
+        };
+    }
+
     public SortingMode otherDirection() {
         return switch (this) {
             case AMOUNT_ASCENDING -> AMOUNT_DESCENDING;
