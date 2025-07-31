@@ -2,6 +2,8 @@ package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.menu.RequestMenu;
+import jagm.classicpipes.network.ServerBoundRequestPayload;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.SortingMode;
 import net.minecraft.client.gui.Font;
@@ -10,7 +12,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -196,7 +197,20 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         Slot slot = this.getHoveredSlot(mouseX, mouseY);
         if (slot != null) {
-            this.menu.clickSlot(slot, button == 1, hasShiftDown());
+            ItemStack toRequest = slot.getItem();
+            if (toRequest != ItemStack.EMPTY) {
+                if (hasShiftDown() || button == 1) {
+                    int amount = hasShiftDown() && !toRequest.isEmpty() ? Math.min(toRequest.getCount(), toRequest.getMaxStackSize()) : 1;
+                    Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.menu.getRequestPos()));
+                    toRequest.shrink(amount);
+                    if (toRequest.isEmpty()) {
+                        this.menu.removeStack(toRequest);
+                    }
+                    this.menu.update();
+                } else if (this.minecraft != null) {
+                    this.minecraft.setScreen(new RequestAmountScreen(toRequest, this, false));
+                }
+            }
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -231,7 +245,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     private void changeSortType(Button button) {
-        SortingMode nextMode = Screen.hasShiftDown() ? this.menu.getSortingMode().prevType() : this.menu.getSortingMode().nextType();
+        SortingMode nextMode = hasShiftDown() ? this.menu.getSortingMode().prevType() : this.menu.getSortingMode().nextType();
         this.sort_type.setMessage(nextMode.getType());
         this.sort_direction.setMessage(nextMode.getDirection());
         this.menu.setSortingMode(nextMode);

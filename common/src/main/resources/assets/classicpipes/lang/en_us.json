@@ -43,6 +43,7 @@
   "container.classicpipes.routing_pipe": "Items to route here:",
   "container.classicpipes.provider_pipe": "Items to provide, blank for all:",
   "container.classicpipes.request": "Request from network",
+  "container.classicpipes.request.amount": "Request amount",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
   "direction.classicpipes.south": "South",
@@ -62,6 +63,8 @@
   "widget.classicpipes.az": "A to Z",
   "widget.classicpipes.za": "Z to A",
   "widget.classicpipes.sort_by": "Sort by:",
+  "widget.classicpipes.request": "Request",
+  "widget.classicpipes.cancel": "Cancel",
   "tooltip.classicpipes.match_components": "If this is checked, the components of an item (damage, enchantments, etc.) must match the item in the filter.",
   "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go.",
   "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network."

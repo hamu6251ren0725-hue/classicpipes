@@ -4,7 +4,6 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.LogisticalPipeEntity;
 import jagm.classicpipes.inventory.container.RequestMenuContainer;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
-import jagm.classicpipes.network.ServerBoundRequestPayload;
 import jagm.classicpipes.network.ServerBoundSortingModePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -68,6 +67,10 @@ public class RequestMenu extends AbstractContainerMenu {
 
     public void update(List<ItemStack> networkItems) {
         this.networkItems = networkItems;
+        this.update();
+    }
+
+    public void update() {
         this.networkItems.sort(this.sortingMode.getComparator());
         this.updateSearch();
     }
@@ -102,21 +105,7 @@ public class RequestMenu extends AbstractContainerMenu {
     }
 
     public void clickSlot(Slot slot, boolean rightClick, boolean holdingShift) {
-        // Planned behaviour:
-        // Right click to quick-request one.
-        // Shift click to quick-request a stack (does not auto-craft unless there are none left)
-        // Left click to open a window and request a specific amount.
-        ItemStack toRequest = slot.getItem();
-        if (toRequest != ItemStack.EMPTY) {
-            int amount = holdingShift && !toRequest.isEmpty() ? Math.min(toRequest.getCount(), toRequest.getMaxStackSize()) : 1;
-            Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.requestPos));
-            toRequest.shrink(amount);
-            if (toRequest.isEmpty()) {
-                this.networkItems.remove(toRequest);
-            }
-            this.networkItems.sort(this.sortingMode.getComparator());
-            this.updateSearch();
-        }
+
     }
 
     @Override
@@ -168,6 +157,14 @@ public class RequestMenu extends AbstractContainerMenu {
 
     public BlockPos getNetworkPos() {
         return this.networkPos;
+    }
+
+    public BlockPos getRequestPos() {
+        return this.requestPos;
+    }
+
+    public void removeStack(ItemStack stack) {
+        this.networkItems.remove(stack);
     }
 
     private static boolean itemMatchesSearch(ItemStack stack, String search) {
