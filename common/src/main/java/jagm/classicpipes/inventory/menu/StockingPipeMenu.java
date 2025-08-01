@@ -41,17 +41,23 @@ public class StockingPipeMenu extends FilterMenu {
             Slot slot = this.slots.get(index);
             ItemStack stack = slot.getItem();
             if (clickType == ClickType.QUICK_MOVE) {
-                slot.remove(stack.getCount());
+                slot.set(ItemStack.EMPTY);
             } else if (clickType == ClickType.PICKUP) {
                 if (stack.isEmpty()) {
                     slot.set(this.getCarried().copyWithCount(button == 0 ? this.getCarried().getCount() : 1));
                 } else {
                     if (this.getCarried().isEmpty()) {
                         stack.grow(button == 0 ? -1 : 1);
+                        if (stack.isEmpty()) {
+                            slot.set(ItemStack.EMPTY);
+                        }
                     } else if (ItemStack.isSameItemSameComponents(stack, this.getCarried())) {
                         stack.grow(1);
                     } else {
                         slot.set(this.getCarried().copyWithCount(1));
+                    }
+                    if (stack.getCount() > 999) {
+                        stack.setCount(999);
                     }
                 }
             }

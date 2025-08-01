@@ -12,7 +12,7 @@ public class RequestedItem {
 
     private static final short TIMEOUT = 6000;
     public static final Codec<RequestedItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ItemStack.CODEC.fieldOf("item").orElse(ItemStack.EMPTY).forGetter(RequestedItem::getStack),
+            MiscUtil.UNLIMITED_STACK_CODEC.fieldOf("item").orElse(ItemStack.EMPTY).forGetter(RequestedItem::getStack),
             BlockPos.CODEC.fieldOf("destination").orElse(BlockPos.ZERO).forGetter(RequestedItem::getDestination),
             Codec.STRING.fieldOf("player").orElse("").forGetter(RequestedItem::getPlayerName)
     ).apply(instance, RequestedItem::new));

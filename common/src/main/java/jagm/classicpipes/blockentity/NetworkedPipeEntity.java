@@ -373,7 +373,9 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
             valueOutput.putByte("sorting_mode", this.getNetwork().getSortingMode().getValue());
             ValueOutput.TypedOutputList<RequestedItem> requestedItems = valueOutput.list("requested_items", RequestedItem.CODEC);
             for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
-                requestedItems.add(requestedItem);
+                if (!requestedItem.isDelivered()) {
+                    requestedItems.add(requestedItem);
+                }
             }
         }
         ValueOutput.TypedOutputList<ItemStackWithSlot> routingList = valueOutput.list("routing_schedule", ItemStackWithSlot.CODEC);

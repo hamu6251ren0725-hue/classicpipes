@@ -44,6 +44,23 @@ public class StockingPipeScreen extends AbstractContainerScreen<StockingPipeMenu
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.hoveredSlot != null) {
+            if (this.hoveredSlot.container == this.menu.getFilter() && !this.hoveredSlot.getItem().isEmpty()) {
+                this.hoveredSlot.getItem().grow((int) scrollY);
+                if (this.hoveredSlot.getItem().getCount() < 1) {
+                    this.hoveredSlot.getItem().setCount(1);
+                } else if (this.hoveredSlot.getItem().getCount() > 999) {
+                    this.hoveredSlot.getItem().setCount(999);
+                }
+                this.hoveredSlot.setChanged();
+                return true;
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.render(graphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(graphics, mouseX, mouseY);

@@ -64,6 +64,9 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         if (facing != null) {
             List<ItemStack> filterItems = new ArrayList<>();
             for (ItemStack stack : this.filter) {
+                if (stack.isEmpty()) {
+                    continue;
+                }
                 boolean matched = false;
                 for (ItemStack filterStack : filterItems) {
                     if (ItemStack.isSameItemSameComponents(stack, filterStack)) {
