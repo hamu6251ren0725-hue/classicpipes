@@ -5,6 +5,7 @@ import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.RoutingPipeBlock;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.Tuple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -15,7 +16,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -203,10 +203,11 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     protected void initialiseLogistics(ServerLevel level, BlockState state, BlockPos pos) {
+        Set<BlockPos> visited = new HashSet<>();
         for (Direction direction : Direction.values()) {
             BlockPos nextPos = pos.relative(direction);
             if (this.isPipeConnected(state, direction) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
-                this.updateLogistics(level, state, pos, nextPipe, nextPos, direction, new HashSet<>(), false);
+                visited = this.updateLogistics(level, state, pos, nextPipe, nextPos, direction, visited, false);
             } else {
                 this.logistics.remove(direction);
             }
@@ -214,10 +215,10 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         this.setChanged();
     }
 
-    private void updateLogistics(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited, boolean triggerNetworkChanges) {
+    private Set<BlockPos> updateLogistics(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited, boolean triggerNetworkChanges) {
 
         if (visited.contains(pos)) {
-            return;
+            return visited;
         }
         visited.add(pos);
 
@@ -229,7 +230,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 for (Direction direction : this.logistics.keySet()) {
                     if (!direction.equals(nextDirection) && nextPipe.canJoinLogisticalNetwork()) {
                         Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
-                        nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(tuple.getA(), tuple.getB() + 1));
+                        nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(tuple.a(), tuple.b() + 1));
                         hasLogisticConnection = true;
                     }
                 }
@@ -247,7 +248,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 for (Direction direction : nextPipe.logistics.keySet()) {
                     if (!direction.equals(nextDirection.getOpposite()) && this.canJoinLogisticalNetwork()) {
                         Tuple<BlockPos, Integer> tuple = nextPipe.logistics.get(direction);
-                        this.logistics.put(nextDirection, new Tuple<>(tuple.getA(), tuple.getB() + 1));
+                        this.logistics.put(nextDirection, new Tuple<>(tuple.a(), tuple.b() + 1));
                         hasLogisticConnection = true;
                     }
                 }
@@ -259,7 +260,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 if (!direction.equals(nextDirection.getOpposite())) {
                     BlockPos anotherPos = nextPos.relative(direction);
                     if (nextPipe.isPipeConnected(nextPipe.getBlockState(), direction) && level.getBlockEntity(anotherPos) instanceof AbstractPipeEntity anotherPipe) {
-                        nextPipe.updateLogistics(level, nextPipe.getBlockState(), nextPos, anotherPipe, anotherPos, direction, visited, triggerNetworkChanges);
+                        visited = nextPipe.updateLogistics(level, nextPipe.getBlockState(), nextPos, anotherPipe, anotherPos, direction, visited, triggerNetworkChanges);
                     } else {
                         nextPipe.logistics.remove(direction);
                     }
@@ -289,6 +290,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         level.sendBlockUpdated(pos, state, state, 2);
         nextPipe.setChanged();
         level.sendBlockUpdated(nextPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
+        return visited;
 
     }
 
@@ -362,8 +364,8 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
         for (Direction direction : this.logistics.keySet()) {
             Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
-            valueOutput.store(direction.getName() + "_pos", BlockPos.CODEC, tuple.getA());
-            valueOutput.putInt(direction.getName() + "_distance", tuple.getB());
+            valueOutput.store(direction.getName() + "_pos", BlockPos.CODEC, tuple.a());
+            valueOutput.putInt(direction.getName() + "_distance", tuple.b());
         }
     }
 

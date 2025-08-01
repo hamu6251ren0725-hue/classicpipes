@@ -104,10 +104,6 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.maxPage;
     }
 
-    public void clickSlot(Slot slot, boolean rightClick, boolean holdingShift) {
-
-    }
-
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;

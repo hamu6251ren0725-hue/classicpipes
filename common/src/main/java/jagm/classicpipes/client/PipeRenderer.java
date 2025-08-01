@@ -44,7 +44,7 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
         }
         if (MiscUtil.DEBUG_MODE) {
             for (Direction direction : pipe.logistics.keySet()) {
-                Component component = Component.literal(String.valueOf(pipe.logistics.get(direction).getB()));
+                Component component = Component.literal(String.valueOf(pipe.logistics.get(direction).b()));
                 poses.pushPose();
                 poses.translate(
                         0.5F + (direction.equals(Direction.EAST) ? 0.375F : (direction.equals(Direction.WEST) ? -0.375F : 0.0F)),
