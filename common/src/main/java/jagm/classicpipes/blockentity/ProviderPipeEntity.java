@@ -6,7 +6,7 @@ import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
-import jagm.classicpipes.util.LogisticalNetwork;
+import jagm.classicpipes.util.PipeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProvider {
+public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
     private boolean leaveOne;
@@ -50,7 +50,7 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     @Override
     public void disconnect(ServerLevel level) {
-        LogisticalNetwork network = this.getLogisticalNetwork();
+        PipeNetwork network = this.getLogisticalNetwork();
         super.disconnect(level);
         if (network != null) {
             network.cacheUpdated();

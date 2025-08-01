@@ -1,7 +1,7 @@
 package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import jagm.classicpipes.inventory.container.RequestMenuContainer;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.network.ServerBoundSortingModePayload;
@@ -111,7 +111,7 @@ public class RequestMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        if (this.controllerPipe instanceof LogisticalPipeEntity controller && this.requestPipe instanceof LogisticalPipeEntity requester) {
+        if (this.controllerPipe instanceof NetworkedPipeEntity controller && this.requestPipe instanceof NetworkedPipeEntity requester) {
             return player.level().getBlockEntity(controller.getBlockPos()) == controller && Container.stillValidBlockEntity(requester, player) && controller.isController() && controller.getLogisticalNetwork() == requester.getLogisticalNetwork();
         }
         return false;

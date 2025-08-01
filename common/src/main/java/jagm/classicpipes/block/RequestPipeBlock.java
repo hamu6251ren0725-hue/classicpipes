@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class RequestPipeBlock extends RoutingPipeBlock {
+public class RequestPipeBlock extends NetworkedPipeBlock {
 
     public RequestPipeBlock(Properties properties) {
         super(properties);

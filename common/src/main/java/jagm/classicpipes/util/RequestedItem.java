@@ -2,7 +2,7 @@ package jagm.classicpipes.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -33,10 +33,10 @@ public class RequestedItem {
         return ItemStack.isSameItemSameComponents(pipeItem.getStack(), this.stack);
     }
 
-    public LogisticalPipeEntity getTarget(Level level) {
+    public NetworkedPipeEntity getTarget(Level level) {
         BlockEntity target = level.getBlockEntity(this.destination);
-        if (target instanceof LogisticalPipeEntity) {
-            return (LogisticalPipeEntity) target;
+        if (target instanceof NetworkedPipeEntity) {
+            return (NetworkedPipeEntity) target;
         }
         return null;
     }

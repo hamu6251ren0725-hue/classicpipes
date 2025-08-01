@@ -27,7 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Map;
 
-public class RoutingPipeBlock extends AbstractPipeBlock {
+public class NetworkedPipeBlock extends AbstractPipeBlock {
 
     public static final EnumProperty<ConnectionState> NORTH = EnumProperty.create("north", ConnectionState.class, ConnectionState.values());
     public static final EnumProperty<ConnectionState> EAST = EnumProperty.create("east", ConnectionState.class, ConnectionState.values());
@@ -37,7 +37,7 @@ public class RoutingPipeBlock extends AbstractPipeBlock {
     public static final EnumProperty<ConnectionState> DOWN = EnumProperty.create("down", ConnectionState.class, ConnectionState.values());
     private static final Map<Direction, EnumProperty<ConnectionState>> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN)));
 
-    public RoutingPipeBlock(BlockBehaviour.Properties properties) {
+    public NetworkedPipeBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(NORTH, ConnectionState.NONE)

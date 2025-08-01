@@ -3,7 +3,7 @@ package jagm.classicpipes.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
-import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.Minecraft;
@@ -60,7 +60,7 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                 font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
                 poses.popPose();
             }
-            if (pipe instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.isController()) {
+            if (pipe instanceof NetworkedPipeEntity logisticalPipe && logisticalPipe.isController()) {
                 Component component = Component.literal("CONTROLLER");
                 poses.pushPose();
                 poses.translate(0.5F, 0.5F, 0.5F);

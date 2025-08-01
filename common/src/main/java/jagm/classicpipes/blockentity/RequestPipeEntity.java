@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class RequestPipeEntity extends LogisticalPipeEntity implements MenuProvider {
+public class RequestPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
     public RequestPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.REQUEST_PIPE_ENTITY, pos, state);

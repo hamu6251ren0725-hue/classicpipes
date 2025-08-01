@@ -1,6 +1,6 @@
 package jagm.classicpipes.network;
 
-import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,7 +28,7 @@ public record ServerBoundRequestPayload(ItemStack stack, BlockPos requestPos) im
 
     @Override
     public void handle(Player player) {
-        if (player.level() instanceof ServerLevel serverLevel && player.level().getBlockEntity(this.requestPos()) instanceof LogisticalPipeEntity pipe && pipe.hasLogisticalNetwork()) {
+        if (player.level() instanceof ServerLevel serverLevel && player.level().getBlockEntity(this.requestPos()) instanceof NetworkedPipeEntity pipe && pipe.hasLogisticalNetwork()) {
             pipe.getLogisticalNetwork().request(serverLevel, this.stack(), this.requestPos(), player);
         }
     }

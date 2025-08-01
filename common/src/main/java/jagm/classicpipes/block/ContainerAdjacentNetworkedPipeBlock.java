@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public abstract class ContainerAdjacentNetworkedPipeBlock extends RoutingPipeBlock {
+public abstract class ContainerAdjacentNetworkedPipeBlock extends NetworkedPipeBlock {
 
     public static final EnumProperty<FacingOrNone> FACING = FacingOrNone.BLOCK_PROPERTY;
 

@@ -1,6 +1,6 @@
 package jagm.classicpipes.network;
 
-import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.SortingMode;
@@ -28,7 +28,7 @@ public record ServerBoundSortingModePayload(SortingMode sortingMode) implements 
     @Override
     public void handle(Player player) {
         if (player != null && player.containerMenu instanceof RequestMenu menu) {
-            if (player.level() instanceof ServerLevel serverLevel && serverLevel.getBlockEntity(menu.getNetworkPos()) instanceof LogisticalPipeEntity pipe && pipe.hasLogisticalNetwork()) {
+            if (player.level() instanceof ServerLevel serverLevel && serverLevel.getBlockEntity(menu.getNetworkPos()) instanceof NetworkedPipeEntity pipe && pipe.hasLogisticalNetwork()) {
                 pipe.getLogisticalNetwork().setSortingMode(this.sortingMode());
                 pipe.setChanged();
             }

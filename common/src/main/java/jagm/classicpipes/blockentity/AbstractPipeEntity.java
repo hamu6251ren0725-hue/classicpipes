@@ -2,7 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.AbstractPipeBlock;
-import jagm.classicpipes.block.RoutingPipeBlock;
+import jagm.classicpipes.block.NetworkedPipeBlock;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.Tuple;
@@ -193,7 +193,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 this.updateLogistics(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>(), true);
             } else {
                 this.logistics.remove(otherDirection);
-                if (this instanceof LogisticalPipeEntity logisticalPipe) {
+                if (this instanceof NetworkedPipeEntity logisticalPipe) {
                     logisticalPipe.networkChanged(level, pos, false);
                 }
             }
@@ -222,7 +222,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
         visited.add(pos);
 
-        if (this instanceof LogisticalPipeEntity && nextPipe.canJoinLogisticalNetwork()) {
+        if (this instanceof NetworkedPipeEntity && nextPipe.canJoinLogisticalNetwork()) {
             nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(pos, 1));
         } else {
             boolean hasLogisticConnection = false;
@@ -240,7 +240,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             }
         }
 
-        if (nextPipe instanceof LogisticalPipeEntity && this.canJoinLogisticalNetwork()) {
+        if (nextPipe instanceof NetworkedPipeEntity && this.canJoinLogisticalNetwork()) {
             this.logistics.put(nextDirection, new Tuple<>(nextPos, 1));
         } else {
             boolean hasLogisticConnection = false;
@@ -268,7 +268,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             }
         }
 
-        if (this instanceof LogisticalPipeEntity logisticalPipe && state.getBlock() instanceof RoutingPipeBlock logisticalBlock) {
+        if (this instanceof NetworkedPipeEntity logisticalPipe && state.getBlock() instanceof NetworkedPipeBlock logisticalBlock) {
             boolean wasLinked = logisticalBlock.isLinked(state, nextDirection);
             boolean isLinked = this.logistics.containsKey(nextDirection);
             if (wasLinked != isLinked && triggerNetworkChanges) {
@@ -277,7 +277,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             level.setBlock(pos, logisticalBlock.setLinked(state, nextDirection, isLinked), 3);
         }
 
-        if (nextPipe instanceof LogisticalPipeEntity logisticalPipe && logisticalPipe.getBlockState().getBlock() instanceof RoutingPipeBlock logisticalBlock) {
+        if (nextPipe instanceof NetworkedPipeEntity logisticalPipe && logisticalPipe.getBlockState().getBlock() instanceof NetworkedPipeBlock logisticalBlock) {
             boolean wasLinked = logisticalBlock.isLinked(logisticalPipe.getBlockState(), nextDirection.getOpposite());
             boolean isLinked = logisticalPipe.logistics.containsKey(nextDirection.getOpposite());
             if (wasLinked != isLinked && triggerNetworkChanges) {

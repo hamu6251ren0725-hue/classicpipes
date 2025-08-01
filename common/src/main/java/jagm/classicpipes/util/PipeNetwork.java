@@ -1,6 +1,6 @@
 package jagm.classicpipes.util;
 
-import jagm.classicpipes.blockentity.LogisticalPipeEntity;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
 import jagm.classicpipes.inventory.menu.RequestMenu;
@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 
-public class LogisticalNetwork {
+public class PipeNetwork {
 
     private static final byte DEFAULT_COOLDOWN = 40; // 2 seconds between client updates.
 
@@ -27,7 +27,7 @@ public class LogisticalNetwork {
     private byte cacheCooldown;
     private final List<RequestedItem> requestedItems;
 
-    public LogisticalNetwork(BlockPos pos, SortingMode sortingMode) {
+    public PipeNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
         this.providerPipes = new HashSet<>();
@@ -38,7 +38,7 @@ public class LogisticalNetwork {
         this.requestedItems = new ArrayList<>();
     }
 
-    public LogisticalNetwork(BlockPos pos) {
+    public PipeNetwork(BlockPos pos) {
         this(pos, SortingMode.AMOUNT_DESCENDING);
     }
 
@@ -107,7 +107,7 @@ public class LogisticalNetwork {
         return this.pos;
     }
 
-    public void addPipe(LogisticalPipeEntity pipe) {
+    public void addPipe(NetworkedPipeEntity pipe) {
         if (pipe instanceof RoutingPipeEntity routingPipe) {
             this.routingPipes.add(routingPipe);
             if (routingPipe.isDefaultRoute()) {
@@ -118,7 +118,7 @@ public class LogisticalNetwork {
         }
     }
 
-    public void removePipe(LogisticalPipeEntity pipe) {
+    public void removePipe(NetworkedPipeEntity pipe) {
         if (pipe instanceof RoutingPipeEntity routingPipe) {
             this.routingPipes.remove(routingPipe);
             if (routingPipe.isDefaultRoute()) {

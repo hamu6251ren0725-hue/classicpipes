@@ -68,7 +68,7 @@ public class ClassicPipes {
     public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("flint_pipe"));
     public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("brick_pipe"));
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("obsidian_pipe"));
-    public static final Block ROUTING_PIPE = createPipe("routing_pipe", RoutingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
+    public static final Block ROUTING_PIPE = createPipe("routing_pipe", NetworkedPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
     public static final Block PROVIDER_PIPE = createPipe("provider_pipe", ProviderPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("provider_pipe"));
     public static final Block REQUEST_PIPE = createPipe("request_pipe", RequestPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("request_pipe"));
     public static final Block STOCKING_PIPE = createPipe("stocking_pipe", StockingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("stocking_pipe"));

@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public class RoutingPipeEntity extends LogisticalPipeEntity implements MenuProvider {
+public class RoutingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
     private boolean defaultRoute;
