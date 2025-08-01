@@ -6,6 +6,7 @@ import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
+import jagm.classicpipes.util.LogisticalNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -49,10 +50,11 @@ public class ProviderPipeEntity extends LogisticalPipeEntity implements MenuProv
 
     @Override
     public void disconnect(ServerLevel level) {
-        if (this.hasLogisticalNetwork()) {
-            this.getLogisticalNetwork().cacheUpdated();
-        }
+        LogisticalNetwork network = this.getLogisticalNetwork();
         super.disconnect(level);
+        if (network != null) {
+            network.cacheUpdated();
+        }
     }
 
     @Override

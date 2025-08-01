@@ -45,6 +45,7 @@ public class ForgeEntrypoint {
                 helper.register("routing_pipe", ClassicPipes.ROUTING_PIPE_ENTITY);
                 helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
                 helper.register("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
+                helper.register("stocking_pipe", ClassicPipes.STOCKING_PIPE_ENTITY);
             });
 
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
@@ -86,6 +87,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.ROUTING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent

@@ -10,6 +10,7 @@
     "classicpipes:obsidian_pipe",
     "classicpipes:routing_pipe",
     "classicpipes:provider_pipe",
-    "classicpipes:request_pipe"
+    "classicpipes:request_pipe",
+    "classicpipes:stocking_pipe"
   ]
 }

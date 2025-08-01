@@ -49,6 +49,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("request_pipe"), ClassicPipes.REQUEST_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
@@ -97,6 +98,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.ROUTING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
