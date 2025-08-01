@@ -73,9 +73,9 @@ public class RoutingPipeEntity extends NetworkedPipeEntity implements MenuProvid
     public void setDefaultRoute(boolean defaultRoute) {
         this.defaultRoute = defaultRoute;
         if (defaultRoute) {
-            this.getLogisticalNetwork().addPipe(this);
+            this.getNetwork().addPipe(this);
         } else {
-            this.getLogisticalNetwork().getDefaultRoutes().remove(this);
+            this.getNetwork().getDefaultRoutes().remove(this);
         }
     }
 

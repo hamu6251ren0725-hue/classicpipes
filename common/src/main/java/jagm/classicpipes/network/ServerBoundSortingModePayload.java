@@ -28,8 +28,8 @@ public record ServerBoundSortingModePayload(SortingMode sortingMode) implements 
     @Override
     public void handle(Player player) {
         if (player != null && player.containerMenu instanceof RequestMenu menu) {
-            if (player.level() instanceof ServerLevel serverLevel && serverLevel.getBlockEntity(menu.getNetworkPos()) instanceof NetworkedPipeEntity pipe && pipe.hasLogisticalNetwork()) {
-                pipe.getLogisticalNetwork().setSortingMode(this.sortingMode());
+            if (player.level() instanceof ServerLevel serverLevel && serverLevel.getBlockEntity(menu.getNetworkPos()) instanceof NetworkedPipeEntity pipe && pipe.hasNetwork()) {
+                pipe.getNetwork().setSortingMode(this.sortingMode());
                 pipe.setChanged();
             }
         }

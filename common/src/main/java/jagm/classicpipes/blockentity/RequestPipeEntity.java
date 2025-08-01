@@ -23,8 +23,8 @@ public class RequestPipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        if (this.hasLogisticalNetwork()) {
-            return new RequestMenu(id, inventory, this.getLogisticalNetwork().requestItemList(this.getBlockPos()));
+        if (this.hasNetwork()) {
+            return new RequestMenu(id, inventory, this.getNetwork().requestItemList(this.getBlockPos()));
         }
         return null;
     }

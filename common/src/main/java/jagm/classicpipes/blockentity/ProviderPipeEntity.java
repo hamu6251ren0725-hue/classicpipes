@@ -50,7 +50,7 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     @Override
     public void disconnect(ServerLevel level) {
-        PipeNetwork network = this.getLogisticalNetwork();
+        PipeNetwork network = this.getNetwork();
         super.disconnect(level);
         if (network != null) {
             network.cacheUpdated();
@@ -125,8 +125,8 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
             }
         }
         this.cache = stacks;
-        if (this.hasLogisticalNetwork()) {
-            this.getLogisticalNetwork().cacheUpdated();
+        if (this.hasNetwork()) {
+            this.getNetwork().cacheUpdated();
         }
     }
 

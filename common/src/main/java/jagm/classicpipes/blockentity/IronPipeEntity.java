@@ -19,7 +19,7 @@ public class IronPipeEntity extends AbstractPipeEntity {
     }
 
     @Override
-    protected boolean canJoinLogisticalNetwork() {
+    protected boolean canJoinNetwork() {
         return false;
     }
 

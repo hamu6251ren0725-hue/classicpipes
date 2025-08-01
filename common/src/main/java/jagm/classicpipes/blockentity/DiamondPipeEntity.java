@@ -1,8 +1,8 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.inventory.container.DirectionalFilterContainer;
+import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -59,7 +59,7 @@ public class DiamondPipeEntity extends RoundRobinPipeEntity implements MenuProvi
     }
 
     @Override
-    protected boolean canJoinLogisticalNetwork() {
+    protected boolean canJoinNetwork() {
         return false;
     }
 

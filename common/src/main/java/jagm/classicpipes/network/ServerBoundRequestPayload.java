@@ -28,8 +28,8 @@ public record ServerBoundRequestPayload(ItemStack stack, BlockPos requestPos) im
 
     @Override
     public void handle(Player player) {
-        if (player.level() instanceof ServerLevel serverLevel && player.level().getBlockEntity(this.requestPos()) instanceof NetworkedPipeEntity pipe && pipe.hasLogisticalNetwork()) {
-            pipe.getLogisticalNetwork().request(serverLevel, this.stack(), this.requestPos(), player);
+        if (player.level() instanceof ServerLevel serverLevel && player.level().getBlockEntity(this.requestPos()) instanceof NetworkedPipeEntity pipe && pipe.hasNetwork()) {
+            pipe.getNetwork().request(serverLevel, this.stack(), this.requestPos(), player);
         }
     }
 

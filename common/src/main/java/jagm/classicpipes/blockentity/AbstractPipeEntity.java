@@ -36,15 +36,15 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
 
     protected final List<ItemInPipe> contents;
     protected final List<ItemInPipe> queued;
-    public final Map<Direction, Tuple<BlockPos, Integer>> logistics;
-    private boolean logisticsInitialised = false;
+    public final Map<Direction, Tuple<BlockPos, Integer>> networkDistances;
+    private boolean networkingInitialised = false;
     private final Map<ItemInPipe, Long> tickAdded;
 
     public AbstractPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.contents = new ArrayList<>();
         this.queued = new ArrayList<>();
-        this.logistics = new HashMap<>();
+        this.networkDistances = new HashMap<>();
         this.tickAdded = new HashMap<>();
     }
 
@@ -60,9 +60,9 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
 
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         boolean sendBlockUpdate = false;
-        if (!this.logisticsInitialised) {
-            this.initialiseLogistics(level, state, pos); // sets changed
-            this.logisticsInitialised = true;
+        if (!this.networkingInitialised) {
+            this.initialiseNetworking(level, state, pos); // sets changed
+            this.networkingInitialised = true;
             sendBlockUpdate = true;
         }
         if (!this.isEmpty()) {
@@ -149,7 +149,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         routeItem(this.getBlockState(), item);
     }
 
-    protected boolean canJoinLogisticalNetwork() {
+    protected boolean canJoinNetwork() {
         return true;
     }
 
@@ -185,16 +185,16 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             this.addQueuedItems(level, false);
         }
         if (wasConnected) {
-            this.logistics.remove(direction);
+            this.networkDistances.remove(direction);
         }
         for (Direction otherDirection : Direction.values()) {
             BlockPos nextPos = pos.relative(otherDirection);
             if (this.isPipeConnected(state, otherDirection) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
-                this.updateLogistics(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>(), true);
+                this.updateNetworking(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>(), true);
             } else {
-                this.logistics.remove(otherDirection);
-                if (this instanceof NetworkedPipeEntity logisticalPipe) {
-                    logisticalPipe.networkChanged(level, pos, false);
+                this.networkDistances.remove(otherDirection);
+                if (this instanceof NetworkedPipeEntity networkedPipe) {
+                    networkedPipe.networkChanged(level, pos, false);
                 }
             }
         }
@@ -202,88 +202,88 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         level.sendBlockUpdated(pos, state, state, 2);
     }
 
-    protected void initialiseLogistics(ServerLevel level, BlockState state, BlockPos pos) {
+    protected void initialiseNetworking(ServerLevel level, BlockState state, BlockPos pos) {
         Set<BlockPos> visited = new HashSet<>();
         for (Direction direction : Direction.values()) {
             BlockPos nextPos = pos.relative(direction);
             if (this.isPipeConnected(state, direction) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
-                visited = this.updateLogistics(level, state, pos, nextPipe, nextPos, direction, visited, false);
+                visited = this.updateNetworking(level, state, pos, nextPipe, nextPos, direction, visited, false);
             } else {
-                this.logistics.remove(direction);
+                this.networkDistances.remove(direction);
             }
         }
         this.setChanged();
     }
 
-    private Set<BlockPos> updateLogistics(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited, boolean triggerNetworkChanges) {
+    private Set<BlockPos> updateNetworking(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited, boolean triggerNetworkChanges) {
 
         if (visited.contains(pos)) {
             return visited;
         }
         visited.add(pos);
 
-        if (this instanceof NetworkedPipeEntity && nextPipe.canJoinLogisticalNetwork()) {
-            nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(pos, 1));
+        if (this instanceof NetworkedPipeEntity && nextPipe.canJoinNetwork()) {
+            nextPipe.networkDistances.put(nextDirection.getOpposite(), new Tuple<>(pos, 1));
         } else {
-            boolean hasLogisticConnection = false;
+            boolean hasNetworkConnection = false;
             if (this.countConnections(state) < 3) {
-                for (Direction direction : this.logistics.keySet()) {
-                    if (!direction.equals(nextDirection) && nextPipe.canJoinLogisticalNetwork()) {
-                        Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
-                        nextPipe.logistics.put(nextDirection.getOpposite(), new Tuple<>(tuple.a(), tuple.b() + 1));
-                        hasLogisticConnection = true;
+                for (Direction direction : this.networkDistances.keySet()) {
+                    if (!direction.equals(nextDirection) && nextPipe.canJoinNetwork()) {
+                        Tuple<BlockPos, Integer> tuple = this.networkDistances.get(direction);
+                        nextPipe.networkDistances.put(nextDirection.getOpposite(), new Tuple<>(tuple.a(), tuple.b() + 1));
+                        hasNetworkConnection = true;
                     }
                 }
             }
-            if (!hasLogisticConnection) {
-                nextPipe.logistics.remove(nextDirection.getOpposite());
+            if (!hasNetworkConnection) {
+                nextPipe.networkDistances.remove(nextDirection.getOpposite());
             }
         }
 
-        if (nextPipe instanceof NetworkedPipeEntity && this.canJoinLogisticalNetwork()) {
-            this.logistics.put(nextDirection, new Tuple<>(nextPos, 1));
+        if (nextPipe instanceof NetworkedPipeEntity && this.canJoinNetwork()) {
+            this.networkDistances.put(nextDirection, new Tuple<>(nextPos, 1));
         } else {
-            boolean hasLogisticConnection = false;
+            boolean hasNetworkConnection = false;
             if (nextPipe.countConnections(nextPipe.getBlockState()) < 3) {
-                for (Direction direction : nextPipe.logistics.keySet()) {
-                    if (!direction.equals(nextDirection.getOpposite()) && this.canJoinLogisticalNetwork()) {
-                        Tuple<BlockPos, Integer> tuple = nextPipe.logistics.get(direction);
-                        this.logistics.put(nextDirection, new Tuple<>(tuple.a(), tuple.b() + 1));
-                        hasLogisticConnection = true;
+                for (Direction direction : nextPipe.networkDistances.keySet()) {
+                    if (!direction.equals(nextDirection.getOpposite()) && this.canJoinNetwork()) {
+                        Tuple<BlockPos, Integer> tuple = nextPipe.networkDistances.get(direction);
+                        this.networkDistances.put(nextDirection, new Tuple<>(tuple.a(), tuple.b() + 1));
+                        hasNetworkConnection = true;
                     }
                 }
             }
-            if (!hasLogisticConnection) {
-                this.logistics.remove(nextDirection);
+            if (!hasNetworkConnection) {
+                this.networkDistances.remove(nextDirection);
             }
             for (Direction direction : Direction.values()) {
                 if (!direction.equals(nextDirection.getOpposite())) {
                     BlockPos anotherPos = nextPos.relative(direction);
                     if (nextPipe.isPipeConnected(nextPipe.getBlockState(), direction) && level.getBlockEntity(anotherPos) instanceof AbstractPipeEntity anotherPipe) {
-                        visited = nextPipe.updateLogistics(level, nextPipe.getBlockState(), nextPos, anotherPipe, anotherPos, direction, visited, triggerNetworkChanges);
+                        visited = nextPipe.updateNetworking(level, nextPipe.getBlockState(), nextPos, anotherPipe, anotherPos, direction, visited, triggerNetworkChanges);
                     } else {
-                        nextPipe.logistics.remove(direction);
+                        nextPipe.networkDistances.remove(direction);
                     }
                 }
             }
         }
 
-        if (this instanceof NetworkedPipeEntity logisticalPipe && state.getBlock() instanceof NetworkedPipeBlock logisticalBlock) {
-            boolean wasLinked = logisticalBlock.isLinked(state, nextDirection);
-            boolean isLinked = this.logistics.containsKey(nextDirection);
+        if (this instanceof NetworkedPipeEntity networkedPipe && state.getBlock() instanceof NetworkedPipeBlock networkedBlock) {
+            boolean wasLinked = networkedBlock.isLinked(state, nextDirection);
+            boolean isLinked = this.networkDistances.containsKey(nextDirection);
             if (wasLinked != isLinked && triggerNetworkChanges) {
-                logisticalPipe.networkChanged(level, pos, isLinked);
+                networkedPipe.networkChanged(level, pos, isLinked);
             }
-            level.setBlock(pos, logisticalBlock.setLinked(state, nextDirection, isLinked), 3);
+            level.setBlock(pos, networkedBlock.setLinked(state, nextDirection, isLinked), 3);
         }
 
-        if (nextPipe instanceof NetworkedPipeEntity logisticalPipe && logisticalPipe.getBlockState().getBlock() instanceof NetworkedPipeBlock logisticalBlock) {
-            boolean wasLinked = logisticalBlock.isLinked(logisticalPipe.getBlockState(), nextDirection.getOpposite());
-            boolean isLinked = logisticalPipe.logistics.containsKey(nextDirection.getOpposite());
+        if (nextPipe instanceof NetworkedPipeEntity networkedPipe && networkedPipe.getBlockState().getBlock() instanceof NetworkedPipeBlock networkedBlock) {
+            boolean wasLinked = networkedBlock.isLinked(networkedPipe.getBlockState(), nextDirection.getOpposite());
+            boolean isLinked = networkedPipe.networkDistances.containsKey(nextDirection.getOpposite());
             if (wasLinked != isLinked && triggerNetworkChanges) {
-                logisticalPipe.networkChanged(level, nextPos, isLinked);
+                networkedPipe.networkChanged(level, nextPos, isLinked);
             }
-            level.setBlock(nextPos, logisticalBlock.setLinked(logisticalPipe.getBlockState(), nextDirection.getOpposite(), isLinked), 3);
+            level.setBlock(nextPos, networkedBlock.setLinked(networkedPipe.getBlockState(), nextDirection.getOpposite(), isLinked), 3);
         }
 
         this.setChanged();
@@ -342,14 +342,14 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     @Override
     protected void loadAdditional(ValueInput valueInput) {
         this.clearContent();
-        this.logistics.clear();
+        this.networkDistances.clear();
         this.tickAdded.clear();
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<ItemInPipe> itemsList = valueInput.listOrEmpty("items", ItemInPipe.CODEC);
         itemsList.forEach(contents::add);
         for (Direction direction : Direction.values()) {
             BlockPos pos = valueInput.read(direction.getName() + "_pos", BlockPos.CODEC).orElse(BlockPos.ZERO);
-            valueInput.getInt(direction.getName() + "_distance").ifPresent(distance -> this.logistics.put(direction, new Tuple<>(pos, distance)));
+            valueInput.getInt(direction.getName() + "_distance").ifPresent(distance -> this.networkDistances.put(direction, new Tuple<>(pos, distance)));
         }
     }
 
@@ -362,8 +362,8 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 itemsList.add(item);
             }
         }
-        for (Direction direction : this.logistics.keySet()) {
-            Tuple<BlockPos, Integer> tuple = this.logistics.get(direction);
+        for (Direction direction : this.networkDistances.keySet()) {
+            Tuple<BlockPos, Integer> tuple = this.networkDistances.get(direction);
             valueOutput.store(direction.getName() + "_pos", BlockPos.CODEC, tuple.a());
             valueOutput.putInt(direction.getName() + "_distance", tuple.b());
         }

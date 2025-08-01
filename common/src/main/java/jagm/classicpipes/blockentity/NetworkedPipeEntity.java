@@ -17,13 +17,13 @@ import java.util.*;
 public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
 
     private final Map<ItemStack, ScheduledRoute> routingSchedule;
-    private PipeNetwork logisticalNetwork;
+    private PipeNetwork network;
     private boolean controller;
 
     public NetworkedPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
         super(blockEntityType, pos, state);
         this.routingSchedule = new HashMap<>();
-        this.logisticalNetwork = null;
+        this.network = null;
         this.controller = false;
     }
 
@@ -42,37 +42,37 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
             }
         }
         if (this.isController()) {
-            this.getLogisticalNetwork().tick(level);
+            this.getNetwork().tick(level);
         }
     }
 
     @Override
-    protected void initialiseLogistics(ServerLevel level, BlockState state, BlockPos pos) {
-        if (this.isController() && this.hasLogisticalNetwork()) {
-            this.distributeLogisticalNetwork(level, this.getBlockPos(), new HashSet<>(), this.getLogisticalNetwork());
+    protected void initialiseNetworking(ServerLevel level, BlockState state, BlockPos pos) {
+        if (this.isController() && this.hasNetwork()) {
+            this.distributeNetwork(level, this.getBlockPos(), new HashSet<>(), this.getNetwork());
         }
-        super.initialiseLogistics(level, state, pos);
+        super.initialiseNetworking(level, state, pos);
     }
 
-    protected Set<NetworkedPipeEntity> distributeLogisticalNetwork(ServerLevel level, BlockPos pos, Set<NetworkedPipeEntity> visited, PipeNetwork network) {
+    protected Set<NetworkedPipeEntity> distributeNetwork(ServerLevel level, BlockPos pos, Set<NetworkedPipeEntity> visited, PipeNetwork network) {
         if (visited.contains(this)) {
             return visited;
         }
         visited.add(this);
-        for (Direction direction : this.logistics.keySet()) {
-            BlockPos nextPos = this.logistics.get(direction).a();
+        for (Direction direction : this.networkDistances.keySet()) {
+            BlockPos nextPos = this.networkDistances.get(direction).a();
             if (level.getBlockEntity(nextPos) instanceof NetworkedPipeEntity nextPipe) {
-                visited = nextPipe.distributeLogisticalNetwork(level, nextPos, visited, network);
+                visited = nextPipe.distributeNetwork(level, nextPos, visited, network);
             }
         }
         this.setController(pos.equals(network.getPos()));
-        this.setLogisticalNetwork(network, level);
+        this.setNetwork(network, level);
         return visited;
     }
 
     @Override
     public void routeItem(BlockState state, ItemInPipe item) {
-        if (!this.hasLogisticalNetwork()) {
+        if (!this.hasNetwork()) {
             super.routeItem(state, item);
             return;
         }
@@ -80,7 +80,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
             List<NetworkedPipeEntity> validTargets = new ArrayList<>();
             RequestedItem thisRequestedItem = null;
             List<ItemInPipe> spareItems = new ArrayList<>();
-            for (RequestedItem requestedItem : this.getLogisticalNetwork().getRequestedItems()) {
+            for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
                 if (requestedItem.matches(item) && this.getLevel() != null) {
                     NetworkedPipeEntity target = requestedItem.getTarget(this.getLevel());
                     if (target != null) {
@@ -95,19 +95,19 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 }
             }
             if (validTargets.isEmpty()) {
-                for (RoutingPipeEntity routingPipe : this.logisticalNetwork.getRoutingPipes()) {
+                for (RoutingPipeEntity routingPipe : this.network.getRoutingPipes()) {
                     if (routingPipe.canRouteItemHere(item.getStack())) {
                         validTargets.add(routingPipe);
                     }
                 }
             }
             if (validTargets.isEmpty()) {
-                validTargets.addAll(this.logisticalNetwork.getDefaultRoutes());
+                validTargets.addAll(this.network.getDefaultRoutes());
             }
-            if (validTargets.contains(this) && state.getBlock() instanceof NetworkedPipeBlock logisticalBlock) {
+            if (validTargets.contains(this) && state.getBlock() instanceof NetworkedPipeBlock networkedBlock) {
                 List<Direction> validDirections = new ArrayList<>();
                 for (Direction direction : Direction.values()) {
-                    if (this.isPipeConnected(state, direction) && !logisticalBlock.isLinked(state, direction)) {
+                    if (this.isPipeConnected(state, direction) && !networkedBlock.isLinked(state, direction)) {
                         validDirections.add(direction);
                     }
                 }
@@ -123,7 +123,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                     int leftover = item.getStack().getCount() - remaining;
                     thisRequestedItem.arrived(item.getStack().getCount());
                     if (thisRequestedItem.isDelivered()) {
-                        this.getLogisticalNetwork().removeRequestedItem(thisRequestedItem);
+                        this.getNetwork().removeRequestedItem(thisRequestedItem);
                     }
                     if (leftover > 0) {
                         item.setStack(item.getStack().copyWithCount(remaining));
@@ -180,8 +180,8 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                     level.sendBlockUpdated(current.getBlockPos(), current.getBlockState(), current.getBlockState(), 2);
                 }
             }
-            for (Direction side : current.logistics.keySet()) {
-                Tuple<BlockPos, Integer> tuple = current.logistics.get(side);
+            for (Direction side : current.networkDistances.keySet()) {
+                Tuple<BlockPos, Integer> tuple = current.networkDistances.get(side);
                 if (level.getBlockEntity(tuple.a()) instanceof NetworkedPipeEntity neighbour) {
                     int newScore = gScore.get(current) + tuple.b();
                     if (!gScore.containsKey(neighbour) || newScore < gScore.get(neighbour)) {
@@ -197,23 +197,23 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
         }
     }
 
-    public void setLogisticalNetwork(PipeNetwork logisticalNetwork, ServerLevel level) {
-        if (logisticalNetwork != null) {
-            logisticalNetwork.addPipe(this);
+    public void setNetwork(PipeNetwork network, ServerLevel level) {
+        if (network != null) {
+            network.addPipe(this);
         }
-        this.logisticalNetwork = logisticalNetwork;
+        this.network = network;
         this.setChanged();
         if (level != null) {
             level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
         }
     }
 
-    public PipeNetwork getLogisticalNetwork() {
-        return this.logisticalNetwork;
+    public PipeNetwork getNetwork() {
+        return this.network;
     }
 
-    public boolean hasLogisticalNetwork() {
-        return this.logisticalNetwork != null;
+    public boolean hasNetwork() {
+        return this.network != null;
     }
 
     public void setController(boolean controller) {
@@ -227,10 +227,10 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
     public void disconnect(ServerLevel level) {
         this.setController(false);
         this.routingSchedule.clear();
-        if (this.hasLogisticalNetwork()) {
-            this.getLogisticalNetwork().removePipe(this);
+        if (this.hasNetwork()) {
+            this.getNetwork().removePipe(this);
         }
-        this.setLogisticalNetwork(null, level);
+        this.setNetwork(null, level);
     }
 
     public Tuple<Boolean, Set<NetworkedPipeEntity>> stillLinkedToNetwork(PipeNetwork network, ServerLevel level, BlockPos thisPos, Set<NetworkedPipeEntity> visited) {
@@ -241,8 +241,8 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
         if (network.getPos().equals(thisPos)) {
             return new Tuple<>(true, visited);
         }
-        for (Direction direction : this.logistics.keySet()) {
-            BlockPos nextPos = this.logistics.get(direction).a();
+        for (Direction direction : this.networkDistances.keySet()) {
+            BlockPos nextPos = this.networkDistances.get(direction).a();
             if (level.getBlockEntity(nextPos) instanceof NetworkedPipeEntity nextPipe) {
                 Tuple<Boolean, Set<NetworkedPipeEntity>> tuple = nextPipe.stillLinkedToNetwork(network, level, nextPos, visited);
                 visited = tuple.b();
@@ -259,11 +259,11 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
             return new Tuple<>(null, visited);
         }
         visited.add(this);
-        if (this.hasLogisticalNetwork() && this.getLogisticalNetwork().getPos().equals(thisPos)) {
-            return new Tuple<>(this.getLogisticalNetwork(), visited);
+        if (this.hasNetwork() && this.getNetwork().getPos().equals(thisPos)) {
+            return new Tuple<>(this.getNetwork(), visited);
         }
-        for (Direction direction : this.logistics.keySet()) {
-            BlockPos nextPos = this.logistics.get(direction).a();
+        for (Direction direction : this.networkDistances.keySet()) {
+            BlockPos nextPos = this.networkDistances.get(direction).a();
             if (level.getBlockEntity(nextPos) instanceof NetworkedPipeEntity nextPipe) {
                 Tuple<PipeNetwork, Set<NetworkedPipeEntity>> tuple = nextPipe.findLinkedNetwork(level, nextPos, visited);
                 visited = tuple.b();
@@ -281,8 +281,8 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
         }
         visited.add(this);
         this.disconnect(level);
-        for (Direction direction : this.logistics.keySet()) {
-            BlockPos nextPos = this.logistics.get(direction).a();
+        for (Direction direction : this.networkDistances.keySet()) {
+            BlockPos nextPos = this.networkDistances.get(direction).a();
             if (level.getBlockEntity(nextPos) instanceof NetworkedPipeEntity nextPipe) {
                 visited = nextPipe.disconnectAllLinked(level, visited);
             }
@@ -291,22 +291,22 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
     }
 
     public void networkChanged(ServerLevel level, BlockPos pos, boolean isLinked) {
-        if (this.hasLogisticalNetwork()) {
+        if (this.hasNetwork()) {
             if (!isLinked) {
-                if (!this.stillLinkedToNetwork(this.getLogisticalNetwork(), level, pos, new HashSet<>()).a()) {
+                if (!this.stillLinkedToNetwork(this.getNetwork(), level, pos, new HashSet<>()).a()) {
                     this.disconnectAllLinked(level, new HashSet<>());
-                    this.distributeLogisticalNetwork(level, pos, new HashSet<>(), new PipeNetwork(pos));
+                    this.distributeNetwork(level, pos, new HashSet<>(), new PipeNetwork(pos));
                 }
             } else {
-                this.distributeLogisticalNetwork(level, pos, new HashSet<>(), this.getLogisticalNetwork());
+                this.distributeNetwork(level, pos, new HashSet<>(), this.getNetwork());
             }
         } else {
             PipeNetwork network = this.findLinkedNetwork(level, pos, new HashSet<>()).a();
             if (network != null) {
-                this.setLogisticalNetwork(network, level);
+                this.setNetwork(network, level);
                 this.setController(network.getPos().equals(pos));
             } else {
-                this.distributeLogisticalNetwork(level, pos, new HashSet<>(), new PipeNetwork(pos));
+                this.distributeNetwork(level, pos, new HashSet<>(), new PipeNetwork(pos));
             }
         }
     }
@@ -335,10 +335,10 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
         this.routingSchedule.clear();
         this.setController(valueInput.getBooleanOr("controller", false));
         if (this.isController()) {
-            this.logisticalNetwork = new PipeNetwork(this.getBlockPos(), SortingMode.fromByte(valueInput.getByteOr("sorting_mode", (byte) 1)));
+            this.network = new PipeNetwork(this.getBlockPos(), SortingMode.fromByte(valueInput.getByteOr("sorting_mode", (byte) 1)));
             ValueInput.TypedInputList<RequestedItem> requestedItems = valueInput.listOrEmpty("requested_items", RequestedItem.CODEC);
             for (RequestedItem requestedItem : requestedItems) {
-                this.logisticalNetwork.addRequestedItem(requestedItem);
+                this.network.addRequestedItem(requestedItem);
             }
         }
         ValueInput.TypedInputList<ItemStackWithSlot> routingList = valueInput.listOrEmpty("routing_schedule", ItemStackWithSlot.CODEC);
@@ -351,10 +351,10 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
     protected void saveAdditional(ValueOutput valueOutput) {
         super.saveAdditional(valueOutput);
         valueOutput.putBoolean("controller", this.isController());
-        if (this.hasLogisticalNetwork() && this.isController()) {
-            valueOutput.putByte("sorting_mode", this.getLogisticalNetwork().getSortingMode().getValue());
+        if (this.hasNetwork() && this.isController()) {
+            valueOutput.putByte("sorting_mode", this.getNetwork().getSortingMode().getValue());
             ValueOutput.TypedOutputList<RequestedItem> requestedItems = valueOutput.list("requested_items", RequestedItem.CODEC);
-            for (RequestedItem requestedItem : this.getLogisticalNetwork().getRequestedItems()) {
+            for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
                 requestedItems.add(requestedItem);
             }
         }

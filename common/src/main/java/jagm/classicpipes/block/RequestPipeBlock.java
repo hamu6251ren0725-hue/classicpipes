@@ -33,11 +33,11 @@ public class RequestPipeBlock extends NetworkedPipeBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof RequestPipeEntity requestPipe && requestPipe.hasLogisticalNetwork()) {
+        if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof RequestPipeEntity requestPipe && requestPipe.hasNetwork()) {
             Services.LOADER_SERVICE.openMenu(
                     serverPlayer,
                     requestPipe,
-                    requestPipe.getLogisticalNetwork().requestItemList(pos),
+                    requestPipe.getNetwork().requestItemList(pos),
                     ClientBoundItemListPayload.STREAM_CODEC
             );
         }

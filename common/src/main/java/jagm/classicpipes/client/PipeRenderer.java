@@ -43,8 +43,8 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
             }
         }
         if (MiscUtil.DEBUG_MODE) {
-            for (Direction direction : pipe.logistics.keySet()) {
-                Component component = Component.literal(String.valueOf(pipe.logistics.get(direction).b()));
+            for (Direction direction : pipe.networkDistances.keySet()) {
+                Component component = Component.literal(String.valueOf(pipe.networkDistances.get(direction).b()));
                 poses.pushPose();
                 poses.translate(
                         0.5F + (direction.equals(Direction.EAST) ? 0.375F : (direction.equals(Direction.WEST) ? -0.375F : 0.0F)),
@@ -60,7 +60,7 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                 font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
                 poses.popPose();
             }
-            if (pipe instanceof NetworkedPipeEntity logisticalPipe && logisticalPipe.isController()) {
+            if (pipe instanceof NetworkedPipeEntity networkedPipe && networkedPipe.isController()) {
                 Component component = Component.literal("CONTROLLER");
                 poses.pushPose();
                 poses.translate(0.5F, 0.5F, 0.5F);

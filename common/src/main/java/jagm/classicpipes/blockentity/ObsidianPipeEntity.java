@@ -39,7 +39,7 @@ public class ObsidianPipeEntity extends AbstractPipeEntity {
     }
 
     @Override
-    protected boolean canJoinLogisticalNetwork() {
+    protected boolean canJoinNetwork() {
         return false;
     }
 

@@ -112,7 +112,7 @@ public class RequestMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (this.controllerPipe instanceof NetworkedPipeEntity controller && this.requestPipe instanceof NetworkedPipeEntity requester) {
-            return player.level().getBlockEntity(controller.getBlockPos()) == controller && Container.stillValidBlockEntity(requester, player) && controller.isController() && controller.getLogisticalNetwork() == requester.getLogisticalNetwork();
+            return player.level().getBlockEntity(controller.getBlockPos()) == controller && Container.stillValidBlockEntity(requester, player) && controller.isController() && controller.getNetwork() == requester.getNetwork();
         }
         return false;
     }
