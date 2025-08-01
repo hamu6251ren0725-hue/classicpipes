@@ -45,6 +45,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerMenu("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);
         registerMenu("provider_pipe", ClassicPipes.PROVIDER_PIPE_MENU);
         registerMenu("request", ClassicPipes.REQUEST_MENU);
+        registerMenu("stocking_pipe", ClassicPipes.STOCKING_PIPE_MENU);
 
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
 
@@ -53,6 +54,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerServerPayload(ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
         registerServerPayload(ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
         registerServerPayload(ServerBoundRequestPayload.TYPE, ServerBoundRequestPayload.STREAM_CODEC);
+        registerServerPayload(ServerBoundActiveStockingPayload.TYPE, ServerBoundActiveStockingPayload.STREAM_CODEC);
 
         registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
 

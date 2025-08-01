@@ -46,6 +46,7 @@
   "container.classicpipes.provider_pipe": "Items to provide, blank for all:",
   "container.classicpipes.request": "Request from network",
   "container.classicpipes.request.amount": "Request amount",
+  "container.classicpipes.stocking_pipe": "Items to keep stocked:",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
   "direction.classicpipes.south": "South",
@@ -67,7 +68,9 @@
   "widget.classicpipes.sort_by": "Sort by:",
   "widget.classicpipes.request": "Request",
   "widget.classicpipes.cancel": "Cancel",
+  "widget.classicpipes.active_stocking": "Active stocking",
   "tooltip.classicpipes.match_components": "If this is checked, the components of an item (damage, enchantments, etc.) must match the item in the filter.",
   "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go.",
-  "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network."
+  "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network.",
+  "tooltip.classicpipes.active_stocking": "If this is checked, this pipe will actively request items from the network. Otherwise, it will passively stock the container when the matching items happen to pass through the network."
 }

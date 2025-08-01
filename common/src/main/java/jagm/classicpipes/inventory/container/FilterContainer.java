@@ -2,6 +2,7 @@ package jagm.classicpipes.inventory.container;
 
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
+import jagm.classicpipes.blockentity.StockingPipeEntity;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -64,6 +65,8 @@ public class FilterContainer implements Filter {
             this.pipe.setChanged();
             if (this.pipe instanceof ProviderPipeEntity providerPipe) {
                 providerPipe.updateCache();
+            } else if (this.pipe instanceof StockingPipeEntity stockingPipe) {
+                stockingPipe.updateCache();
             }
         }
     }

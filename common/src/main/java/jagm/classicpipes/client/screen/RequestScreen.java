@@ -1,6 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.client.screen.widget.PageButton;
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.network.ServerBoundRequestPayload;
 import jagm.classicpipes.services.Services;
@@ -153,24 +154,22 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
     private void renderItemCount(GuiGraphics graphics, Font font, ItemStack stack, int x, int y) {
         int count = stack.getCount();
-        if (count != 1) {
-            String s = stringForCount(count);
-            float countScale = 1.0F;
-            if (this.minecraft != null) {
-                final int guiScale = this.minecraft.getWindow().getGuiScale();
-                int numerator = guiScale;
-                while (font.width(s) * countScale > 16 && numerator > 1) {
-                    numerator--;
-                    countScale = (float) numerator / guiScale;
-                }
+        String s = stringForCount(count);
+        float countScale = 1.0F;
+        if (this.minecraft != null) {
+            final int guiScale = this.minecraft.getWindow().getGuiScale();
+            int numerator = guiScale;
+            while (font.width(s) * countScale > 16 && numerator > 1) {
+                numerator--;
+                countScale = (float) numerator / guiScale;
             }
-            int slotOffset = countScale == 1.0F ? 17 : 16;
-            graphics.pose().pushMatrix();
-            graphics.pose().translate(x + slotOffset, y + slotOffset);
-            graphics.pose().scale(countScale);
-            graphics.drawString(font, s, -font.width(s), -8, -1, true);
-            graphics.pose().popMatrix();
         }
+        int slotOffset = countScale == 1.0F ? 17 : 16;
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(x + slotOffset, y + slotOffset);
+        graphics.pose().scale(countScale);
+        graphics.drawString(font, s, -font.width(s), -8, -1, true);
+        graphics.pose().popMatrix();
     }
 
     private static String stringForCount(int count) {

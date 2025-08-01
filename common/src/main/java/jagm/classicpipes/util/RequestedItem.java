@@ -30,7 +30,11 @@ public class RequestedItem {
     }
 
     public boolean matches(ItemInPipe pipeItem) {
-        return ItemStack.isSameItemSameComponents(pipeItem.getStack(), this.stack);
+        return this.matches(pipeItem.getStack());
+    }
+
+    public boolean matches(ItemStack stack) {
+        return ItemStack.isSameItemSameComponents(stack, this.stack);
     }
 
     public NetworkedPipeEntity getTarget(Level level) {

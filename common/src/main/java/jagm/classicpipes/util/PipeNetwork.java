@@ -3,13 +3,13 @@ package jagm.classicpipes.util;
 import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
+import jagm.classicpipes.blockentity.StockingPipeEntity;
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
@@ -22,6 +22,7 @@ public class PipeNetwork {
     private final Set<RoutingPipeEntity> routingPipes;
     private final Set<RoutingPipeEntity> defaultRoutes;
     private final Set<ProviderPipeEntity> providerPipes;
+    private final Set<StockingPipeEntity> stockingPipes;
     private SortingMode sortingMode;
     private boolean cacheChanged;
     private byte cacheCooldown;
@@ -31,6 +32,7 @@ public class PipeNetwork {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
         this.providerPipes = new HashSet<>();
+        this.stockingPipes = new HashSet<>();
         this.sortingMode = sortingMode;
         this.pos = pos;
         this.cacheChanged = false;
@@ -42,10 +44,10 @@ public class PipeNetwork {
         this(pos, SortingMode.AMOUNT_DESCENDING);
     }
 
-    public List<ItemStack> request(ServerLevel level, ItemStack stack, BlockPos requestPos, Player player) {
+    public List<MissingItem> request(ServerLevel level, ItemStack stack, BlockPos requestPos, String playerName) {
         ItemStack originalStack = stack.copy();
         Map<ProviderPipeEntity, Integer> extractionSchedule = new HashMap<>();
-        List<ItemStack> missingItems = new ArrayList<>();
+        List<MissingItem> missingItems = new ArrayList<>();
         for (ProviderPipeEntity providerPipe : this.providerPipes) {
             if (stack.isEmpty()) {
                 break;
@@ -60,12 +62,12 @@ public class PipeNetwork {
             }
         }
         if (stack.isEmpty()) {
-            RequestedItem requestedItem = new RequestedItem(originalStack, requestPos, player.getName().getString());
+            RequestedItem requestedItem = new RequestedItem(originalStack, requestPos, playerName);
             this.requestedItems.add(requestedItem);
             for (ProviderPipeEntity providerPipe : extractionSchedule.keySet()) {
                 ItemStack toExtract = originalStack.copyWithCount(extractionSchedule.get(providerPipe));
                 if (!providerPipe.extractItem(level, toExtract)) {
-                    missingItems.add(toExtract);
+                    missingItems.add(new MissingItem(toExtract));
                     break;
                 }
             }
@@ -73,7 +75,7 @@ public class PipeNetwork {
                 this.requestedItems.remove(requestedItem);
             }
         } else {
-            missingItems.add(stack);
+            missingItems.add(new MissingItem(stack));
         }
         return missingItems;
     }
@@ -82,9 +84,14 @@ public class PipeNetwork {
         if (this.cacheChanged && this.cacheCooldown <= 0) {
             List<ServerPlayer> playerList = level.getPlayers(player -> player.containerMenu instanceof RequestMenu menu && menu.getNetworkPos().equals(this.getPos()));
             if (!playerList.isEmpty()) {
-                ClientBoundItemListPayload toSend = this.requestItemList(BlockPos.ZERO);
+                ClientBoundItemListPayload toSend = this.requestItemList(this.pos);
                 for (ServerPlayer player : playerList) {
                     Services.LOADER_SERVICE.sendToClient(player, toSend);
+                }
+            }
+            for (StockingPipeEntity stockingPipe : this.stockingPipes) {
+                if (stockingPipe.isActiveStocking()) {
+                    stockingPipe.tryRequests(level);
                 }
             }
             this.cacheChanged = false;
@@ -103,6 +110,10 @@ public class PipeNetwork {
         return this.defaultRoutes;
     }
 
+    public Set<StockingPipeEntity> getStockingPipes() {
+        return this.stockingPipes;
+    }
+
     public BlockPos getPos() {
         return this.pos;
     }
@@ -115,6 +126,8 @@ public class PipeNetwork {
             }
         } else if (pipe instanceof ProviderPipeEntity providerPipe) {
             this.providerPipes.add(providerPipe);
+        } else if (pipe instanceof StockingPipeEntity stockingPipe) {
+            this.stockingPipes.add(stockingPipe);
         }
     }
 
@@ -126,6 +139,8 @@ public class PipeNetwork {
             }
         } else if (pipe instanceof ProviderPipeEntity providerPipe) {
             this.providerPipes.remove(providerPipe);
+        } else if (pipe instanceof StockingPipeEntity stockingPipe) {
+            this.stockingPipes.remove(stockingPipe);
         }
     }
 

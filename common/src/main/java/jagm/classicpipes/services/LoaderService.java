@@ -44,6 +44,8 @@ public interface LoaderService {
 
     List<ItemStack> getExtractableItems(ServerLevel level, BlockPos pos, Direction face);
 
+    List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face);
+
     boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack);
 
     String getModName(String modId);

@@ -1,4 +1,4 @@
-package jagm.classicpipes.client.screen;
+package jagm.classicpipes.client.screen.widget;
 
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,7 +18,7 @@ public class IncreaseButton extends Button {
 
     private final boolean decrease;
 
-    protected IncreaseButton(int x, int y, boolean decrease, boolean active, Button.OnPress onPress) {
+    public IncreaseButton(int x, int y, boolean decrease, boolean active, Button.OnPress onPress) {
         super(x, y, 12, 8, CommonComponents.EMPTY, onPress, DEFAULT_NARRATION);
         this.decrease = decrease;
         this.active = active;

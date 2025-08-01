@@ -1,5 +1,6 @@
 package jagm.classicpipes.client.screen;
 
+import jagm.classicpipes.client.screen.widget.SmallerCheckbox;
 import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
 import jagm.classicpipes.network.ServerBoundDefaultRoutePayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;

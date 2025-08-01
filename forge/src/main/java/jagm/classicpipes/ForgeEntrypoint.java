@@ -1,10 +1,7 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
-import jagm.classicpipes.client.screen.DiamondPipeScreen;
-import jagm.classicpipes.client.screen.ProviderPipeScreen;
-import jagm.classicpipes.client.screen.RequestScreen;
-import jagm.classicpipes.client.screen.RoutingPipeScreen;
+import jagm.classicpipes.client.screen.*;
 import jagm.classicpipes.network.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
@@ -53,6 +50,7 @@ public class ForgeEntrypoint {
                 helper.register("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);
                 helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_MENU);
                 helper.register("request", ClassicPipes.REQUEST_MENU);
+                helper.register("stocking_pipe", ClassicPipes.STOCKING_PIPE_MENU);
             });
 
         }
@@ -65,6 +63,7 @@ public class ForgeEntrypoint {
                 ForgePacketHandler.registerServerPayload(ServerBoundLeaveOnePayload.class, ServerBoundLeaveOnePayload.STREAM_CODEC);
                 ForgePacketHandler.registerServerPayload(ServerBoundSortingModePayload.class, ServerBoundSortingModePayload.STREAM_CODEC);
                 ForgePacketHandler.registerServerPayload(ServerBoundRequestPayload.class, ServerBoundRequestPayload.STREAM_CODEC);
+                ForgePacketHandler.registerServerPayload(ServerBoundActiveStockingPayload.class, ServerBoundActiveStockingPayload.STREAM_CODEC);
                 ForgePacketHandler.registerClientPayload(ClientBoundItemListPayload.class, ClientBoundItemListPayload.STREAM_CODEC);
             });
         }
@@ -104,6 +103,7 @@ public class ForgeEntrypoint {
                 MenuScreens.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);
                 MenuScreens.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
                 MenuScreens.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
+                MenuScreens.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
             });
         }
 

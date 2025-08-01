@@ -1,4 +1,4 @@
-package jagm.classicpipes.client.screen;
+package jagm.classicpipes.client.screen.widget;
 
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,7 +18,7 @@ public class PageButton extends Button {
 
     private final boolean prev;
 
-    protected PageButton(int x, int y, boolean prev, boolean active, OnPress onPress) {
+    public PageButton(int x, int y, boolean prev, boolean active, OnPress onPress) {
         super(x, y, 8, 12, CommonComponents.EMPTY, onPress, DEFAULT_NARRATION);
         this.prev = prev;
         this.active = active;

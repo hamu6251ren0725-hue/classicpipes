@@ -1,6 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.client.screen.widget.SmallerCheckbox;
 import jagm.classicpipes.inventory.menu.DiamondPipeMenu;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;

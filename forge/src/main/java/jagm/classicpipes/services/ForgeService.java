@@ -199,6 +199,36 @@ public class ForgeService implements LoaderService {
         return List.of();
     }
 
+    public List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity != null) {
+            Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
+            if (itemHandlerOptional.isPresent()) {
+                IItemHandler itemHandler = itemHandlerOptional.get();
+                List<ItemStack> stacks = new ArrayList<>();
+                for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+                    ItemStack slotStack = itemHandler.getStackInSlot(slot);
+                    if (slotStack.isEmpty()) {
+                        continue;
+                    }
+                    boolean matched = false;
+                    for (ItemStack stack : stacks) {
+                        if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
+                            stack.setCount(stack.getCount() + slotStack.getCount());
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        stacks.add(slotStack);
+                    }
+                }
+                return stacks;
+            }
+        }
+        return List.of();
+    }
+
     @Override
     public boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);

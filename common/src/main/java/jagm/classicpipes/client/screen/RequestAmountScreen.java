@@ -1,6 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.client.screen.widget.IncreaseButton;
 import jagm.classicpipes.network.ServerBoundRequestPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -20,7 +21,7 @@ public class RequestAmountScreen extends Screen {
     private static final int IMAGE_HEIGHT = 96;
     private static final int ITEM_X = 62;
     private static final int ITEM_Y = 36;
-    private static final int MAX_REQUEST = 1024;
+    private static final int MAX_REQUEST = 999;
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/request_amount.png");
 
     private final RequestScreen previousScreen;

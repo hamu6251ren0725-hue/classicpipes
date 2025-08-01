@@ -1,8 +1,8 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.client.screen.widget.SmallerCheckbox;
-import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
-import jagm.classicpipes.network.ServerBoundLeaveOnePayload;
+import jagm.classicpipes.inventory.menu.StockingPipeMenu;
+import jagm.classicpipes.network.ServerBoundActiveStockingPayload;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -14,11 +14,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class ProviderPipeScreen extends AbstractContainerScreen<ProviderPipeMenu> {
+public class StockingPipeScreen extends AbstractContainerScreen<StockingPipeMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/netherite_pipe.png");
 
-    public ProviderPipeScreen(ProviderPipeMenu menu, Inventory playerInventory, Component title) {
+    public StockingPipeScreen(StockingPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -35,22 +35,22 @@ public class ProviderPipeScreen extends AbstractContainerScreen<ProviderPipeMenu
         );
         this.addRenderableWidget(SmallerCheckbox.builder()
                 .pos(this.leftPos + 8, this.topPos + 54)
-                .onValueChange(this::leaveOneCheckboxChanged)
-                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.leave_one")))
-                .selected(this.getMenu().shouldLeaveOne())
-                .label(Component.translatable("widget.classicpipes.leave_one"), this.font)
+                .onValueChange(this::activeStockingCheckboxChanged)
+                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.active_stocking")))
+                .selected(this.getMenu().isActiveStocking())
+                .label(Component.translatable("widget.classicpipes.active_stocking"), this.font)
                 .build()
         );
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, float f) {
-        super.render(graphics, x, y, f);
-        this.renderTooltip(graphics, x, y);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float f, int x, int y) {
+    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
@@ -60,8 +60,8 @@ public class ProviderPipeScreen extends AbstractContainerScreen<ProviderPipeMenu
         Services.LOADER_SERVICE.sendToServer(new ServerBoundMatchComponentsPayload(checked));
     }
 
-    private void leaveOneCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        Services.LOADER_SERVICE.sendToServer(new ServerBoundLeaveOnePayload(checked));
+    private void activeStockingCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
+        Services.LOADER_SERVICE.sendToServer(new ServerBoundActiveStockingPayload(checked));
     }
 
 }

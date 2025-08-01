@@ -171,6 +171,32 @@ public class NeoForgeService implements LoaderService {
         return List.of();
     }
 
+    public List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face) {
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face);
+        if (itemHandler != null) {
+            List<ItemStack> stacks = new ArrayList<>();
+            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+                ItemStack slotStack = itemHandler.getStackInSlot(slot);
+                if (slotStack.isEmpty()) {
+                    continue;
+                }
+                boolean matched = false;
+                for (ItemStack stack : stacks) {
+                    if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
+                        stack.setCount(stack.getCount() + slotStack.getCount());
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    stacks.add(slotStack);
+                }
+            }
+            return stacks;
+        }
+        return List.of();
+    }
+
     @Override
     public String getModName(String modId) {
         return ModList.get().getModContainerById(modId).map(ModContainer::getModInfo).map(IModInfo::getDisplayName).orElse(modId);

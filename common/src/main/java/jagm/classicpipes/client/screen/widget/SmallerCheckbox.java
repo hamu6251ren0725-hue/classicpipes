@@ -1,4 +1,4 @@
-package jagm.classicpipes.client.screen;
+package jagm.classicpipes.client.screen.widget;
 
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.Font;

@@ -1,10 +1,7 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.client.PipeRenderer;
-import jagm.classicpipes.client.screen.DiamondPipeScreen;
-import jagm.classicpipes.client.screen.ProviderPipeScreen;
-import jagm.classicpipes.client.screen.RequestScreen;
-import jagm.classicpipes.client.screen.RoutingPipeScreen;
+import jagm.classicpipes.client.screen.*;
 import jagm.classicpipes.network.*;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.registries.Registries;
@@ -57,6 +54,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("request"), ClassicPipes.REQUEST_MENU);
+                helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_MENU);
             });
 
         }
@@ -69,6 +67,7 @@ public class NeoForgeEntrypoint {
             registerServerPayload(registrar, ServerBoundLeaveOnePayload.TYPE, ServerBoundLeaveOnePayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundRequestPayload.TYPE, ServerBoundRequestPayload.STREAM_CODEC);
+            registerServerPayload(registrar, ServerBoundActiveStockingPayload.TYPE, ServerBoundActiveStockingPayload.STREAM_CODEC);
             registerClientPayload(registrar, ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
         }
 
@@ -114,6 +113,7 @@ public class NeoForgeEntrypoint {
             event.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);
             event.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
             event.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
+            event.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
         }
 
     }
