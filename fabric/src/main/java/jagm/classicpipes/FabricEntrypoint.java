@@ -41,6 +41,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
         registerBlockEntity("stocking_pipe", ClassicPipes.STOCKING_PIPE_ENTITY);
         registerBlockEntity("matching_pipe", ClassicPipes.MATCHING_PIPE_ENTITY);
+        registerBlockEntity("crafting_pipe", ClassicPipes.CRAFTING_PIPE_ENTITY);
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);

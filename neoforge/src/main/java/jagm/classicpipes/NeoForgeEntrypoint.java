@@ -48,6 +48,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("request_pipe"), ClassicPipes.REQUEST_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("crafting_pipe"), ClassicPipes.CRAFTING_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
