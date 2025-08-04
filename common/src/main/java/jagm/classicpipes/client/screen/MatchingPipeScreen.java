@@ -1,8 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.client.screen.widget.SmallerCheckbox;
-import jagm.classicpipes.inventory.menu.StockingPipeMenu;
-import jagm.classicpipes.network.ServerBoundActiveStockingPayload;
+import jagm.classicpipes.inventory.menu.MatchingPipeMenu;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -14,31 +13,25 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class StockingPipeScreen extends AbstractContainerScreen<StockingPipeMenu> {
+public class MatchingPipeScreen extends AbstractContainerScreen<MatchingPipeMenu> {
 
-    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/netherite_pipe.png");
+    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/matching_pipe.png");
 
-    public StockingPipeScreen(StockingPipeMenu menu, Inventory playerInventory, Component title) {
+    public MatchingPipeScreen(MatchingPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.imageHeight = 148;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
     protected void init() {
         super.init();
         this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 38)
+                .pos(this.leftPos + 8, this.topPos + 20)
                 .onValueChange(this::matchComponentsCheckboxChanged)
-                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components")))
-                .selected(this.getMenu().getFilter().shouldMatchComponents())
+                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.match_components_alt")))
+                .selected(this.getMenu().shouldMatchComponents())
                 .label(Component.translatable("widget.classicpipes.match_components"), this.font)
-                .build()
-        );
-        this.addRenderableWidget(SmallerCheckbox.builder()
-                .pos(this.leftPos + 8, this.topPos + 54)
-                .onValueChange(this::activeStockingCheckboxChanged)
-                .tooltip(Tooltip.create(Component.translatable("tooltip.classicpipes.active_stocking")))
-                .selected(this.getMenu().isActiveStocking())
-                .label(Component.translatable("widget.classicpipes.active_stocking"), this.font)
                 .build()
         );
     }
@@ -58,10 +51,6 @@ public class StockingPipeScreen extends AbstractContainerScreen<StockingPipeMenu
 
     private void matchComponentsCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
         Services.LOADER_SERVICE.sendToServer(new ServerBoundMatchComponentsPayload(checked));
-    }
-
-    private void activeStockingCheckboxChanged(SmallerCheckbox checkbox, boolean checked) {
-        Services.LOADER_SERVICE.sendToServer(new ServerBoundActiveStockingPayload(checked));
     }
 
 }

@@ -1,6 +1,7 @@
 package jagm.classicpipes.network;
 
 import jagm.classicpipes.inventory.menu.FilterMenu;
+import jagm.classicpipes.inventory.menu.MatchingPipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,8 +25,12 @@ public record ServerBoundMatchComponentsPayload(boolean matchComponents) impleme
 
     @Override
     public void handle(Player player) {
-        if (player != null && player.containerMenu instanceof FilterMenu menu) {
-            menu.getFilter().setMatchComponents(this.matchComponents());
+        if (player != null) {
+            if (player.containerMenu instanceof FilterMenu menu) {
+                menu.getFilter().setMatchComponents(this.matchComponents());
+            } else if (player.containerMenu instanceof MatchingPipeMenu menu) {
+                menu.setMatchComponents(this.matchComponents());
+            }
         }
     }
 

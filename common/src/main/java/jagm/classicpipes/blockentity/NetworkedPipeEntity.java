@@ -110,6 +110,13 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 }
             }
             if (validTargets.isEmpty()) {
+                for (MatchingPipeEntity matchingPipe : this.network.getMatchingPipes()) {
+                    if (matchingPipe.matches(item.getStack())) {
+                        validTargets.add(matchingPipe);
+                    }
+                }
+            }
+            if (validTargets.isEmpty()) {
                 for (RoutingPipeEntity routingPipe : this.network.getRoutingPipes()) {
                     if (routingPipe.canRouteItemHere(item.getStack())) {
                         validTargets.add(routingPipe);

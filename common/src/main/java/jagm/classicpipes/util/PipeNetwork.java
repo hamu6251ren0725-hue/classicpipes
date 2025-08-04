@@ -1,9 +1,6 @@
 package jagm.classicpipes.util;
 
-import jagm.classicpipes.blockentity.NetworkedPipeEntity;
-import jagm.classicpipes.blockentity.ProviderPipeEntity;
-import jagm.classicpipes.blockentity.RoutingPipeEntity;
-import jagm.classicpipes.blockentity.StockingPipeEntity;
+import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.RequestMenu;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.services.Services;
@@ -23,6 +20,7 @@ public class PipeNetwork {
     private final Set<RoutingPipeEntity> defaultRoutes;
     private final Set<ProviderPipeEntity> providerPipes;
     private final Set<StockingPipeEntity> stockingPipes;
+    private final Set<MatchingPipeEntity> matchingPipes;
     private SortingMode sortingMode;
     private boolean cacheChanged;
     private byte cacheCooldown;
@@ -33,6 +31,7 @@ public class PipeNetwork {
         this.defaultRoutes = new HashSet<>();
         this.providerPipes = new HashSet<>();
         this.stockingPipes = new HashSet<>();
+        this.matchingPipes = new HashSet<>();
         this.sortingMode = sortingMode;
         this.pos = pos;
         this.cacheChanged = false;
@@ -114,6 +113,10 @@ public class PipeNetwork {
         return this.stockingPipes;
     }
 
+    public Set<MatchingPipeEntity> getMatchingPipes() {
+        return this.matchingPipes;
+    }
+
     public BlockPos getPos() {
         return this.pos;
     }
@@ -128,6 +131,8 @@ public class PipeNetwork {
             this.providerPipes.add(providerPipe);
         } else if (pipe instanceof StockingPipeEntity stockingPipe) {
             this.stockingPipes.add(stockingPipe);
+        } else if (pipe instanceof MatchingPipeEntity matchingPipe) {
+            this.matchingPipes.add(matchingPipe);
         }
     }
 
@@ -141,6 +146,8 @@ public class PipeNetwork {
             this.providerPipes.remove(providerPipe);
         } else if (pipe instanceof StockingPipeEntity stockingPipe) {
             this.stockingPipes.remove(stockingPipe);
+        } else if (pipe instanceof MatchingPipeEntity matchingPipe) {
+            this.matchingPipes.remove(matchingPipe);
         }
     }
 

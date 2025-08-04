@@ -43,6 +43,7 @@ public class ForgeEntrypoint {
                 helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
                 helper.register("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
                 helper.register("stocking_pipe", ClassicPipes.STOCKING_PIPE_ENTITY);
+                helper.register("matching_pipe", ClassicPipes.MATCHING_PIPE_ENTITY);
             });
 
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
@@ -51,6 +52,7 @@ public class ForgeEntrypoint {
                 helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_MENU);
                 helper.register("request", ClassicPipes.REQUEST_MENU);
                 helper.register("stocking_pipe", ClassicPipes.STOCKING_PIPE_MENU);
+                helper.register("matching_pipe", ClassicPipes.MATCHING_PIPE_MENU);
             });
 
         }
@@ -87,6 +89,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent
@@ -104,6 +107,7 @@ public class ForgeEntrypoint {
                 MenuScreens.register(ClassicPipes.PROVIDER_PIPE_MENU, ProviderPipeScreen::new);
                 MenuScreens.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
                 MenuScreens.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
+                MenuScreens.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
             });
         }
 
