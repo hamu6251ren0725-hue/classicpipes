@@ -37,6 +37,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         MenuScreens.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
         MenuScreens.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
         MenuScreens.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
+        MenuScreens.register(ClassicPipes.CRAFTING_PIPE_MENU, CraftingPipeScreen::new);
 
     }
 

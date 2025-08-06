@@ -25,7 +25,7 @@ public class FilterContainer implements Filter {
 
     @Override
     public int getMaxStackSize() {
-        return 1;
+        return 999;
     }
 
     @Override

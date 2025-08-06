@@ -4,6 +4,7 @@ import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.*;
 import jagm.classicpipes.network.ClientBoundBoolPayload;
+import jagm.classicpipes.network.ClientBoundCraftingPipePayload;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import jagm.classicpipes.services.Services;
@@ -100,6 +101,7 @@ public class ClassicPipes {
     public static final MenuType<RequestMenu> REQUEST_MENU = Services.LOADER_SERVICE.createMenuType(RequestMenu::new, ClientBoundItemListPayload.STREAM_CODEC);
     public static final MenuType<StockingPipeMenu> STOCKING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(StockingPipeMenu::new, ClientBoundTwoBoolsPayload.STREAM_CODEC);
     public static final MenuType<MatchingPipeMenu> MATCHING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(MatchingPipeMenu::new, ClientBoundBoolPayload.STREAM_CODEC);
+    public static final MenuType<CraftingPipeMenu> CRAFTING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(CraftingPipeMenu::new, ClientBoundCraftingPipePayload.STREAM_CODEC);
 
     private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

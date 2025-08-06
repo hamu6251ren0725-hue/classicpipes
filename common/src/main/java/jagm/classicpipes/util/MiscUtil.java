@@ -43,6 +43,10 @@ public class MiscUtil {
         return Direction.from3DDataValue((direction.get3DDataValue() + 1) % 6);
     }
 
+    public static Direction prevDirection(Direction direction) {
+        return Direction.from3DDataValue((direction.get3DDataValue() + 5) % 6);
+    }
+
     public static boolean itemIsPipe(ItemStack stack) {
         if (stack.getItem() instanceof BlockItem blockItem) {
             return blockItem.getBlock() instanceof AbstractPipeBlock;

@@ -1,7 +1,7 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.inventory.container.FilterContainer;
+import jagm.classicpipes.inventory.container.SingleItemFilterContainer;
 import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,12 +17,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 public class RoutingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
-    private final FilterContainer filter;
+    private final SingleItemFilterContainer filter;
     private boolean defaultRoute;
 
     public RoutingPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.ROUTING_PIPE_ENTITY, pos, state);
-        this.filter = new FilterContainer(this, 9, false);
+        this.filter = new SingleItemFilterContainer(this, 9, false);
         this.defaultRoute = false;
     }
 

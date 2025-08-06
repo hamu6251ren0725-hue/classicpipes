@@ -58,6 +58,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("request"), ClassicPipes.REQUEST_MENU);
                 helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("crafting_pipe"), ClassicPipes.CRAFTING_PIPE_MENU);
             });
 
         }
@@ -71,6 +72,7 @@ public class NeoForgeEntrypoint {
             registerServerPayload(registrar, ServerBoundSortingModePayload.TYPE, ServerBoundSortingModePayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundRequestPayload.TYPE, ServerBoundRequestPayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundActiveStockingPayload.TYPE, ServerBoundActiveStockingPayload.STREAM_CODEC);
+            registerServerPayload(registrar, ServerBoundSlotDirectionPayload.TYPE, ServerBoundSlotDirectionPayload.STREAM_CODEC);
             registerClientPayload(registrar, ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
         }
 
@@ -119,6 +121,7 @@ public class NeoForgeEntrypoint {
             event.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
             event.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
             event.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
+            event.register(ClassicPipes.CRAFTING_PIPE_MENU, CraftingPipeScreen::new);
         }
 
     }

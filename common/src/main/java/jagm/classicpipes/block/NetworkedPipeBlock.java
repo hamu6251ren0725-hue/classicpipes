@@ -35,7 +35,7 @@ public class NetworkedPipeBlock extends AbstractPipeBlock {
     public static final EnumProperty<ConnectionState> WEST = EnumProperty.create("west", ConnectionState.class, ConnectionState.values());
     public static final EnumProperty<ConnectionState> UP = EnumProperty.create("up", ConnectionState.class, ConnectionState.values());
     public static final EnumProperty<ConnectionState> DOWN = EnumProperty.create("down", ConnectionState.class, ConnectionState.values());
-    private static final Map<Direction, EnumProperty<ConnectionState>> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN)));
+    public static final Map<Direction, EnumProperty<ConnectionState>> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN)));
 
     public NetworkedPipeBlock(BlockBehaviour.Properties properties) {
         super(properties);

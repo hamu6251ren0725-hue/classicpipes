@@ -1,31 +1,48 @@
 package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.StockingPipeEntity;
-import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
+import jagm.classicpipes.network.ClientBoundCraftingPipePayload;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class StockingPipeMenu extends FilterMenu {
+public class CraftingPipeMenu extends FilterMenu {
 
-    private boolean activeStocking;
+    private final Direction[] ioDirections;
+    private final BlockPos pos;
 
-    public StockingPipeMenu(int id, Inventory playerInventory, ClientBoundTwoBoolsPayload payload) {
-        this(id, playerInventory, new FilterContainer(null, 9, payload.first()), payload.second());
+    public CraftingPipeMenu(int id, Inventory playerInventory, ClientBoundCraftingPipePayload payload) {
+        this(id, playerInventory, new FilterContainer(null, 10, true), payload.slotDirections(), payload.pos());
     }
 
-    public StockingPipeMenu(int id, Inventory playerInventory, Filter filter, boolean activeStocking) {
-        super(ClassicPipes.STOCKING_PIPE_MENU, id, filter);
-        this.activeStocking = activeStocking;
-        for (int j = 0; j < 9; j++) {
-            this.addSlot(new FilterSlot(filter, j, 8 + j * 18, 18));
+    public CraftingPipeMenu(int id, Inventory playerInventory, FilterContainer filter, Direction[] ioDirections, BlockPos pos) {
+        super(ClassicPipes.CRAFTING_PIPE_MENU, id, filter);
+        this.ioDirections = ioDirections;
+        this.pos = pos;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                this.addSlot(new FilterSlot(filter, j + i * 3, 53 + j * 18, 17 + i * 18));
+            }
         }
-        this.addStandardInventorySlots(playerInventory, 8, 84);
+        this.addSlot(new FilterSlot(filter, 9, 125, 35));
+        this.addStandardInventorySlots(playerInventory, 8, 107);
+    }
+
+    public void setSlotDirection(int slot, Direction direction) {
+        this.ioDirections[slot] = direction;
+    }
+
+    public Direction getSlotDirection(int slot) {
+        return this.ioDirections[slot];
+    }
+
+    public BlockPos getPos() {
+        return this.pos;
     }
 
     @Override
@@ -57,17 +74,6 @@ public class StockingPipeMenu extends FilterMenu {
                 }
             }
             slot.setChanged();
-        }
-    }
-
-    public boolean isActiveStocking() {
-        return this.activeStocking;
-    }
-
-    public void setActiveStocking(boolean activeStocking) {
-        this.activeStocking = activeStocking;
-        if (this.getFilter().getPipe() instanceof StockingPipeEntity stockingPipe) {
-            stockingPipe.setActiveStocking(activeStocking);
         }
     }
 

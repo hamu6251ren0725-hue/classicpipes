@@ -2,7 +2,7 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.ProviderPipeBlock;
-import jagm.classicpipes.inventory.container.FilterContainer;
+import jagm.classicpipes.inventory.container.SingleItemFilterContainer;
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
@@ -27,14 +27,14 @@ import java.util.List;
 
 public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
-    private final FilterContainer filter;
+    private final SingleItemFilterContainer filter;
     private boolean leaveOne;
     private List<ItemStack> cache;
     private boolean cacheInitialised = false;
 
     public ProviderPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.PROVIDER_PIPE_ENTITY, pos, state);
-        this.filter = new FilterContainer(this, 9, false);
+        this.filter = new SingleItemFilterContainer(this, 9, false);
         this.leaveOne = false;
         this.cache = new ArrayList<>();
     }

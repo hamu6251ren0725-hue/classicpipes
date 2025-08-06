@@ -53,12 +53,19 @@
   "container.classicpipes.request.amount": "Request amount",
   "container.classicpipes.stocking_pipe": "Items to keep stocked:",
   "container.classicpipes.matching_pipe": "Matching adjacent container",
+  "container.classicpipes.crafting_pipe": "Set recipe:",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
   "direction.classicpipes.south": "South",
   "direction.classicpipes.west": "West",
   "direction.classicpipes.up": "Up",
   "direction.classicpipes.down": "Down",
+  "direction.classicpipes.short.north": "N",
+  "direction.classicpipes.short.east": "E",
+  "direction.classicpipes.short.south": "S",
+  "direction.classicpipes.short.west": "W",
+  "direction.classicpipes.short.up": "U",
+  "direction.classicpipes.short.down": "D",
   "widget.classicpipes.match_components": "Match components",
   "widget.classicpipes.default_route": "Default route",
   "widget.classicpipes.leave_one": "Leave one",
@@ -79,5 +86,7 @@
   "tooltip.classicpipes.match_components_alt": "If this is checked, the components of an item (damage, enchantments, etc.) must match the item in the container.",
   "tooltip.classicpipes.default_route": "If this is checked, items will be routed here when they have nowhere else to go.",
   "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network.",
-  "tooltip.classicpipes.active_stocking": "If this is checked, this pipe will actively request items from the network. Otherwise, it will passively stock the container when the matching items happen to pass through the network."
+  "tooltip.classicpipes.active_stocking": "If this is checked, this pipe will actively request items from the network. Otherwise, it will passively stock the container when the matching items happen to pass through the network.",
+  "tooltip.classicpipes.crafting_pipe_grid": "These buttons control which direction the crafting pipe should send the ingredient in the corresponding slot. If you're using a crafter, these should all be set to the direction of the crafter.",
+  "tooltip.classicpipes.crafting_pipe_result": "This button controls from which direction the crafting pipe should expect to receive the result. If you're using a crafter, this should be set to the direction of the crafter."
 }
