@@ -203,7 +203,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     }
 
     protected void initialiseNetworking(ServerLevel level, BlockState state, BlockPos pos) {
-        Set<BlockPos> visited = new HashSet<>();
+        Set<Tuple<BlockPos, Direction>> visited = new HashSet<>();
         for (Direction direction : Direction.values()) {
             BlockPos nextPos = pos.relative(direction);
             if (this.isPipeConnected(state, direction) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
@@ -215,12 +215,14 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         this.setChanged();
     }
 
-    private Set<BlockPos> updateNetworking(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<BlockPos> visited, boolean triggerNetworkChanges) {
+    private Set<Tuple<BlockPos, Direction>> updateNetworking(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<Tuple<BlockPos, Direction>> visited, boolean triggerNetworkChanges) {
 
-        if (visited.contains(pos)) {
-            return visited;
+        for (Tuple<BlockPos, Direction> tuple : visited) {
+            if (tuple.a().equals(pos) && tuple.b().equals(nextDirection)) {
+                return visited;
+            }
         }
-        visited.add(pos);
+        visited.add(new Tuple<>(pos, nextDirection));
 
         if (this instanceof NetworkedPipeEntity && nextPipe.canJoinNetwork()) {
             nextPipe.networkDistances.put(nextDirection.getOpposite(), new Tuple<>(pos, 1));
