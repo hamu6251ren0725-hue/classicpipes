@@ -14,22 +14,22 @@ public enum SortingMode {
     Z_TO_A((byte) 3, MiscUtil.NAME.reversed(), "name", "za"),
     MOD_A_TO_Z((byte) 4, MiscUtil.MOD.thenComparing(MiscUtil.AMOUNT.reversed().thenComparing(MiscUtil.NAME)), "mod", "az"),
     MOD_Z_TO_A((byte) 5, MiscUtil.MOD.reversed().thenComparing(MiscUtil.AMOUNT.reversed().thenComparing(MiscUtil.NAME.reversed())), "mod", "za"),
-    CRAFTABLE_A_TO_Z((byte) 6, MiscUtil.CRAFTABLE.thenComparing(MiscUtil.NAME), "craftable", "az"),
+    CRAFTABLE_A_TO_Z((byte) 6, MiscUtil.CRAFTABLE.reversed().thenComparing(MiscUtil.NAME), "craftable", "az"),
     CRAFTABLE_Z_TO_A((byte) 7, MiscUtil.CRAFTABLE.thenComparing(MiscUtil.NAME.reversed()), "craftable", "za");
 
     private final byte value;
-    private final Comparator<ItemStack> comparator;
+    private final Comparator<Tuple<ItemStack, Boolean>> comparator;
     private final String type;
     private final String direction;
 
-    SortingMode(byte value, Comparator<ItemStack> comparator, String type, String direction) {
+    SortingMode(byte value, Comparator<Tuple<ItemStack, Boolean>> comparator, String type, String direction) {
         this.value = value;
         this.comparator = comparator;
         this.type = type;
         this.direction = direction;
     }
 
-    public Comparator<ItemStack> getComparator() {
+    public Comparator<Tuple<ItemStack, Boolean>> getComparator() {
         return this.comparator;
     }
 

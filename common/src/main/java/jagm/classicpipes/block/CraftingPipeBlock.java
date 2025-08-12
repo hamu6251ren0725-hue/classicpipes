@@ -33,6 +33,17 @@ public class CraftingPipeBlock extends NetworkedPipeBlock {
     }
 
     @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (level instanceof ServerLevel serverLevel) {
+            BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
+            if (blockEntity instanceof CraftingPipeEntity craftingPipe) {
+                craftingPipe.dropHeldItems(serverLevel, pos);
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof CraftingPipeEntity craftingPipe) {
             Services.LOADER_SERVICE.openMenu(

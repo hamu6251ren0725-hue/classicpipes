@@ -94,10 +94,8 @@ public class RequestAmountScreen extends Screen {
     }
 
     private boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
-        int i = this.leftPos;
-        int j = this.topPos;
-        mouseX -= i;
-        mouseY -= j;
+        mouseX -= this.leftPos;
+        mouseY -= this.topPos;
         return mouseX >= (double)(x - 1) && mouseX < (double)(x + width + 1) && mouseY >= (double)(y - 1) && mouseY < (double)(y + height + 1);
     }
 

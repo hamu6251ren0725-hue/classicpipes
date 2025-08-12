@@ -88,5 +88,6 @@
   "tooltip.classicpipes.leave_one": "If this is checked, one item of each type will remain in the attached container and be inaccessible to the network.",
   "tooltip.classicpipes.active_stocking": "If this is checked, this pipe will actively request items from the network. Otherwise, it will passively stock the container when the matching items happen to pass through the network.",
   "tooltip.classicpipes.crafting_pipe_grid": "These buttons control which direction the crafting pipe should send the ingredient in the corresponding slot. If you're using a crafter, these should all be set to the direction of the crafter.",
-  "tooltip.classicpipes.crafting_pipe_result": "This button controls from which direction the crafting pipe should expect to receive the result. If you're using a crafter, this should be set to the direction of the crafter."
+  "tooltip.classicpipes.crafting_pipe_result": "This button controls from which direction the crafting pipe should expect to receive the result. If you're using a crafter, this should be set to the direction of the crafter.",
+  "chat.classicpipes.missing_item": "Missing %sx %s"
 }

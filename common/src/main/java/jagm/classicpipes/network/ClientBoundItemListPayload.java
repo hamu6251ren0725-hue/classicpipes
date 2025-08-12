@@ -14,19 +14,21 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ClientBoundItemListPayload(List<ItemStack> networkItems, SortingMode sortingMode, BlockPos networkPos, BlockPos requestPos) implements SelfHandler {
+public record ClientBoundItemListPayload(List<ItemStack> existingItems, List<ItemStack> craftableItems, SortingMode sortingMode, BlockPos networkPos, BlockPos requestPos) implements SelfHandler {
 
     public static final Type<ClientBoundItemListPayload> TYPE = new Type<>(MiscUtil.resourceLocation("item_list"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientBoundItemListPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.collection(ArrayList::new, ItemStack.STREAM_CODEC),
-            ClientBoundItemListPayload::networkItems,
+            ClientBoundItemListPayload::existingItems,
+            ByteBufCodecs.collection(ArrayList::new, ItemStack.STREAM_CODEC),
+            ClientBoundItemListPayload::craftableItems,
             ByteBufCodecs.BYTE,
             payload -> payload.sortingMode().getValue(),
             BlockPos.STREAM_CODEC,
             ClientBoundItemListPayload::networkPos,
             BlockPos.STREAM_CODEC,
             ClientBoundItemListPayload::requestPos,
-            (networkItems, value, networkPos, requestPos) -> new ClientBoundItemListPayload(networkItems, SortingMode.fromByte(value), networkPos, requestPos)
+            (networkItems, craftableItems, value, networkPos, requestPos) -> new ClientBoundItemListPayload(networkItems, craftableItems, SortingMode.fromByte(value), networkPos, requestPos)
     );
 
     @Override
@@ -37,7 +39,7 @@ public record ClientBoundItemListPayload(List<ItemStack> networkItems, SortingMo
     @Override
     public void handle(Player player) {
         if (player != null && player.containerMenu instanceof RequestMenu menu && menu.getNetworkPos().equals(this.networkPos())) {
-            menu.update(this.networkItems());
+            menu.update(this.existingItems(), this.craftableItems());
         }
     }
 

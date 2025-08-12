@@ -104,6 +104,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.CRAFTING_PIPE_ENTITY, PipeRenderer::new);
         }
 
         @SubscribeEvent

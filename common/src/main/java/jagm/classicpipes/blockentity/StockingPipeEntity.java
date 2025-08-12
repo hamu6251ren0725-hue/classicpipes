@@ -5,7 +5,6 @@ import jagm.classicpipes.block.StockingPipeBlock;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.StockingPipeMenu;
 import jagm.classicpipes.services.Services;
-import jagm.classicpipes.util.MissingItem;
 import jagm.classicpipes.util.RequestedItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -121,12 +120,7 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                     }
                 }
                 if (!alreadyRequested) {
-                    List<MissingItem> networkMissing = this.getNetwork().request(level, stack, this.getBlockPos(), "");
-                    for (MissingItem missingItem : networkMissing) {
-                        if (ItemStack.isSameItemSameComponents(stack, missingItem.stack()) && missingItem.stack().getCount() < stack.getCount()) {
-                            this.getNetwork().request(level, stack.copyWithCount(stack.getCount() - missingItem.stack().getCount()), this.getBlockPos(), "");
-                        }
-                    }
+                    this.getNetwork().request(level, stack, this.getBlockPos(), null, true);
                 }
             }
         }

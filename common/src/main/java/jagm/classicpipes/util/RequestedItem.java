@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class RequestedItem {
 
-    private static final short TIMEOUT = 6000;
+    private static final short TIMEOUT = 24000;
     public static final Codec<RequestedItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             MiscUtil.UNLIMITED_STACK_CODEC.fieldOf("item").orElse(ItemStack.EMPTY).forGetter(RequestedItem::getStack),
             BlockPos.CODEC.fieldOf("destination").orElse(BlockPos.ZERO).forGetter(RequestedItem::getDestination),
@@ -35,6 +35,10 @@ public class RequestedItem {
 
     public boolean matches(ItemStack stack) {
         return ItemStack.isSameItemSameComponents(stack, this.stack);
+    }
+
+    public boolean matches(RequestedItem anotherItem) {
+        return this.playerName.equals(anotherItem.playerName) && this.destination.equals(anotherItem.destination) && this.matches(anotherItem.stack);
     }
 
     public NetworkedPipeEntity getTarget(Level level) {
@@ -63,7 +67,7 @@ public class RequestedItem {
         return this.stack.getCount() <= 0;
     }
 
-    private ItemStack getStack() {
+    public ItemStack getStack() {
         return this.stack;
     }
 

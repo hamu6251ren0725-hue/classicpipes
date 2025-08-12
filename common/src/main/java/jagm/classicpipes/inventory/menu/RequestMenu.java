@@ -8,6 +8,7 @@ import jagm.classicpipes.network.ServerBoundSortingModePayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.SortingMode;
+import jagm.classicpipes.util.Tuple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.tags.TagKey;
@@ -21,8 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,9 +31,10 @@ public class RequestMenu extends AbstractContainerMenu {
     private static final Pattern MOD_LOOKUP = Pattern.compile("@\\S+");
     private static final Pattern TAG_LOOKUP = Pattern.compile("#\\S+");
 
-    private List<ItemStack> networkItems;
+    private List<Tuple<ItemStack, Boolean>> networkItems;
     private final Container toDisplay;
     public final NonNullList<Slot> displaySlots = NonNullList.create();
+    private final Map<ItemStack, Boolean> craftableCache;
     private String search;
     private int page;
     private int maxPage;
@@ -45,7 +46,8 @@ public class RequestMenu extends AbstractContainerMenu {
 
     public RequestMenu(int id, Inventory inventory, ClientBoundItemListPayload payload) {
         super(ClassicPipes.REQUEST_MENU, id);
-        this.networkItems = payload.networkItems();
+        this.networkItems = buildNetworkItems(payload.existingItems(), payload.craftableItems());
+        this.craftableCache = new HashMap<>();
         this.networkPos = payload.networkPos();
         this.requestPos = payload.requestPos();
         this.sortingMode = payload.sortingMode();
@@ -65,8 +67,32 @@ public class RequestMenu extends AbstractContainerMenu {
         this.updateSearch();
     }
 
-    public void update(List<ItemStack> networkItems) {
-        this.networkItems = networkItems;
+    private static List<Tuple<ItemStack, Boolean>> buildNetworkItems(List<ItemStack> existingItems, List<ItemStack> craftableItems) {
+        List<Tuple<ItemStack, Boolean>> networkItems = new ArrayList<>();
+        for (ItemStack craftable : craftableItems) {
+            // Craftable items should have a stack size of 1 when they get here.
+            networkItems.add(new Tuple<>(craftable, true));
+        }
+        int craftableCount = networkItems.size();
+        for (ItemStack stack : existingItems) {
+            boolean matched = false;
+            for (int i = 0; i < craftableCount; i++) {
+                if (ItemStack.isSameItemSameComponents(stack, networkItems.get(i).a())) {
+                    // Since the game doesn't like handling empty stacks, craftable stacks get one extra item, which is accounted for by the client screen.
+                    networkItems.set(i, new Tuple<>(stack.copyWithCount(stack.getCount() + 1), true));
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                networkItems.add(new Tuple<>(stack, false));
+            }
+        }
+        return networkItems;
+    }
+
+    public void update(List<ItemStack> existingItems, List<ItemStack> craftableItems) {
+        this.networkItems = buildNetworkItems(existingItems, craftableItems);
         this.update();
     }
 
@@ -77,11 +103,16 @@ public class RequestMenu extends AbstractContainerMenu {
 
     public void updateSearch() {
         this.toDisplay.clearContent();
+        this.craftableCache.clear();
         int display = this.toDisplay.getContainerSize();
-        List<ItemStack> matchingItems = new ArrayList<>();
-        for (ItemStack stack : this.networkItems) {
-            if (this.search.isEmpty() || itemMatchesSearch(stack, this.search)) {
-                matchingItems.add(stack);
+        List<Tuple<ItemStack, Boolean>> matchingItems = new ArrayList<>();
+        Iterator<Tuple<ItemStack, Boolean>> iterator = this.networkItems.listIterator();
+        while (iterator.hasNext()) {
+            Tuple<ItemStack, Boolean> tuple = iterator.next();
+            if (tuple.a().isEmpty()) {
+                iterator.remove();
+            } else if (this.search.isEmpty() || itemMatchesSearch(tuple.a(), this.search)) {
+                matchingItems.add(tuple);
             }
         }
         this.maxPage = matchingItems.size() / display;
@@ -89,12 +120,14 @@ public class RequestMenu extends AbstractContainerMenu {
             this.page = this.maxPage;
         }
         int index = 0;
-        for (ItemStack stack : matchingItems) {
+        for (Tuple<ItemStack, Boolean> tuple : matchingItems) {
             if (index >= (this.page + 1) * display) {
                 break;
             }
             if (index >= this.page * display) {
-                this.toDisplay.setItem(index % display, stack);
+                int slot = index % display;
+                this.toDisplay.setItem(slot, tuple.a());
+                this.craftableCache.put(tuple.a(), tuple.b());
             }
             index++;
         }
@@ -159,8 +192,12 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.requestPos;
     }
 
-    public void removeStack(ItemStack stack) {
+    /*public void removeStack(ItemStack stack) {
         this.networkItems.remove(stack);
+    }*/
+
+    public boolean itemCraftable(ItemStack stack) {
+        return this.craftableCache.get(stack);
     }
 
     private static boolean itemMatchesSearch(ItemStack stack, String search) {

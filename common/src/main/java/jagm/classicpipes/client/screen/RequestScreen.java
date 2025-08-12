@@ -138,7 +138,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         if (!stack.isEmpty()) {
             graphics.pose().pushMatrix();
             this.renderItemBar(graphics, stack, slot.x, slot.y);
-            this.renderItemCount(graphics, this.font, stack, slot.x, slot.y);
+            this.renderItemCount(graphics, this.font, stack, slot.x, slot.y, this.menu.itemCraftable(stack));
             graphics.pose().popMatrix();
         }
     }
@@ -152,9 +152,10 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         }
     }
 
-    private void renderItemCount(GuiGraphics graphics, Font font, ItemStack stack, int x, int y) {
-        int count = stack.getCount();
+    private void renderItemCount(GuiGraphics graphics, Font font, ItemStack stack, int x, int y, boolean craftable) {
+        int count = stack.getCount() - (craftable ? 1 : 0);
         String s = stringForCount(count);
+        int colour = colourForCount(count);
         float countScale = 1.0F;
         if (this.minecraft != null) {
             final int guiScale = this.minecraft.getWindow().getGuiScale();
@@ -168,8 +169,12 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         graphics.pose().pushMatrix();
         graphics.pose().translate(x + slotOffset, y + slotOffset);
         graphics.pose().scale(countScale);
-        graphics.drawString(font, s, -font.width(s), -8, -1, true);
+        graphics.drawString(font, s, -font.width(s), -8, colour, true);
         graphics.pose().popMatrix();
+    }
+
+    private static int colourForCount(int count) {
+        return count == 0 ? -256 : -1;
     }
 
     private static String stringForCount(int count) {
@@ -197,17 +202,17 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         Slot slot = this.getHoveredSlot(mouseX, mouseY);
         if (slot != null) {
             ItemStack toRequest = slot.getItem();
-            if (toRequest != ItemStack.EMPTY) {
+            if (!toRequest.isEmpty()) {
+                boolean craftable = this.menu.itemCraftable(toRequest);
                 if (hasShiftDown() || button == 1) {
-                    int amount = hasShiftDown() && !toRequest.isEmpty() ? Math.min(toRequest.getCount(), toRequest.getMaxStackSize()) : 1;
-                    Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.menu.getRequestPos()));
-                    toRequest.shrink(amount);
-                    if (toRequest.isEmpty()) {
-                        this.menu.removeStack(toRequest);
+                    int amount = hasShiftDown() ? Math.min(toRequest.getCount() - (craftable ? 1 : 0), toRequest.getMaxStackSize()) : 1;
+                    if (amount > 0) {
+                        Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.menu.getRequestPos()));
+                        toRequest.shrink(amount);
+                        this.menu.update();
                     }
-                    this.menu.update();
                 } else if (this.minecraft != null) {
-                    this.minecraft.setScreen(new RequestAmountScreen(toRequest, this, false));
+                    this.minecraft.setScreen(new RequestAmountScreen(toRequest, this, craftable));
                 }
             }
         }
