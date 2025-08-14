@@ -136,6 +136,10 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         return ingredients;
     }
 
+    public NonNullList<ItemStack> getHeldItems() {
+        return heldItems;
+    }
+
     public void dropHeldItems(ServerLevel serverLevel, BlockPos pos) {
         for (ItemStack stack : this.heldItems) {
             if (!stack.isEmpty()) {

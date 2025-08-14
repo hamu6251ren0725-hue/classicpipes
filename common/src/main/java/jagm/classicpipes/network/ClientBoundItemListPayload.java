@@ -28,7 +28,7 @@ public record ClientBoundItemListPayload(List<ItemStack> existingItems, List<Ite
             ClientBoundItemListPayload::networkPos,
             BlockPos.STREAM_CODEC,
             ClientBoundItemListPayload::requestPos,
-            (networkItems, craftableItems, value, networkPos, requestPos) -> new ClientBoundItemListPayload(networkItems, craftableItems, SortingMode.fromByte(value), networkPos, requestPos)
+            (existingItems, craftableItems, value, networkPos, requestPos) -> new ClientBoundItemListPayload(existingItems, craftableItems, SortingMode.fromByte(value), networkPos, requestPos)
     );
 
     @Override

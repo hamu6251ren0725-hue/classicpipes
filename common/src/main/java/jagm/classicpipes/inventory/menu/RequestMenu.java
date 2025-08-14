@@ -192,10 +192,6 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.requestPos;
     }
 
-    /*public void removeStack(ItemStack stack) {
-        this.networkItems.remove(stack);
-    }*/
-
     public boolean itemCraftable(ItemStack stack) {
         return this.craftableCache.get(stack);
     }

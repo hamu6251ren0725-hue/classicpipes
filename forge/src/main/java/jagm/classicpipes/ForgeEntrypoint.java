@@ -1,6 +1,7 @@
 package jagm.classicpipes;
 
-import jagm.classicpipes.client.PipeRenderer;
+import jagm.classicpipes.client.renderer.CraftingPipeRenderer;
+import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.screen.*;
 import jagm.classicpipes.network.*;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -93,7 +94,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
-            event.registerBlockEntityRenderer(ClassicPipes.CRAFTING_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.CRAFTING_PIPE_ENTITY, CraftingPipeRenderer::new);
         }
 
         @SubscribeEvent

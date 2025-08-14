@@ -1,6 +1,8 @@
 package jagm.classicpipes.client;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.client.renderer.CraftingPipeRenderer;
+import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.screen.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
@@ -29,7 +31,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         BlockEntityRenderers.register(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
-        BlockEntityRenderers.register(ClassicPipes.CRAFTING_PIPE_ENTITY, PipeRenderer::new);
+        BlockEntityRenderers.register(ClassicPipes.CRAFTING_PIPE_ENTITY, CraftingPipeRenderer::new);
 
         MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
         MenuScreens.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);

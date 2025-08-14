@@ -1,4 +1,4 @@
-package jagm.classicpipes.client;
+package jagm.classicpipes.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -27,6 +27,10 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
 
     @Override
     public void render(AbstractPipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 vec3) {
+        renderPipeItems(this.context, pipe, partialTicks, poses, bufferSource, light, overlay);
+    }
+
+    public static void renderPipeItems(BlockEntityRendererProvider.Context context, AbstractPipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay) {
         if (!pipe.isEmpty()){
             for (ItemInPipe item : pipe.getContents()) {
                 Direction direction = item.getProgress() < ItemInPipe.HALFWAY ? item.getFromDirection() : item.getTargetDirection();
@@ -51,10 +55,10 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                         0.5F + (direction.equals(Direction.UP) ? 0.375F : (direction.equals(Direction.DOWN) ? -0.375F : 0.0F)),
                         0.5F + (direction.equals(Direction.SOUTH) ? 0.375F : (direction.equals(Direction.NORTH) ? -0.375F : 0.0F))
                 );
-                poses.mulPose(this.context.getEntityRenderer().cameraOrientation());
+                poses.mulPose(context.getEntityRenderer().cameraOrientation());
                 poses.scale(0.0125F, -0.0125F, 0.0125F);
                 Matrix4f matrix4f = poses.last().pose();
-                Font font = this.context.getFont();
+                Font font = context.getFont();
                 float f = (float)(-font.width(component)) / 2.0F;
                 int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
                 font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
@@ -64,10 +68,10 @@ public class PipeRenderer implements BlockEntityRenderer<AbstractPipeEntity> {
                 Component component = Component.literal("CONTROLLER");
                 poses.pushPose();
                 poses.translate(0.5F, 0.5F, 0.5F);
-                poses.mulPose(this.context.getEntityRenderer().cameraOrientation());
+                poses.mulPose(context.getEntityRenderer().cameraOrientation());
                 poses.scale(0.025F, -0.025F, 0.025F);
                 Matrix4f matrix4f = poses.last().pose();
-                Font font = this.context.getFont();
+                Font font = context.getFont();
                 float f = (float)(-font.width(component)) / 2.0F;
                 int j = (int)(Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
                 font.drawInBatch(component, f, 0, -2130706433, false, matrix4f, bufferSource, Font.DisplayMode.NORMAL, j, light);
