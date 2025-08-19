@@ -5,6 +5,7 @@ import jagm.classicpipes.block.StockingPipeBlock;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.StockingPipeMenu;
 import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.RequestedItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,36 +26,25 @@ import java.util.List;
 
 public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
-    private static final short DEFAULT_COOLDOWN = 40;
-
     private final FilterContainer filter;
     private boolean activeStocking;
     private final List<ItemStack> missingItemsCache;
     private boolean cacheInitialised = false;
-    private short cooldown;
 
     public StockingPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.STOCKING_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 9, true);
         this.activeStocking = false;
         this.missingItemsCache = new ArrayList<>();
-        this.cooldown = 0;
     }
 
     @Override
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        super.tickServer(level, pos, state);
         if (!this.cacheInitialised) {
             this.updateCache(level);
             this.cacheInitialised = true;
         }
-        if (this.cooldown == 1 && this.activeStocking) {
-           this.tryRequests(level);
-        }
-        this.cooldown--;
-        if (this.cooldown < 0) {
-            this.cooldown = 0;
-        }
-        super.tickServer(level, pos, state);
     }
 
     public void updateCache(ServerLevel level) {
@@ -93,7 +83,7 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                         }
                     }
                     if (!matched) {
-                        missingItemsCache.add(filterStack);
+                        this.missingItemsCache.add(filterStack);
                     }
                 }
             }
@@ -110,21 +100,24 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     public void tryRequests(ServerLevel level) {
-        if (this.hasNetwork() && this.cooldown <= 1) {
+        if (this.hasNetwork()) {
             for (ItemStack stack : this.missingItemsCache) {
-                boolean alreadyRequested = false;
-                for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
-                    if (requestedItem.matches(stack) && requestedItem.getDestination().equals(this.getBlockPos())) {
-                        alreadyRequested = true;
-                        this.cooldown = DEFAULT_COOLDOWN;
+                int alreadyRequested = 0;
+                for (ItemInPipe item : this.contents) {
+                    if (ItemStack.isSameItemSameComponents(stack, item.getStack())) {
+                        alreadyRequested += item.getStack().getCount();
                     }
                 }
-                if (!alreadyRequested) {
-                    this.getNetwork().request(level, stack, this.getBlockPos(), null, true);
+                for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
+                    if (requestedItem.matches(stack) && requestedItem.getDestination().equals(this.getBlockPos())) {
+                        alreadyRequested += requestedItem.getAmountRemaining();
+                    }
+                }
+                if (alreadyRequested < stack.getCount()) {
+                    this.getNetwork().request(level, stack.copyWithCount(stack.getCount() - alreadyRequested), this.getBlockPos(), null, true);
                 }
             }
         }
-        this.cooldown = 0;
     }
 
     public boolean isActiveStocking() {
@@ -144,10 +137,6 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     public List<ItemStack> getMissingItemsCache() {
         return this.missingItemsCache;
-    }
-
-    public void resetCooldown() {
-        this.cooldown = DEFAULT_COOLDOWN;
     }
 
     @Override

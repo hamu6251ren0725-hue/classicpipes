@@ -86,6 +86,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                         iterator.remove();
                         this.eject(level, pos, item);
                         sendBlockUpdate = true;
+                        continue;
                     }
                 }
                 if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {

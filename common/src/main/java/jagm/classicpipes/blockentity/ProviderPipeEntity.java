@@ -111,7 +111,7 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
-        List<ItemStack> stacks = Services.LOADER_SERVICE.getExtractableItems(level, pos.relative(facing), facing.getOpposite());
+        List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
         Iterator<ItemStack> iterator = stacks.iterator();
         while (iterator.hasNext()) {
             ItemStack stack = iterator.next();

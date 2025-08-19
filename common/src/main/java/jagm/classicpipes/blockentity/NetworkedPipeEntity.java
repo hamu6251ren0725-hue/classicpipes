@@ -145,9 +145,6 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                     int leftover = item.getStack().getCount() - remaining;
                     thisRequestedItem.arrived(item.getStack().getCount());
                     if (thisRequestedItem.isDelivered()) {
-                        if (this instanceof StockingPipeEntity stockingPipe) {
-                            stockingPipe.resetCooldown();
-                        }
                         this.getNetwork().removeRequestedItem(thisRequestedItem);
                     }
                     if (leftover > 0) {
@@ -162,7 +159,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 super.routeItem(state, item);
             }
             for (ItemInPipe spareItem : spareItems) {
-                this.insertPipeItem(serverLevel, spareItem);
+                this.queued.add(spareItem);
                 this.routeItem(state, spareItem);
             }
         }
