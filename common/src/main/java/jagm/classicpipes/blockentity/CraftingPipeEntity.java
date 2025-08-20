@@ -72,6 +72,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     @Override
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
+        super.update(level, state, pos, direction, wasConnected);
         Direction defaultDirection = Direction.DOWN;
         for (Direction validDirection : Direction.values()) {
             if (state.getValue(NetworkedPipeBlock.PROPERTY_BY_DIRECTION.get(validDirection)).equals(NetworkedPipeBlock.ConnectionState.UNLINKED)) {
@@ -84,7 +85,6 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 this.slotDirections[i] = defaultDirection;
             }
         }
-        super.update(level, state, pos, direction, wasConnected);
     }
 
     @Override

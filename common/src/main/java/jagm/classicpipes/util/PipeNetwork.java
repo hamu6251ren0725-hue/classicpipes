@@ -12,10 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class PipeNetwork {
 
@@ -33,6 +30,7 @@ public class PipeNetwork {
     private byte cacheCooldown;
     private final List<RequestedItem> requestedItems;
     private final List<Tuple<ProviderPipeEntity, RequestedItem>> queue;
+    private final Map<ProviderPipeEntity, List<ItemStack>> takenFromCache;
 
     public PipeNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
@@ -47,43 +45,84 @@ public class PipeNetwork {
         this.cacheCooldown = (byte) 0;
         this.requestedItems = new ArrayList<>();
         this.queue = new ArrayList<>();
+        this.takenFromCache = new HashMap<>();
     }
 
     public PipeNetwork(BlockPos pos) {
         this(pos, SortingMode.AMOUNT_DESCENDING);
     }
 
+    private void enqueue(ItemStack stack, int amount, BlockPos requestPos, String playerName, ProviderPipeEntity providerPipe) {
+        RequestedItem requestedItem = new RequestedItem(stack.copyWithCount(amount), requestPos, playerName);
+        boolean matched = false;
+        for (Tuple<ProviderPipeEntity, RequestedItem> tuple : this.queue) {
+            if (tuple.a() == providerPipe && requestedItem.matches(tuple.b())) {
+                matched = true;
+                tuple.b().getStack().grow(amount);
+                break;
+            }
+        }
+        if (!matched) {
+            this.queue.add(new Tuple<>(providerPipe, requestedItem));
+        }
+    }
+
     private MissingItem queueRequest(ItemStack stack, BlockPos requestPos, Player player) {
-        MissingItem missingItem = new MissingItem(stack);
+        MissingItem missingItem = new MissingItem(stack.copy());
         String playerName = player != null ? player.getName().getString() : "";
         for (ProviderPipeEntity providerPipe : this.providerPipes) {
             if (missingItem.isEmpty()) {
                 break;
             }
+            List<ItemStack> alreadyTaken = this.takenFromCache.containsKey(providerPipe) ? this.takenFromCache.get(providerPipe) : new ArrayList<>();
             for (ItemStack cacheStack : providerPipe.getCache()) {
                 if (ItemStack.isSameItemSameComponents(stack, cacheStack)) {
-                    int amount = Math.min(missingItem.getCount(), cacheStack.getCount());
-                    this.queue.add(new Tuple<>(providerPipe, new RequestedItem(stack.copyWithCount(amount), requestPos, playerName)));
-                    missingItem.shrink(amount);
+                    int cacheCount = cacheStack.getCount();
+                    int takenIndex = -1;
+                    for (int i = 0; i < alreadyTaken.size(); i++) {
+                        ItemStack takenStack = alreadyTaken.get(i);
+                        if (ItemStack.isSameItemSameComponents(cacheStack, takenStack)) {
+                            cacheCount -= takenStack.getCount();
+                            takenIndex = i;
+                            break;
+                        }
+                    }
+                    int amount = Math.min(missingItem.getCount(), cacheCount);
+                    if (amount > 0) {
+                        this.enqueue(stack, amount, requestPos, playerName, providerPipe);
+                        missingItem.shrink(amount);
+                        if (takenIndex >= 0) {
+                            ItemStack takenStack = alreadyTaken.get(takenIndex);
+                            alreadyTaken.set(takenIndex, takenStack.copyWithCount(takenStack.getCount() + amount));
+                        } else {
+                            alreadyTaken.add(cacheStack.copyWithCount(amount));
+                        }
+                        this.takenFromCache.put(providerPipe, alreadyTaken);
+                    }
                     break;
                 }
             }
         }
         if (!missingItem.isEmpty()) {
+            // TODO deal with looping recipes
             for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
                 ItemStack result = craftingPipe.getResult();
                 if (ItemStack.isSameItemSameComponents(result, stack)) {
                     int requiredCrafts = Math.ceilDiv(missingItem.getCount(), result.getCount());
                     List<ItemStack> ingredients = craftingPipe.getIngredients();
-                    for (ItemStack ingredient : ingredients) {
-                        MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player);
-                        if (!missingForCraft.isEmpty()) {
-                            missingItem.addMissingIngredient(missingForCraft);
+                    for (int i = 0; i < requiredCrafts; i++) {
+                        boolean canCraft = true;
+                        for (ItemStack ingredient : ingredients) {
+                            MissingItem missingForCraft = this.queueRequest(ingredient, craftingPipe.getBlockPos(), player);
+                            if (!missingForCraft.isEmpty()) {
+                                missingItem.addMissingIngredient(missingForCraft);
+                                canCraft = false;
+                            }
                         }
-                    }
-                    if (!missingItem.hasMissingIngredients()) {
-                        this.queue.add(new Tuple<>(null, new RequestedItem(stack.copyWithCount(missingItem.getCount()), requestPos, playerName)));
-                        missingItem.shrink(missingItem.getCount());
+                        if (canCraft) {
+                            missingItem.shrink(result.getCount());
+                            this.enqueue(stack, result.getCount(), requestPos, playerName, null);
+                        }
                     }
                 }
             }
@@ -93,7 +132,35 @@ public class PipeNetwork {
 
     public void request(ServerLevel level, ItemStack stack, BlockPos requestPos, Player player, boolean partialRequest) {
         MissingItem missingItem = this.queueRequest(stack.copy(), requestPos, player);
-        List<RequestedItem> toAdd = new ArrayList<>();
+        if (missingItem.isEmpty()) {
+            boolean cancelled = false;
+            for (Tuple<ProviderPipeEntity, RequestedItem> tuple : this.queue) {
+                this.addRequestedItem(tuple.b());
+                if (tuple.a() != null && !tuple.a().extractItem(level, tuple.b().getStack())) {
+                    cancelled = true;
+                    if (!partialRequest && player != null) {
+                        player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), tuple.a().getBlockPos()), false);
+                    }
+                    break;
+                }
+            }
+            if (cancelled) {
+                this.queue.forEach(tuple -> this.removeRequestedItem(tuple.b()));
+            }
+        } else if (partialRequest && missingItem.getCount() < stack.getCount()) {
+            this.queue.clear();
+            this.takenFromCache.clear();
+            this.request(level, stack.copyWithCount(stack.getCount() - missingItem.getCount()), requestPos, player, false);
+            return;
+        } else if (player != null) {
+            player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.a", stack.getCount(), stack.getItemName()), false);
+            for (ItemStack missing : missingItem.getBaseItems(new ArrayList<>())) {
+                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.b", missing.getCount(), missing.getItemName()), false);
+            }
+        }
+        this.queue.clear();
+        this.takenFromCache.clear();
+        /*List<RequestedItem> toAdd = new ArrayList<>();
         if (missingItem.isEmpty()) {
             for (Tuple<ProviderPipeEntity, RequestedItem> tuple : this.queue) {
                 if (tuple.a() != null) {
@@ -121,7 +188,6 @@ public class PipeNetwork {
             }
         }
         if (!missingItem.isEmpty() && player != null) {
-            // TODO deal with looping recipes
             for (ItemStack missing : missingItem.getBaseItems(new ArrayList<>())) {
                 player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item", missing.getCount(), missing.getItem().getName()), false);
             }
@@ -140,9 +206,10 @@ public class PipeNetwork {
             }
         }
         this.queue.clear();
+        this.takenFromCache.clear();
         for (RequestedItem requestedItem : this.requestedItems) {
             ClassicPipes.LOGGER.info("Requested {}x {} to {}", requestedItem.getAmountRemaining(), requestedItem.getStack().getItemName().getString(), requestedItem.getDestination());
-        }
+        }*/
     }
 
     public void tick(ServerLevel level) {

@@ -133,12 +133,12 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                         validDirections.add(direction);
                     }
                 }
-                if (!validDirections.isEmpty() && !(this instanceof CraftingPipeEntity)) {
-                    item.setEjecting(false);
-                    item.setTargetDirection(validDirections.get(serverLevel.getRandom().nextInt(validDirections.size())));
-                } else {
+                if (validDirections.isEmpty() || this instanceof CraftingPipeEntity) {
                     item.setEjecting(true);
                     item.setTargetDirection(item.getFromDirection().getOpposite());
+                } else {
+                    item.setEjecting(false);
+                    item.setTargetDirection(validDirections.get(serverLevel.getRandom().nextInt(validDirections.size())));
                 }
                 if (thisRequestedItem != null) {
                     int remaining = thisRequestedItem.getAmountRemaining();
