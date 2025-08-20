@@ -140,6 +140,9 @@ public class PipeNetwork {
             }
         }
         this.queue.clear();
+        for (RequestedItem requestedItem : this.requestedItems) {
+            ClassicPipes.LOGGER.info("Requested {}x {} to {}", requestedItem.getAmountRemaining(), requestedItem.getStack().getItemName().getString(), requestedItem.getDestination());
+        }
     }
 
     public void tick(ServerLevel level) {

@@ -11,6 +11,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ItemStackWithSlot;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -18,19 +20,20 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.CrafterBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
     private final FilterContainer filter;
     private final Direction[] slotDirections;
     private final NonNullList<ItemStack> heldItems;
+    private boolean waitingForCraft;
 
     public CraftingPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.CRAFTING_PIPE_ENTITY, pos, state);
@@ -56,6 +59,18 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     @Override
+    public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        super.tickServer(level, pos, state);
+        BlockPos crafterPos = pos.relative(this.slotDirections[9]);
+        if (this.waitingForCraft && this.isEmpty() && level.getBlockEntity(crafterPos) instanceof CrafterBlockEntity crafter) {
+            level.scheduleTick(crafterPos, crafter.getBlockState().getBlock(), 0);
+            level.playSound(null, crafterPos, SoundEvents.DISPENSER_DISPENSE, SoundSource.BLOCKS);
+        } else if (!this.queued.isEmpty()) {
+            this.addQueuedItems(level, false);
+        }
+    }
+
+    @Override
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         Direction defaultDirection = Direction.DOWN;
         for (Direction validDirection : Direction.values()) {
@@ -74,28 +89,33 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     @Override
     public void eject(ServerLevel level, BlockPos pos, ItemInPipe item) {
-        List<Integer> matchingSlots = new ArrayList<>();
+        Queue<Integer> matchingSlots = new PriorityQueue<>(Comparator.comparing(slot -> this.heldItems.get(slot).getCount()));
         for (int slot = 0; slot < 9; slot++) {
             if (ItemStack.isSameItemSameComponents(this.filter.getItem(slot), item.getStack())) {
                 matchingSlots.add(slot);
             }
         }
-        ItemStack stack = item.getStack().copy();
-        while (!stack.isEmpty()) {
-            int minSlot = matchingSlots.getFirst();
-            int minCount = this.heldItems.get(minSlot).getCount();
-            for (int slot : matchingSlots) {
-                int slotCount = this.heldItems.get(slot).getCount();
-                if (slotCount < minCount) {
-                    minSlot = slot;
-                    minCount = slotCount;
+        if (!matchingSlots.isEmpty()) {
+            ItemStack stack = item.getStack().copy();
+            while (!stack.isEmpty()) {
+                if (matchingSlots.peek() != null) {
+                    int slot = matchingSlots.peek();
+                    this.heldItems.set(slot, stack.copyWithCount(this.heldItems.get(slot).getCount() + 1));
+                    stack.shrink(1);
+                } else {
+                    break;
                 }
             }
-            this.heldItems.set(minSlot, stack.copyWithCount(minCount + 1));
-            stack.shrink(1);
+        } else {
+            super.eject(level, pos, item);
         }
-        boolean readyToCraft = true;
-        while (readyToCraft) {
+        attemptCraft();
+        this.setChanged();
+    }
+
+    private void attemptCraft() {
+        if (!this.waitingForCraft) {
+            boolean readyToCraft = true;
             for (int slot = 0; slot < 9; slot++) {
                 if (this.heldItems.get(slot).getCount() < this.filter.getItem(slot).getCount()) {
                     readyToCraft = false;
@@ -117,6 +137,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                         ));
                     }
                 }
+                this.waitingForCraft = true;
             }
         }
     }
@@ -148,6 +169,16 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 serverLevel.addFreshEntity(droppedItem);
             }
         }
+    }
+
+    @Override
+    public void insertPipeItem(Level level, ItemInPipe item) {
+        ItemStack stack = item.getStack();
+        if (!stack.isEmpty() && this.waitingForCraft && item.getFromDirection().equals(this.slotDirections[9]) && ItemStack.isSameItemSameComponents(this.getResult(), stack)) {
+            this.waitingForCraft = false;
+            attemptCraft();
+        }
+        super.insertPipeItem(level, item);
     }
 
     @Override
@@ -184,6 +215,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 this.heldItems.set(slotStack.slot(), slotStack.stack());
             }
         }
+        this.waitingForCraft = valueInput.getBooleanOr("waiting_for_craft", false);
     }
 
     @Override
@@ -207,6 +239,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 heldItemList.add(new ItemStackWithSlot(slot, stack));
             }
         }
+        valueOutput.putBoolean("waiting_for_craft", this.waitingForCraft);
     }
 
 }
