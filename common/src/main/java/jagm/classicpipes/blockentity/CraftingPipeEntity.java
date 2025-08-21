@@ -26,7 +26,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
@@ -89,7 +91,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     @Override
     public void eject(ServerLevel level, BlockPos pos, ItemInPipe item) {
-        Queue<Integer> matchingSlots = new PriorityQueue<>(Comparator.comparing(slot -> this.heldItems.get(slot).getCount()));
+        List<Integer> matchingSlots = new ArrayList<>();
         for (int slot = 0; slot < 9; slot++) {
             if (ItemStack.isSameItemSameComponents(this.filter.getItem(slot), item.getStack())) {
                 matchingSlots.add(slot);
@@ -98,13 +100,17 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         if (!matchingSlots.isEmpty()) {
             ItemStack stack = item.getStack().copy();
             while (!stack.isEmpty()) {
-                if (matchingSlots.peek() != null) {
-                    int slot = matchingSlots.peek();
-                    this.heldItems.set(slot, stack.copyWithCount(this.heldItems.get(slot).getCount() + 1));
-                    stack.shrink(1);
-                } else {
-                    break;
+                int minSlot = matchingSlots.getFirst();
+                int minAmount = this.heldItems.get(minSlot).getCount();
+                for (int slot : matchingSlots) {
+                    int slotAmount = this.heldItems.get(slot).getCount();
+                    if (slotAmount < minAmount) {
+                        minSlot = slot;
+                        minAmount = slotAmount;
+                    }
                 }
+                this.heldItems.set(minSlot, stack.copyWithCount(this.heldItems.get(minSlot).getCount() + 1));
+                stack.shrink(1);
             }
         } else {
             super.eject(level, pos, item);
@@ -114,17 +120,22 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     private void attemptCraft() {
+        ClassicPipes.LOGGER.info("Attempting craft.");
         if (!this.waitingForCraft) {
+            ClassicPipes.LOGGER.info("Not already awaiting craft.");
             boolean readyToCraft = true;
             for (int slot = 0; slot < 9; slot++) {
+                ClassicPipes.LOGGER.info("Slot {}: {}x {} for {}x {}", slot, this.heldItems.get(slot).getCount(), this.heldItems.get(slot).getItemName().getString(), this.filter.getItem(slot).getCount(), this.filter.getItem(slot).getItemName().getString());
                 if (this.heldItems.get(slot).getCount() < this.filter.getItem(slot).getCount()) {
                     readyToCraft = false;
                 }
             }
             if (readyToCraft) {
+                ClassicPipes.LOGGER.info("Ready to craft.");
                 for (int slot = 0; slot < 9; slot++) {
                     ItemStack ingredient = this.filter.getItem(slot);
                     if (!ingredient.isEmpty()) {
+                        ClassicPipes.LOGGER.info("Queueing ingredient.");
                         this.heldItems.get(slot).shrink(ingredient.getCount());
                         this.queued.add(new ItemInPipe(
                                 ingredient.copy(),
