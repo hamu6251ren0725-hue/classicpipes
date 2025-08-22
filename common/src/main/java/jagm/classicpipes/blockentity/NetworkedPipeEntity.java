@@ -71,6 +71,25 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
     }
 
     @Override
+    protected List<Direction> getValidDirections(BlockState state, ItemInPipe item) {
+        // When reverting to default routing behaviour, networked pipes prefer selecting directions that keep an item within the network.
+        // This should reduce the amount of chaos caused by a player forgetting to add a default route.
+        List<Direction> validDirections = new ArrayList<>();
+        Direction direction = MiscUtil.nextDirection(item.getFromDirection());
+        for (int i = 0; i < 5; i++) {
+            if (state.getValue(NetworkedPipeBlock.PROPERTY_BY_DIRECTION.get(direction)).equals(NetworkedPipeBlock.ConnectionState.LINKED)) {
+                validDirections.add(direction);
+            }
+            direction = MiscUtil.nextDirection(direction);
+        }
+        if (validDirections.isEmpty()) {
+            return super.getValidDirections(state, item);
+        } else {
+            return validDirections;
+        }
+    }
+
+    @Override
     public void routeItem(BlockState state, ItemInPipe item) {
         if (!this.hasNetwork()) {
             super.routeItem(state, item);

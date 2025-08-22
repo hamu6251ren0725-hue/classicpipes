@@ -4,9 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import jagm.classicpipes.blockentity.NetworkedPipeEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.List;
 
 public class RequestedItem {
 
@@ -27,6 +32,13 @@ public class RequestedItem {
         this.destination = destination;
         this.playerName = playerName;
         this.age = 0;
+    }
+
+    public void sendMessage(ServerLevel level, Component component) {
+        List<ServerPlayer> players = level.getPlayers(player -> player.getName().getString().equals(this.playerName));
+        if (!players.isEmpty()) {
+            players.getFirst().displayClientMessage(component, false);
+        }
     }
 
     public boolean matches(ItemInPipe pipeItem) {

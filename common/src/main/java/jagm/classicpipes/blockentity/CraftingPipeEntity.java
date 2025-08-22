@@ -6,6 +6,7 @@ import jagm.classicpipes.block.NetworkedPipeBlock;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.CraftingPipeMenu;
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.RequestedItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -36,6 +37,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     private final Direction[] slotDirections;
     private final NonNullList<ItemStack> heldItems;
     private boolean waitingForCraft;
+    private boolean crafterTicked;
 
     public CraftingPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.CRAFTING_PIPE_ENTITY, pos, state);
@@ -64,9 +66,19 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
         BlockPos crafterPos = pos.relative(this.slotDirections[9]);
-        if (this.waitingForCraft && this.isEmpty() && level.getBlockEntity(crafterPos) instanceof CrafterBlockEntity crafter) {
+        if (this.crafterTicked && this.hasNetwork()) {
+            for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
+                if (requestedItem.matches(this.getResult())) {
+                    requestedItem.sendMessage(level, Component.translatable("chat." + ClassicPipes.MOD_ID + ".crafter_jammed", crafterPos.toShortString()));
+                }
+            }
+            this.getNetwork().resetRequests(level);
+            this.crafterTicked = false;
+            this.waitingForCraft = false;
+        } else if (this.waitingForCraft && this.isEmpty() && level.getBlockEntity(crafterPos) instanceof CrafterBlockEntity crafter) {
             level.scheduleTick(crafterPos, crafter.getBlockState().getBlock(), 0);
             level.playSound(null, crafterPos, SoundEvents.DISPENSER_DISPENSE, SoundSource.BLOCKS);
+            this.crafterTicked = true;
         } else if (!this.queued.isEmpty()) {
             this.addQueuedItems(level, false);
         }
@@ -120,22 +132,17 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     private void attemptCraft() {
-        ClassicPipes.LOGGER.info("Attempting craft.");
         if (!this.waitingForCraft) {
-            ClassicPipes.LOGGER.info("Not already awaiting craft.");
             boolean readyToCraft = true;
             for (int slot = 0; slot < 9; slot++) {
-                ClassicPipes.LOGGER.info("Slot {}: {}x {} for {}x {}", slot, this.heldItems.get(slot).getCount(), this.heldItems.get(slot).getItemName().getString(), this.filter.getItem(slot).getCount(), this.filter.getItem(slot).getItemName().getString());
                 if (this.heldItems.get(slot).getCount() < this.filter.getItem(slot).getCount()) {
                     readyToCraft = false;
                 }
             }
             if (readyToCraft) {
-                ClassicPipes.LOGGER.info("Ready to craft.");
                 for (int slot = 0; slot < 9; slot++) {
                     ItemStack ingredient = this.filter.getItem(slot);
                     if (!ingredient.isEmpty()) {
-                        ClassicPipes.LOGGER.info("Queueing ingredient.");
                         this.heldItems.get(slot).shrink(ingredient.getCount());
                         this.queued.add(new ItemInPipe(
                                 ingredient.copy(),
@@ -154,18 +161,37 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     public ItemStack getResult() {
-        return this.filter.getItem(9);
+        return this.filter.getItem(9).copy();
     }
 
     public List<ItemStack> getIngredients() {
         List<ItemStack> ingredients = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
-            ItemStack ingredient = this.filter.getItem(i);
+            ItemStack ingredient = this.filter.getItem(i).copy();
             if (!ingredient.isEmpty()) {
-                ingredients.add(this.filter.getItem(i));
+                ingredients.add(ingredient);
             }
         }
         return ingredients;
+    }
+
+    public List<ItemStack> getIngredientsCollated() {
+        List<ItemStack> ingredients = this.getIngredients();
+        List<ItemStack> collated = new ArrayList<>();
+        for (ItemStack ingredient : ingredients) {
+            boolean matched = false;
+            for (ItemStack stack : collated) {
+                if (ItemStack.isSameItemSameComponents(ingredient, stack)) {
+                    stack.grow(ingredient.getCount());
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                collated.add(ingredient);
+            }
+        }
+        return collated;
     }
 
     public NonNullList<ItemStack> getHeldItems() {
@@ -180,6 +206,13 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 serverLevel.addFreshEntity(droppedItem);
             }
         }
+        this.heldItems.clear();
+    }
+
+    @Override
+    public void disconnect(ServerLevel level) {
+        this.dropHeldItems(level, this.getBlockPos());
+        super.disconnect(level);
     }
 
     @Override
@@ -187,6 +220,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         ItemStack stack = item.getStack();
         if (!stack.isEmpty() && this.waitingForCraft && item.getFromDirection().equals(this.slotDirections[9]) && ItemStack.isSameItemSameComponents(this.getResult(), stack)) {
             this.waitingForCraft = false;
+            this.crafterTicked = false;
             attemptCraft();
         }
         super.insertPipeItem(level, item);
@@ -227,6 +261,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
             }
         }
         this.waitingForCraft = valueInput.getBooleanOr("waiting_for_craft", false);
+        this.crafterTicked = valueInput.getBooleanOr("crafter_ticked", false);
     }
 
     @Override
@@ -251,6 +286,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
             }
         }
         valueOutput.putBoolean("waiting_for_craft", this.waitingForCraft);
+        valueOutput.putBoolean("crafter_ticked", this.crafterTicked);
     }
 
 }
