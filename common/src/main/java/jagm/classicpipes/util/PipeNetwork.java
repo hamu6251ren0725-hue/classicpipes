@@ -31,6 +31,7 @@ public class PipeNetwork {
     private final List<RequestedItem> requestedItems;
     private final List<Tuple<ProviderPipeEntity, RequestedItem>> queue;
     private final Map<ProviderPipeEntity, List<ItemStack>> takenFromCache;
+    private final List<ItemStack> spareItems;
 
     public PipeNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
@@ -46,6 +47,7 @@ public class PipeNetwork {
         this.requestedItems = new ArrayList<>();
         this.queue = new ArrayList<>();
         this.takenFromCache = new HashMap<>();
+        this.spareItems = new ArrayList<>();
     }
 
     public PipeNetwork(BlockPos pos) {
@@ -70,36 +72,52 @@ public class PipeNetwork {
     private MissingItem queueRequest(ItemStack stack, BlockPos requestPos, Player player) {
         MissingItem missingItem = new MissingItem(stack.copy());
         String playerName = player != null ? player.getName().getString() : "";
-        for (ProviderPipeEntity providerPipe : this.providerPipes) {
-            if (missingItem.isEmpty()) {
+        Iterator<ItemStack> iterator = this.spareItems.listIterator();
+        while (iterator.hasNext()) {
+            ItemStack spareItem = iterator.next();
+            if (ItemStack.isSameItemSameComponents(spareItem, stack)) {
+                int amount = Math.min(spareItem.getCount(), missingItem.getCount());
+                spareItem.shrink(amount);
+                missingItem.shrink(amount);
+                if (spareItem.isEmpty()) {
+                    iterator.remove();
+                }
+                this.enqueue(stack, amount, requestPos, playerName, null);
                 break;
             }
-            List<ItemStack> alreadyTaken = this.takenFromCache.containsKey(providerPipe) ? this.takenFromCache.get(providerPipe) : new ArrayList<>();
-            for (ItemStack cacheStack : providerPipe.getCache()) {
-                if (ItemStack.isSameItemSameComponents(stack, cacheStack)) {
-                    int cacheCount = cacheStack.getCount();
-                    int takenIndex = -1;
-                    for (int i = 0; i < alreadyTaken.size(); i++) {
-                        ItemStack takenStack = alreadyTaken.get(i);
-                        if (ItemStack.isSameItemSameComponents(cacheStack, takenStack)) {
-                            cacheCount -= takenStack.getCount();
-                            takenIndex = i;
-                            break;
-                        }
-                    }
-                    int amount = Math.min(missingItem.getCount(), cacheCount);
-                    if (amount > 0) {
-                        this.enqueue(stack, amount, requestPos, playerName, providerPipe);
-                        missingItem.shrink(amount);
-                        if (takenIndex >= 0) {
-                            ItemStack takenStack = alreadyTaken.get(takenIndex);
-                            alreadyTaken.set(takenIndex, takenStack.copyWithCount(takenStack.getCount() + amount));
-                        } else {
-                            alreadyTaken.add(cacheStack.copyWithCount(amount));
-                        }
-                        this.takenFromCache.put(providerPipe, alreadyTaken);
-                    }
+        }
+        if (!missingItem.isEmpty()) {
+            for (ProviderPipeEntity providerPipe : this.providerPipes) {
+                if (missingItem.isEmpty()) {
                     break;
+                }
+                List<ItemStack> alreadyTaken = this.takenFromCache.containsKey(providerPipe) ? this.takenFromCache.get(providerPipe) : new ArrayList<>();
+                for (ItemStack cacheStack : providerPipe.getCache()) {
+                    if (ItemStack.isSameItemSameComponents(stack, cacheStack)) {
+                        int cacheCount = cacheStack.getCount();
+                        int takenIndex = -1;
+                        for (int i = 0; i < alreadyTaken.size(); i++) {
+                            ItemStack takenStack = alreadyTaken.get(i);
+                            if (ItemStack.isSameItemSameComponents(cacheStack, takenStack)) {
+                                cacheCount -= takenStack.getCount();
+                                takenIndex = i;
+                                break;
+                            }
+                        }
+                        int amount = Math.min(missingItem.getCount(), cacheCount);
+                        if (amount > 0) {
+                            this.enqueue(stack, amount, requestPos, playerName, providerPipe);
+                            missingItem.shrink(amount);
+                            if (takenIndex >= 0) {
+                                ItemStack takenStack = alreadyTaken.get(takenIndex);
+                                alreadyTaken.set(takenIndex, takenStack.copyWithCount(takenStack.getCount() + amount));
+                            } else {
+                                alreadyTaken.add(cacheStack.copyWithCount(amount));
+                            }
+                            this.takenFromCache.put(providerPipe, alreadyTaken);
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -110,7 +128,35 @@ public class PipeNetwork {
                 if (ItemStack.isSameItemSameComponents(result, stack)) {
                     int requiredCrafts = Math.ceilDiv(missingItem.getCount(), result.getCount());
                     List<ItemStack> ingredients = craftingPipe.getIngredientsCollated();
-                    for (int i = 0; i < requiredCrafts; i++) {
+                    //
+                    boolean canCraft = true;
+                    for (ItemStack ingredient : ingredients) {
+                        MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player);
+                        if (!missingForCraft.isEmpty()) {
+                            missingItem.addMissingIngredient(missingForCraft);
+                            canCraft = false;
+                        }
+                    }
+                    if (canCraft) {
+                        int amount = Math.min(result.getCount() * requiredCrafts, missingItem.getCount());
+                        missingItem.shrink(amount);
+                        this.enqueue(stack, amount, requestPos, playerName, null);
+                        if (result.getCount() * requiredCrafts > amount) {
+                            int remaining = result.getCount() * requiredCrafts - amount;
+                            boolean matched = false;
+                            for (ItemStack spareItem : this.spareItems) {
+                                if (ItemStack.isSameItemSameComponents(spareItem, stack)) {
+                                    spareItem.grow(remaining);
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            if (!matched) {
+                                this.spareItems.add(stack.copyWithCount(remaining));
+                            }
+                        }
+                    }
+                    /*for (int i = 0; i < requiredCrafts; i++) {
                         boolean canCraft = true;
                         for (ItemStack ingredient : ingredients) {
                             MissingItem missingForCraft = this.queueRequest(ingredient, craftingPipe.getBlockPos(), player);
@@ -123,8 +169,22 @@ public class PipeNetwork {
                             int amount = Math.min(result.getCount(), missingItem.getCount());
                             missingItem.shrink(amount);
                             this.enqueue(stack, amount, requestPos, playerName, null);
+                            if (result.getCount() > amount) {
+                                int remaining = result.getCount() - amount;
+                                boolean matched = false;
+                                for (ItemStack spareItem : this.spareItems) {
+                                    if (ItemStack.isSameItemSameComponents(spareItem, stack)) {
+                                        spareItem.grow(remaining);
+                                        matched = true;
+                                        break;
+                                    }
+                                }
+                                if (!matched) {
+                                    this.spareItems.add(stack.copyWithCount(remaining));
+                                }
+                            }
                         }
-                    }
+                    }*/
                 }
             }
         }
@@ -151,6 +211,7 @@ public class PipeNetwork {
         } else if (partialRequest && missingItem.getCount() < stack.getCount()) {
             this.queue.clear();
             this.takenFromCache.clear();
+            this.spareItems.clear();
             this.request(level, stack.copyWithCount(stack.getCount() - missingItem.getCount()), requestPos, player, false);
             return;
         } else if (player != null) {
@@ -161,6 +222,7 @@ public class PipeNetwork {
         }
         this.queue.clear();
         this.takenFromCache.clear();
+        this.spareItems.clear();
     }
 
     public void tick(ServerLevel level) {
