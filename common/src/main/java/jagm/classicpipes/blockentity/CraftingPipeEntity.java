@@ -5,6 +5,7 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.NetworkedPipeBlock;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.CraftingPipeMenu;
+import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.RequestedItem;
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CrafterBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -33,11 +35,14 @@ import java.util.List;
 
 public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
+    private static final byte DEFAULT_COOLDOWN = 8;
+
     private final FilterContainer filter;
     private final Direction[] slotDirections;
     private final NonNullList<ItemStack> heldItems;
     private int waitingForCraft;
     private boolean crafterTicked;
+    private byte cooldown;
 
     public CraftingPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.CRAFTING_PIPE_ENTITY, pos, state);
@@ -75,10 +80,21 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
             this.getNetwork().resetRequests(level);
             this.crafterTicked = false;
             this.waitingForCraft = 0;
-        } else if (this.waitingForCraft > 0 && this.isEmpty() && level.getBlockEntity(crafterPos) instanceof CrafterBlockEntity crafter) {
-            level.scheduleTick(crafterPos, crafter.getBlockState().getBlock(), 0);
-            level.playSound(null, crafterPos, SoundEvents.DISPENSER_DISPENSE, SoundSource.BLOCKS);
-            this.crafterTicked = true;
+        } else if (this.waitingForCraft > 0) {
+            BlockEntity container = level.getBlockEntity(crafterPos);
+            if (container instanceof CrafterBlockEntity crafter) {
+                if (this.isEmpty()) {
+                    level.scheduleTick(crafterPos, crafter.getBlockState().getBlock(), 0);
+                    level.playSound(null, crafterPos, SoundEvents.CRAFTER_CRAFT, SoundSource.BLOCKS);
+                    this.crafterTicked = true;
+                }
+            } else if (this.cooldown-- <= 0) {
+                if (!(container instanceof AbstractPipeEntity) && Services.LOADER_SERVICE.extractSpecificItem(this, level, crafterPos, this.slotDirections[9].getOpposite(), this.getResult().copyWithCount(1))) {
+                    level.sendBlockUpdated(pos, state, state, 2);
+                    this.setChanged();
+                }
+                this.cooldown = DEFAULT_COOLDOWN;
+            }
         } else if (!this.queued.isEmpty()) {
             this.addQueuedItems(level, false);
         }
@@ -265,6 +281,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         }
         this.waitingForCraft = valueInput.getIntOr("waiting_for_craft", 0);
         this.crafterTicked = valueInput.getBooleanOr("crafter_ticked", false);
+        this.cooldown = valueInput.getByteOr("cooldown", DEFAULT_COOLDOWN);
     }
 
     @Override
@@ -290,6 +307,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         }
         valueOutput.putInt("waiting_for_craft", this.waitingForCraft);
         valueOutput.putBoolean("crafter_ticked", this.crafterTicked);
+        valueOutput.putByte("cooldown", this.cooldown);
     }
 
 }

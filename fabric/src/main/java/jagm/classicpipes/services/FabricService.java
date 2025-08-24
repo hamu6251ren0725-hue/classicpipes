@@ -189,20 +189,7 @@ public class FabricService implements LoaderService {
         Storage<ItemVariant> itemHandler = ItemStorage.SIDED.find(level, containerPos, face);
         boolean success = false;
         if (itemHandler != null) {
-            try (Transaction transaction = Transaction.openOuter()) { /*
-                int extracted = (int) itemHandler.extract(ItemVariant.of(stack), stack.getCount(), transaction);
-                transaction.commit();
-                if (extracted > 0) {
-                    int itemsLeft = extracted;
-                    while (itemsLeft > 0) {
-                        int removed = Math.min(stack.getMaxStackSize(), itemsLeft);
-                        pipe.setItem(face.getOpposite().get3DDataValue(), stack.copyWithCount(removed));
-                        itemsLeft -= removed;
-                    }
-                    if (extracted == stack.getCount()) {
-                        success = true;
-                    }
-                }*/
+            try (Transaction transaction = Transaction.openOuter()) {
                 int extracted = (int) itemHandler.extract(ItemVariant.of(stack), stack.getCount(), transaction);
                 if (extracted == stack.getCount()) {
                     success = true;
