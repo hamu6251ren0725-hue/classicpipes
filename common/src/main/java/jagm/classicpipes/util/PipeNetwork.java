@@ -69,8 +69,14 @@ public class PipeNetwork {
         }
     }
 
-    private MissingItem queueRequest(ItemStack stack, BlockPos requestPos, Player player) {
+    private MissingItem queueRequest(ItemStack stack, BlockPos requestPos, Player player, List<ItemStack> visited) {
         MissingItem missingItem = new MissingItem(stack.copy());
+        for (ItemStack visitedStack : visited) {
+            if (ItemStack.isSameItemSameComponents(visitedStack, stack)) {
+                return missingItem;
+            }
+        }
+        visited.add(stack);
         String playerName = player != null ? player.getName().getString() : "";
         Iterator<ItemStack> iterator = this.spareItems.listIterator();
         while (iterator.hasNext()) {
@@ -122,16 +128,14 @@ public class PipeNetwork {
             }
         }
         if (!missingItem.isEmpty()) {
-            // TODO deal with looping recipes
             for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
                 ItemStack result = craftingPipe.getResult();
                 if (ItemStack.isSameItemSameComponents(result, stack)) {
                     int requiredCrafts = Math.ceilDiv(missingItem.getCount(), result.getCount());
                     List<ItemStack> ingredients = craftingPipe.getIngredientsCollated();
-                    //
                     boolean canCraft = true;
                     for (ItemStack ingredient : ingredients) {
-                        MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player);
+                        MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player, visited);
                         if (!missingForCraft.isEmpty()) {
                             missingItem.addMissingIngredient(missingForCraft);
                             canCraft = false;
@@ -156,35 +160,6 @@ public class PipeNetwork {
                             }
                         }
                     }
-                    /*for (int i = 0; i < requiredCrafts; i++) {
-                        boolean canCraft = true;
-                        for (ItemStack ingredient : ingredients) {
-                            MissingItem missingForCraft = this.queueRequest(ingredient, craftingPipe.getBlockPos(), player);
-                            if (!missingForCraft.isEmpty()) {
-                                missingItem.addMissingIngredient(missingForCraft);
-                                canCraft = false;
-                            }
-                        }
-                        if (canCraft) {
-                            int amount = Math.min(result.getCount(), missingItem.getCount());
-                            missingItem.shrink(amount);
-                            this.enqueue(stack, amount, requestPos, playerName, null);
-                            if (result.getCount() > amount) {
-                                int remaining = result.getCount() - amount;
-                                boolean matched = false;
-                                for (ItemStack spareItem : this.spareItems) {
-                                    if (ItemStack.isSameItemSameComponents(spareItem, stack)) {
-                                        spareItem.grow(remaining);
-                                        matched = true;
-                                        break;
-                                    }
-                                }
-                                if (!matched) {
-                                    this.spareItems.add(stack.copyWithCount(remaining));
-                                }
-                            }
-                        }
-                    }*/
                 }
             }
         }
@@ -192,7 +167,7 @@ public class PipeNetwork {
     }
 
     public void request(ServerLevel level, ItemStack stack, BlockPos requestPos, Player player, boolean partialRequest) {
-        MissingItem missingItem = this.queueRequest(stack.copy(), requestPos, player);
+        MissingItem missingItem = this.queueRequest(stack.copy(), requestPos, player, new ArrayList<>());
         if (missingItem.isEmpty()) {
             boolean cancelled = false;
             for (Tuple<ProviderPipeEntity, RequestedItem> tuple : this.queue) {
@@ -200,7 +175,7 @@ public class PipeNetwork {
                 if (tuple.a() != null && !tuple.a().extractItem(level, tuple.b().getStack())) {
                     cancelled = true;
                     if (!partialRequest && player != null) {
-                        player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), tuple.a().getBlockPos()), false);
+                        player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), tuple.a().getBlockPos().toShortString()), false);
                     }
                     break;
                 }
@@ -209,9 +184,7 @@ public class PipeNetwork {
                 this.queue.forEach(tuple -> this.removeRequestedItem(tuple.b()));
             }
         } else if (partialRequest && missingItem.getCount() < stack.getCount()) {
-            this.queue.clear();
-            this.takenFromCache.clear();
-            this.spareItems.clear();
+            this.resetForNewRequest();
             this.request(level, stack.copyWithCount(stack.getCount() - missingItem.getCount()), requestPos, player, false);
             return;
         } else if (player != null) {
@@ -220,6 +193,10 @@ public class PipeNetwork {
                 player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.b", missing.getCount(), missing.getItemName()), false);
             }
         }
+        this.resetForNewRequest();
+    }
+
+    private void resetForNewRequest() {
         this.queue.clear();
         this.takenFromCache.clear();
         this.spareItems.clear();

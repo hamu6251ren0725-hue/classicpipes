@@ -1,6 +1,5 @@
 package jagm.classicpipes.util;
 
-import jagm.classicpipes.ClassicPipes;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -50,7 +49,6 @@ public class MissingItem {
     }
 
     public List<ItemStack> getBaseItems(List<ItemStack> baseItems) {
-        ClassicPipes.LOGGER.info("{}x {}", this.stack.getCount(), this.stack.getItemName().getString());
         if (this.hasMissingIngredients()) {
             for (MissingItem ingredient : this.missingIngredients) {
                 baseItems = ingredient.getBaseItems(baseItems);
