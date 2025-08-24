@@ -128,9 +128,16 @@ public class PipeNetwork {
             }
         }
         if (!missingItem.isEmpty()) {
+            boolean foundCraftingPipe = false;
             for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
                 ItemStack result = craftingPipe.getResult();
                 if (ItemStack.isSameItemSameComponents(result, stack)) {
+                    if (foundCraftingPipe) {
+                        if (player != null) {
+                            player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".multiple_recipes", stack.getItemName()), false);
+                        }
+                        break;
+                    }
                     int requiredCrafts = Math.ceilDiv(missingItem.getCount(), result.getCount());
                     List<ItemStack> ingredients = craftingPipe.getIngredientsCollated();
                     boolean canCraft = true;
@@ -160,6 +167,7 @@ public class PipeNetwork {
                             }
                         }
                     }
+                    foundCraftingPipe = true;
                 }
             }
         }
@@ -321,7 +329,16 @@ public class PipeNetwork {
         for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
             ItemStack result = craftingPipe.getResult();
             if (!result.isEmpty()) {
-                craftableItems.add(result.copyWithCount(1));
+                boolean matched = false;
+                for (ItemStack alreadyCraftable : craftableItems) {
+                    if (ItemStack.isSameItemSameComponents(alreadyCraftable, result)) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    craftableItems.add(result.copyWithCount(1));
+                }
             }
         }
         return new ClientBoundItemListPayload(existingItems, craftableItems, this.sortingMode, this.pos, requestPos);
