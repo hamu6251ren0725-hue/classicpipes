@@ -71,11 +71,6 @@ public class PipeNetwork {
 
     private MissingItem queueRequest(ItemStack stack, BlockPos requestPos, Player player, List<ItemStack> visited) {
         MissingItem missingItem = new MissingItem(stack.copy());
-        for (ItemStack visitedStack : visited) {
-            if (ItemStack.isSameItemSameComponents(visitedStack, stack)) {
-                return missingItem;
-            }
-        }
         visited.add(stack);
         String playerName = player != null ? player.getName().getString() : "";
         Iterator<ItemStack> iterator = this.spareItems.listIterator();
@@ -142,10 +137,20 @@ public class PipeNetwork {
                     List<ItemStack> ingredients = craftingPipe.getIngredientsCollated();
                     boolean canCraft = true;
                     for (ItemStack ingredient : ingredients) {
-                        MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player, visited);
-                        if (!missingForCraft.isEmpty()) {
-                            missingItem.addMissingIngredient(missingForCraft);
-                            canCraft = false;
+                        boolean alreadyVisited = false;
+                        for (ItemStack visitedStack : visited) {
+                            if (ItemStack.isSameItemSameComponents(visitedStack, ingredient)) {
+                                alreadyVisited = true;
+                                canCraft = false;
+                                break;
+                            }
+                        }
+                        if (!alreadyVisited) {
+                            MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player, visited);
+                            if (!missingForCraft.isEmpty()) {
+                                missingItem.addMissingIngredient(missingForCraft);
+                                canCraft = false;
+                            }
                         }
                     }
                     if (canCraft) {
