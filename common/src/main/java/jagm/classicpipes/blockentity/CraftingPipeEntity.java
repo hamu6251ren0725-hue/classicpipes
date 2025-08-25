@@ -8,6 +8,7 @@ import jagm.classicpipes.inventory.menu.CraftingPipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.RequestedItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -68,7 +69,7 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         if (this.crafterTicked && this.hasNetwork()) {
             for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
                 if (requestedItem.matches(this.getResult())) {
-                    requestedItem.sendMessage(level, Component.translatable("chat." + ClassicPipes.MOD_ID + ".crafter_jammed", crafterPos.toShortString()));
+                    requestedItem.sendMessage(level, Component.translatable("chat." + ClassicPipes.MOD_ID + ".crafter_jammed", crafterPos.toShortString()).withStyle(ChatFormatting.RED));
                 }
             }
             this.getNetwork().resetRequests(level);

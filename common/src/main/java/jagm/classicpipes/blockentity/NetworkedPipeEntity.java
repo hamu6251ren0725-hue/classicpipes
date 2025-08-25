@@ -269,7 +269,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
         this.setController(false);
         this.routingSchedule.clear();
         if (this.hasNetwork()) {
-            this.getNetwork().removePipe(this);
+            this.getNetwork().removePipe(level, this);
         }
         this.setNetwork(null, level);
     }
