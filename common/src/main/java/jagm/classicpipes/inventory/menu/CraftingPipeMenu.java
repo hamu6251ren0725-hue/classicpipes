@@ -35,7 +35,7 @@ public class CraftingPipeMenu extends FilterMenu {
             }
         }
         this.addSlot(new FilterSlot(filter, 9, 125, 35));
-        this.addStandardInventorySlots(playerInventory, 8, 107);
+        this.addStandardInventorySlots(playerInventory, 8, 89);
     }
 
     public void setSlotDirection(int slot, Direction direction) {

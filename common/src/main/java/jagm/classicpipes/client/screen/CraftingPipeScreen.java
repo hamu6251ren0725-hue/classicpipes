@@ -26,7 +26,7 @@ public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu
     public CraftingPipeScreen(CraftingPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.slotDirectionButtons = new Button[10];
-        this.imageHeight = 189;
+        this.imageHeight = 171;
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
