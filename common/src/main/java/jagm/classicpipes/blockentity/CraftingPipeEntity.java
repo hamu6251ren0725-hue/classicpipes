@@ -48,14 +48,8 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         super(ClassicPipes.CRAFTING_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 10, true);
         this.slotDirections = new Direction[10];
-        Direction defaultDirection = Direction.DOWN;
-        for (Direction validDirection : Direction.values()) {
-            if (state.getValue(NetworkedPipeBlock.PROPERTY_BY_DIRECTION.get(validDirection)).equals(NetworkedPipeBlock.ConnectionState.UNLINKED)) {
-                defaultDirection = validDirection;
-                break;
-            }
-        }
-        Arrays.fill(this.slotDirections, defaultDirection);
+        List<Direction> buttonDirections = this.getDirectionsForButtons(state);
+        Arrays.fill(this.slotDirections, buttonDirections.isEmpty() ? Direction.DOWN : buttonDirections.getFirst());
         this.heldItems = NonNullList.withSize(9, ItemStack.EMPTY);
     }
 
@@ -103,16 +97,13 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     @Override
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         super.update(level, state, pos, direction, wasConnected);
-        Direction defaultDirection = Direction.DOWN;
-        for (Direction validDirection : Direction.values()) {
-            if (state.getValue(NetworkedPipeBlock.PROPERTY_BY_DIRECTION.get(validDirection)).equals(NetworkedPipeBlock.ConnectionState.UNLINKED)) {
-                defaultDirection = validDirection;
-                break;
-            }
-        }
-        for (int i = 0; i < this.slotDirections.length; i++) {
-            if (!state.getValue(NetworkedPipeBlock.PROPERTY_BY_DIRECTION.get(this.slotDirections[i])).equals(NetworkedPipeBlock.ConnectionState.UNLINKED)) {
-                this.slotDirections[i] = defaultDirection;
+        List<Direction> buttonDirections = this.getDirectionsForButtons(this.getBlockState());
+        if (!buttonDirections.isEmpty()) {
+            for (int i = 0; i < this.slotDirections.length; i++) {
+                if (!buttonDirections.contains(this.slotDirections[i])) {
+                    this.slotDirections[i] = buttonDirections.getFirst();
+                    this.setChanged();
+                }
             }
         }
     }
@@ -252,7 +243,17 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new CraftingPipeMenu(id, playerInventory, this.filter, this.slotDirections, this.getBlockPos());
+        return new CraftingPipeMenu(id, playerInventory, this.filter, this.slotDirections, this.getDirectionsForButtons(this.getBlockState()), this.getBlockPos());
+    }
+
+    public List<Direction> getDirectionsForButtons(BlockState state) {
+        List<Direction> availableDirections = new ArrayList<>();
+        for (Direction direction : Direction.values()) {
+            if (state.getValue(NetworkedPipeBlock.PROPERTY_BY_DIRECTION.get(direction)).equals(NetworkedPipeBlock.ConnectionState.UNLINKED)) {
+                availableDirections.add(direction);
+            }
+        }
+        return availableDirections;
     }
 
     @Override

@@ -3,6 +3,7 @@ package jagm.classicpipes.inventory.menu;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.network.ClientBoundCraftingPipePayload;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Inventory;
@@ -11,18 +12,22 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
+
 public class CraftingPipeMenu extends FilterMenu {
 
     private final Direction[] ioDirections;
+    private final List<Direction> availableDirections;
     private final BlockPos pos;
 
     public CraftingPipeMenu(int id, Inventory playerInventory, ClientBoundCraftingPipePayload payload) {
-        this(id, playerInventory, new FilterContainer(null, 10, true), payload.slotDirections(), payload.pos());
+        this(id, playerInventory, new FilterContainer(null, 10, true), payload.slotDirections(), payload.availableDirections(), payload.pos());
     }
 
-    public CraftingPipeMenu(int id, Inventory playerInventory, FilterContainer filter, Direction[] ioDirections, BlockPos pos) {
+    public CraftingPipeMenu(int id, Inventory playerInventory, FilterContainer filter, Direction[] ioDirections, List<Direction> availableDirections, BlockPos pos) {
         super(ClassicPipes.CRAFTING_PIPE_MENU, id, filter);
         this.ioDirections = ioDirections;
+        this.availableDirections = availableDirections;
         this.pos = pos;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -43,6 +48,38 @@ public class CraftingPipeMenu extends FilterMenu {
 
     public BlockPos getPos() {
         return this.pos;
+    }
+
+    public boolean slotHasItem(int slot) {
+        return this.getSlot(slot).hasItem();
+    }
+
+    public Direction nextDirection(Direction direction) {
+        if (hasAvailableDirections()) {
+            for (int i = 0; i < 6; i++) {
+                direction = MiscUtil.nextDirection(direction);
+                if (this.availableDirections.contains(direction)) {
+                    return direction;
+                }
+            }
+        }
+        return direction;
+    }
+
+    public Direction prevDirection(Direction direction) {
+        if (hasAvailableDirections()) {
+            for (int i = 0; i < 6; i++) {
+                direction = MiscUtil.prevDirection(direction);
+                if (this.availableDirections.contains(direction)) {
+                    return direction;
+                }
+            }
+        }
+        return direction;
+    }
+
+    public boolean hasAvailableDirections() {
+        return !this.availableDirections.isEmpty();
     }
 
     @Override

@@ -49,7 +49,7 @@ public class CraftingPipeBlock extends NetworkedPipeBlock {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
                     craftingPipe,
-                    new ClientBoundCraftingPipePayload(craftingPipe.getSlotDirections(), pos),
+                    new ClientBoundCraftingPipePayload(craftingPipe.getSlotDirections(), craftingPipe.getDirectionsForButtons(state), pos),
                     ClientBoundCraftingPipePayload.STREAM_CODEC
             );
         }

@@ -39,17 +39,16 @@ public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu
                 Direction slotDirection = this.menu.getSlotDirection(slot);
                 this.slotDirectionButtons[slot] = Button.builder(
                         Component.translatable("direction." + ClassicPipes.MOD_ID + ".short." + slotDirection.name().toLowerCase()).withStyle(DIRECTION_COLOURS[slotDirection.get3DDataValue()]),
-                        button -> this.cycleSlotDirection(button, slot)
+                        button -> this.cycleSlotDirection(slot)
                 )
                         .bounds(this.leftPos + 9 + j * 12, this.topPos + 25 + i * 12, 12, 12)
-                        .tooltip(Tooltip.create(Component.translatable("tooltip." + ClassicPipes.MOD_ID + ".crafting_pipe_grid")))
                         .build();
             }
         }
         Direction slotDirection = this.menu.getSlotDirection(9);
         this.slotDirectionButtons[9] = Button.builder(
                 Component.translatable("direction." + ClassicPipes.MOD_ID + ".short." + slotDirection.name().toLowerCase()).withStyle(DIRECTION_COLOURS[slotDirection.get3DDataValue()]),
-                button -> this.cycleSlotDirection(button, 9)
+                button -> this.cycleSlotDirection(9)
         )
                 .bounds(this.leftPos + 149, this.topPos + 37, 12, 12)
                 .tooltip(Tooltip.create(Component.translatable("tooltip." + ClassicPipes.MOD_ID + ".crafting_pipe_result")))
@@ -57,13 +56,32 @@ public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu
         for (Button button : this.slotDirectionButtons) {
             this.addRenderableWidget(button);
         }
+        this.updateButtons();
     }
 
-    private void cycleSlotDirection(Button button, int slot) {
-        Direction newDirection = hasShiftDown() ? MiscUtil.prevDirection(this.menu.getSlotDirection(slot)) : MiscUtil.nextDirection(this.menu.getSlotDirection(slot));
+    private void cycleSlotDirection(int slot) {
+        Direction newDirection = hasShiftDown() ? this.menu.prevDirection(this.menu.getSlotDirection(slot)) : this.menu.nextDirection(this.menu.getSlotDirection(slot));
         this.menu.setSlotDirection(slot, newDirection);
-        button.setMessage(Component.translatable("direction." + ClassicPipes.MOD_ID + ".short." + newDirection.name().toLowerCase()).withStyle(DIRECTION_COLOURS[newDirection.get3DDataValue()]));
+        this.updateButtons();
         Services.LOADER_SERVICE.sendToServer(new ServerBoundSlotDirectionPayload(this.menu.getPos(), slot, newDirection));
+    }
+
+    private Tooltip createDirectionTooltip(Direction direction, boolean result) {
+        return Tooltip.create(Component.translatable(
+                "tooltip." + ClassicPipes.MOD_ID + (result ? ".crafting_pipe_result" : ".crafting_pipe_grid"),
+                Component.translatable("direction." + ClassicPipes.MOD_ID + "." + direction.name().toLowerCase())
+                        .withStyle(DIRECTION_COLOURS[direction.get3DDataValue()])
+        ));
+    }
+
+    private void updateButtons() {
+        for (int slot = 0; slot < 10; slot++) {
+            boolean active = this.menu.slotHasItem(slot) && this.menu.hasAvailableDirections();
+            Direction direction = this.menu.getSlotDirection(slot);
+            this.slotDirectionButtons[slot].active = active;
+            this.slotDirectionButtons[slot].setMessage(active ? Component.translatable("direction." + ClassicPipes.MOD_ID + ".short." + direction.name().toLowerCase()).withStyle(DIRECTION_COLOURS[direction.get3DDataValue()]) : Component.empty());
+            this.slotDirectionButtons[slot].setTooltip(active ? createDirectionTooltip(direction, slot == 9) : null);
+        }
     }
 
     @Override
@@ -83,6 +101,13 @@ public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        boolean ret = super.mouseReleased(mouseX, mouseY, button);
+        this.updateButtons();
+        return ret;
     }
 
 }
