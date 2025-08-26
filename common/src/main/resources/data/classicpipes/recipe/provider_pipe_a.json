@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "minecraft:netherite_scrap",
+    "O": "minecraft:quartz_block",
     "W": "minecraft:glass",
     "X": "minecraft:copper_ingot"
   },

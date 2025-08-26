@@ -2,7 +2,7 @@
   "parent": "classicpipes:block/pipe_side_with_interior",
   "textures": {
     "texture": "classicpipes:block/provider_pipe",
-    "interior": "minecraft:block/netherite_block",
+    "interior": "minecraft:block/quartz_block_top",
     "particle": "classicpipes:block/provider_pipe"
   }
 }
