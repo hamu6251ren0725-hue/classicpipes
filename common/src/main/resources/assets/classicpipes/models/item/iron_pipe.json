@@ -3,7 +3,7 @@
   "textures": {
     "texture": "classicpipes:block/iron_pipe",
     "enabled": "classicpipes:block/iron_pipe_facing",
-    "interior": "minecraft:block/iron_block",
+    "interior": "minecraft:block/anvil",
     "particle": "classicpipes:block/iron_pipe"
   },
   "elements": [
