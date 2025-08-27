@@ -2,7 +2,7 @@ package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.network.ClientBoundCraftingPipePayload;
+import jagm.classicpipes.network.ClientBoundRecipePipePayload;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,18 +14,18 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-public class CraftingPipeMenu extends FilterMenu {
+public class RecipePipeMenu extends FilterMenu {
 
     private final Direction[] ioDirections;
     private final List<Direction> availableDirections;
     private final BlockPos pos;
 
-    public CraftingPipeMenu(int id, Inventory playerInventory, ClientBoundCraftingPipePayload payload) {
+    public RecipePipeMenu(int id, Inventory playerInventory, ClientBoundRecipePipePayload payload) {
         this(id, playerInventory, new FilterContainer(null, 10, true), payload.slotDirections(), payload.availableDirections(), payload.pos());
     }
 
-    public CraftingPipeMenu(int id, Inventory playerInventory, FilterContainer filter, Direction[] ioDirections, List<Direction> availableDirections, BlockPos pos) {
-        super(ClassicPipes.CRAFTING_PIPE_MENU, id, filter);
+    public RecipePipeMenu(int id, Inventory playerInventory, FilterContainer filter, Direction[] ioDirections, List<Direction> availableDirections, BlockPos pos) {
+        super(ClassicPipes.RECIPE_PIPE_MENU, id, filter);
         this.ioDirections = ioDirections;
         this.availableDirections = availableDirections;
         this.pos = pos;

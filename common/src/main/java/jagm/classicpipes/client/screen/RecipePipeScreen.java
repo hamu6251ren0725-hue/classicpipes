@@ -1,7 +1,7 @@
 package jagm.classicpipes.client.screen;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.inventory.menu.CraftingPipeMenu;
+import jagm.classicpipes.inventory.menu.RecipePipeMenu;
 import jagm.classicpipes.network.ServerBoundSlotDirectionPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
@@ -16,14 +16,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu> {
+public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
 
-    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/crafting_pipe.png");
+    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/recipe_pipe.png");
     private static final ChatFormatting[] DIRECTION_COLOURS = new ChatFormatting[]{ChatFormatting.LIGHT_PURPLE, ChatFormatting.GREEN, ChatFormatting.YELLOW, ChatFormatting.BLUE, ChatFormatting.GRAY, ChatFormatting.RED};
 
     private final Button[] slotDirectionButtons;
 
-    public CraftingPipeScreen(CraftingPipeMenu menu, Inventory playerInventory, Component title) {
+    public RecipePipeScreen(RecipePipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.slotDirectionButtons = new Button[10];
         this.imageHeight = 171;
@@ -51,7 +51,6 @@ public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu
                 button -> this.cycleSlotDirection(9)
         )
                 .bounds(this.leftPos + 149, this.topPos + 37, 12, 12)
-                .tooltip(Tooltip.create(Component.translatable("tooltip." + ClassicPipes.MOD_ID + ".crafting_pipe_result")))
                 .build();
         for (Button button : this.slotDirectionButtons) {
             this.addRenderableWidget(button);
@@ -68,7 +67,7 @@ public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu
 
     private Tooltip createDirectionTooltip(Direction direction, boolean result) {
         return Tooltip.create(Component.translatable(
-                "tooltip." + ClassicPipes.MOD_ID + (result ? ".crafting_pipe_result" : ".crafting_pipe_grid"),
+                "tooltip." + ClassicPipes.MOD_ID + (result ? ".recipe_pipe_result" : ".recipe_pipe_grid"),
                 Component.translatable("direction." + ClassicPipes.MOD_ID + "." + direction.name().toLowerCase())
                         .withStyle(DIRECTION_COLOURS[direction.get3DDataValue()])
         ));

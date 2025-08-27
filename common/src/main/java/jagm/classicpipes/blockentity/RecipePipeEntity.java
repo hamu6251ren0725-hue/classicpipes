@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.NetworkedPipeBlock;
 import jagm.classicpipes.inventory.container.FilterContainer;
-import jagm.classicpipes.inventory.menu.CraftingPipeMenu;
+import jagm.classicpipes.inventory.menu.RecipePipeMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.RequestedItem;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
+public class RecipePipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
     private static final byte DEFAULT_COOLDOWN = 8;
 
@@ -45,8 +45,8 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     private boolean crafterTicked;
     private byte cooldown;
 
-    public CraftingPipeEntity(BlockPos pos, BlockState state) {
-        super(ClassicPipes.CRAFTING_PIPE_ENTITY, pos, state);
+    public RecipePipeEntity(BlockPos pos, BlockState state) {
+        super(ClassicPipes.RECIPE_PIPE_ENTITY, pos, state);
         this.filter = new FilterContainer(this, 10, true);
         this.slotDirections = new Direction[10];
         List<Direction> buttonDirections = this.getDirectionsForButtons(state);
@@ -239,12 +239,12 @@ public class CraftingPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("container." + ClassicPipes.MOD_ID + ".crafting_pipe");
+        return Component.translatable("container." + ClassicPipes.MOD_ID + ".recipe_pipe");
     }
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new CraftingPipeMenu(id, playerInventory, this.filter, this.slotDirections, this.getDirectionsForButtons(this.getBlockState()), this.getBlockPos());
+        return new RecipePipeMenu(id, playerInventory, this.filter, this.slotDirections, this.getDirectionsForButtons(this.getBlockState()), this.getBlockPos());
     }
 
     public List<Direction> getDirectionsForButtons(BlockState state) {

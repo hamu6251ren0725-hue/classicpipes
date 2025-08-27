@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_side_north"
+        "model": "classicpipes:block/recipe_pipe_side_north"
       },
       "when": {
         "north": "unlinked"
@@ -18,7 +18,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_middle"
+        "model": "classicpipes:block/recipe_pipe_middle"
       },
       "when": {
         "north": "none"
@@ -26,7 +26,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_side_east",
+        "model": "classicpipes:block/recipe_pipe_side_east",
         "uvlock": true,
         "y": 90
       },
@@ -46,7 +46,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_middle",
+        "model": "classicpipes:block/recipe_pipe_middle",
         "uvlock": true,
         "y": 90
       },
@@ -56,7 +56,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_side_south",
+        "model": "classicpipes:block/recipe_pipe_side_south",
         "uvlock": true,
         "y": 180
       },
@@ -76,7 +76,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_middle",
+        "model": "classicpipes:block/recipe_pipe_middle",
         "uvlock": true,
         "y": 180
       },
@@ -86,7 +86,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_side_west",
+        "model": "classicpipes:block/recipe_pipe_side_west",
         "uvlock": true,
         "y": 270
       },
@@ -106,7 +106,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_middle",
+        "model": "classicpipes:block/recipe_pipe_middle",
         "uvlock": true,
         "y": 270
       },
@@ -116,7 +116,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_side_up",
+        "model": "classicpipes:block/recipe_pipe_side_up",
         "uvlock": true,
         "x": 270
       },
@@ -136,7 +136,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_middle",
+        "model": "classicpipes:block/recipe_pipe_middle",
         "uvlock": true,
         "x": 270
       },
@@ -146,7 +146,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_side_down",
+        "model": "classicpipes:block/recipe_pipe_side_down",
         "uvlock": true,
         "x": 90
       },
@@ -166,7 +166,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/crafting_pipe_middle",
+        "model": "classicpipes:block/recipe_pipe_middle",
         "uvlock": true,
         "x": 90
       },

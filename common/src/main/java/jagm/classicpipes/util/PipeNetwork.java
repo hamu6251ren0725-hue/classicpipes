@@ -25,7 +25,7 @@ public class PipeNetwork {
     private final Set<ProviderPipeEntity> providerPipes;
     private final Set<StockingPipeEntity> stockingPipes;
     private final Set<MatchingPipeEntity> matchingPipes;
-    private final Set<CraftingPipeEntity> craftingPipes;
+    private final Set<RecipePipeEntity> recipePipes;
     private SortingMode sortingMode;
     private boolean cacheChanged;
     private byte cacheCooldown;
@@ -40,7 +40,7 @@ public class PipeNetwork {
         this.providerPipes = new HashSet<>();
         this.stockingPipes = new HashSet<>();
         this.matchingPipes = new HashSet<>();
-        this.craftingPipes = new HashSet<>();
+        this.recipePipes = new HashSet<>();
         this.sortingMode = sortingMode;
         this.pos = pos;
         this.cacheChanged = false;
@@ -125,7 +125,7 @@ public class PipeNetwork {
         }
         if (!missingItem.isEmpty()) {
             boolean foundCraftingPipe = false;
-            for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
+            for (RecipePipeEntity craftingPipe : this.recipePipes) {
                 ItemStack result = craftingPipe.getResult();
                 if (ItemStack.isSameItemSameComponents(result, stack)) {
                     if (foundCraftingPipe) {
@@ -240,7 +240,7 @@ public class PipeNetwork {
         this.getRequestedItems().removeIf(requestedItem -> {
             if (requestedItem.timedOut()) {
                 requestedItem.sendMessage(level, Component.translatable("chat." + ClassicPipes.MOD_ID + ".timed_out", requestedItem.getAmountRemaining(), requestedItem.getStack().getItemName()).withStyle(ChatFormatting.RED));
-                for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
+                for (RecipePipeEntity craftingPipe : this.recipePipes) {
                     if (requestedItem.matches(craftingPipe.getResult())) {
                         craftingPipe.dropHeldItems(level, craftingPipe.getBlockPos());
                     }
@@ -253,7 +253,7 @@ public class PipeNetwork {
 
     public void resetRequests(ServerLevel level) {
         this.requestedItems.clear();
-        for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
+        for (RecipePipeEntity craftingPipe : this.recipePipes) {
             craftingPipe.dropHeldItems(level, craftingPipe.getBlockPos());
         }
     }
@@ -290,8 +290,8 @@ public class PipeNetwork {
             this.stockingPipes.add(stockingPipe);
         } else if (pipe instanceof MatchingPipeEntity matchingPipe) {
             this.matchingPipes.add(matchingPipe);
-        } else if (pipe instanceof CraftingPipeEntity craftingPipe) {
-            this.craftingPipes.add(craftingPipe);
+        } else if (pipe instanceof RecipePipeEntity recipePipe) {
+            this.recipePipes.add(recipePipe);
         }
     }
 
@@ -307,8 +307,8 @@ public class PipeNetwork {
             this.stockingPipes.remove(stockingPipe);
         } else if (pipe instanceof MatchingPipeEntity matchingPipe) {
             this.matchingPipes.remove(matchingPipe);
-        } else if (pipe instanceof CraftingPipeEntity craftingPipe) {
-            this.craftingPipes.remove(craftingPipe);
+        } else if (pipe instanceof RecipePipeEntity recipePipe) {
+            this.recipePipes.remove(recipePipe);
         }
         this.requestedItems.removeIf(requestedItem -> {
             if (requestedItem.getDestination().equals(pipe.getBlockPos())) {
@@ -340,7 +340,7 @@ public class PipeNetwork {
             }
         }
         List<ItemStack> craftableItems = new ArrayList<>();
-        for (CraftingPipeEntity craftingPipe : this.craftingPipes) {
+        for (RecipePipeEntity craftingPipe : this.recipePipes) {
             ItemStack result = craftingPipe.getResult();
             if (!result.isEmpty()) {
                 boolean matched = false;

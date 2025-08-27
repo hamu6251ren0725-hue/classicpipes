@@ -38,7 +38,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         BlockEntityRenderers.register(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
-        BlockEntityRenderers.register(ClassicPipes.CRAFTING_PIPE_ENTITY, CraftingPipeRenderer::new);
+        BlockEntityRenderers.register(ClassicPipes.RECIPE_PIPE_ENTITY, CraftingPipeRenderer::new);
 
         MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
         MenuScreens.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);
@@ -46,7 +46,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         MenuScreens.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
         MenuScreens.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
         MenuScreens.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
-        MenuScreens.register(ClassicPipes.CRAFTING_PIPE_MENU, CraftingPipeScreen::new);
+        MenuScreens.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
 
         registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
 

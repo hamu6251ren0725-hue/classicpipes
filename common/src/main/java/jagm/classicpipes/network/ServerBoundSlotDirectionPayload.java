@@ -1,6 +1,6 @@
 package jagm.classicpipes.network;
 
-import jagm.classicpipes.blockentity.CraftingPipeEntity;
+import jagm.classicpipes.blockentity.RecipePipeEntity;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,7 +30,7 @@ public record ServerBoundSlotDirectionPayload(BlockPos pos, int slot, Direction 
 
     @Override
     public void handle(Player player) {
-        if (player.level().getBlockEntity(this.pos()) instanceof CraftingPipeEntity craftingPipe) {
+        if (player.level().getBlockEntity(this.pos()) instanceof RecipePipeEntity craftingPipe) {
             craftingPipe.setSlotDirection(this.slot(), this.direction());
         }
     }

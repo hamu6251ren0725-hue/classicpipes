@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "classicpipes:crafting_pipe"
+          "name": "classicpipes:recipe_pipe"
         }
       ],
       "conditions": [

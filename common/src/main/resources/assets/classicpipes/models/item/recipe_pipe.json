@@ -1,10 +1,10 @@
 {
   "parent": "classicpipes:item/pipe",
   "textures": {
-    "texture": "classicpipes:block/crafting_pipe_up",
-    "down": "classicpipes:block/crafting_pipe_down",
+    "texture": "classicpipes:block/recipe_pipe_up",
+    "down": "classicpipes:block/recipe_pipe_down",
     "interior": "classicpipes:block/routing_pipe_linked",
-    "particle": "classicpipes:block/crafting_pipe_up"
+    "particle": "classicpipes:block/recipe_pipe_up"
   },
   "elements": [
     {

@@ -1,7 +1,0 @@
-{
-  "parent": "classicpipes:block/pipe_side",
-  "textures": {
-    "texture": "classicpipes:block/crafting_pipe_east",
-    "particle": "classicpipes:block/crafting_pipe_east"
-  }
-}

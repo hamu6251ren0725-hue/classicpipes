@@ -2,7 +2,7 @@ package jagm.classicpipes.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import jagm.classicpipes.blockentity.CraftingPipeEntity;
+import jagm.classicpipes.blockentity.RecipePipeEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-public class CraftingPipeRenderer implements BlockEntityRenderer<CraftingPipeEntity> {
+public class CraftingPipeRenderer implements BlockEntityRenderer<RecipePipeEntity> {
 
     private final BlockEntityRendererProvider.Context context;
 
@@ -20,7 +20,7 @@ public class CraftingPipeRenderer implements BlockEntityRenderer<CraftingPipeEnt
     }
 
     @Override
-    public void render(CraftingPipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 vec3) {
+    public void render(RecipePipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 vec3) {
         PipeRenderer.renderPipeItems(this.context, pipe, partialTicks, poses, bufferSource, light, overlay);
         NonNullList<ItemStack> heldItems = pipe.getHeldItems();
         for (int i = 0; i < heldItems.size(); i++) {

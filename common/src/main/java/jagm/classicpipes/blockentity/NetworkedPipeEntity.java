@@ -152,7 +152,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                         validDirections.add(direction);
                     }
                 }
-                if (validDirections.isEmpty() || this instanceof CraftingPipeEntity) {
+                if (validDirections.isEmpty() || this instanceof RecipePipeEntity) {
                     item.setEjecting(true);
                     item.setTargetDirection(item.getFromDirection().getOpposite());
                 } else {

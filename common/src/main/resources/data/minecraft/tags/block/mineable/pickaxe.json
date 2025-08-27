@@ -13,6 +13,6 @@
     "classicpipes:request_pipe",
     "classicpipes:stocking_pipe",
     "classicpipes:matching_pipe",
-    "classicpipes:crafting_pipe"
+    "classicpipes:recipe_pipe"
   ]
 }

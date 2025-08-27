@@ -1,9 +1,9 @@
 {
   "parent": "classicpipes:block/pipe_middle",
   "textures": {
-    "texture": "classicpipes:block/crafting_pipe_west",
+    "texture": "classicpipes:block/recipe_pipe_west",
     "interior": "classicpipes:block/routing_pipe_linked",
-    "particle": "classicpipes:block/crafting_pipe_west"
+    "particle": "classicpipes:block/recipe_pipe_west"
   },
   "elements": [
     {
