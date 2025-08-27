@@ -3,7 +3,7 @@
   "textures": {
     "texture": "classicpipes:block/stocking_pipe",
     "linked": "classicpipes:block/routing_pipe_linked",
-    "interior": "minecraft:block/quartz_block_top",
+    "interior": "minecraft:block/netherite_block",
     "particle": "classicpipes:block/stocking_pipe"
   },
   "elements": [
