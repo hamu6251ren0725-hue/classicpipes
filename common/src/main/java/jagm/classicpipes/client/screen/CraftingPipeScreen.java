@@ -19,7 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class CraftingPipeScreen extends AbstractContainerScreen<CraftingPipeMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/crafting_pipe.png");
-    private static final ChatFormatting[] DIRECTION_COLOURS = new ChatFormatting[]{ChatFormatting.LIGHT_PURPLE, ChatFormatting.GREEN, ChatFormatting.YELLOW, ChatFormatting.BLUE, ChatFormatting.WHITE, ChatFormatting.RED};
+    private static final ChatFormatting[] DIRECTION_COLOURS = new ChatFormatting[]{ChatFormatting.LIGHT_PURPLE, ChatFormatting.GREEN, ChatFormatting.YELLOW, ChatFormatting.BLUE, ChatFormatting.GRAY, ChatFormatting.RED};
 
     private final Button[] slotDirectionButtons;
 

@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class RoutingPipeScreen extends AbstractContainerScreen<RoutingPipeMenu> {
 
-    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/netherite_pipe.png");
+    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/networked_pipe.png");
 
     public RoutingPipeScreen(RoutingPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

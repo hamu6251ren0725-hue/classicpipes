@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "minecraft:netherite_scrap",
-    "W": "minecraft:glass"
+    "O": "minecraft:quartz_block",
+    "W": "minecraft:tinted_glass"
   },
   "pattern": [
     "OWO"
