@@ -12,13 +12,15 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class RequestPipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
+    public static final Component TITLE = Component.translatable("container." + ClassicPipes.MOD_ID + ".request");
+
     public RequestPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.REQUEST_PIPE_ENTITY, pos, state);
     }
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("container." + ClassicPipes.MOD_ID + ".request");
+        return TITLE;
     }
 
     @Override

@@ -3,16 +3,26 @@ package jagm.classicpipes.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.blockentity.NetworkedPipeEntity;
+import jagm.classicpipes.blockentity.RequestPipeEntity;
 import jagm.classicpipes.blockentity.RoutingPipeEntity;
+import jagm.classicpipes.inventory.menu.RequestMenu;
+import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -109,6 +119,35 @@ public class NetworkedPipeBlock extends AbstractPipeBlock {
             );
         }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.getItem().equals(ClassicPipes.PIPE_SLICER)) {
+            if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof NetworkedPipeEntity networkedPipe && networkedPipe.hasNetwork()) {
+                ClientBoundItemListPayload payload = networkedPipe.getNetwork().requestItemList(pos);
+                Services.LOADER_SERVICE.openMenu(
+                        serverPlayer,
+                        new MenuProvider() {
+
+                            @Override
+                            public Component getDisplayName() {
+                                return RequestPipeEntity.TITLE;
+                            }
+
+                            @Override
+                            public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+                                return new RequestMenu(id, inventory, payload);
+                            }
+
+                        },
+                        payload,
+                        ClientBoundItemListPayload.STREAM_CODEC
+                );
+                return InteractionResult.SUCCESS;
+            }
+        }
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 
     public enum ConnectionState implements StringRepresentable {

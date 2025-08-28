@@ -88,6 +88,8 @@ public class ClassicPipes {
     public static final BlockEntityType<MatchingPipeEntity> MATCHING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(MatchingPipeEntity::new, MATCHING_PIPE);
     public static final BlockEntityType<RecipePipeEntity> RECIPE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RecipePipeEntity::new, RECIPE_PIPE);
 
+    public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
+
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
     public static final SoundEvent OBSIDIAN_PIPE_DESTROY_ITEM = createSoundEvent("obsidian_pipe_destroy_item");
@@ -103,12 +105,13 @@ public class ClassicPipes {
     public static final MenuType<MatchingPipeMenu> MATCHING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(MatchingPipeMenu::new, ClientBoundBoolPayload.STREAM_CODEC);
     public static final MenuType<RecipePipeMenu> RECIPE_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RecipePipeMenu::new, ClientBoundRecipePipePayload.STREAM_CODEC);
 
-    private static void createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
+    private static Item createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {
             props.component(DataComponents.LORE, new ItemLore(List.of(), Arrays.asList(lore)));
         }
         Item item = factory.apply(props.setId(MiscUtil.makeKey(Registries.ITEM, name)));
         ITEMS.put(name, item);
+        return item;
     }
 
     private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, boolean fashionable, Component... lore) {
