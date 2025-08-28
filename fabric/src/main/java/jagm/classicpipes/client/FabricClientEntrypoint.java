@@ -50,7 +50,8 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         MenuScreens.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
         MenuScreens.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
 
-        registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
+        //registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
+        ClientPlayNetworking.registerGlobalReceiver(ClientBoundItemListPayload.TYPE, (payload, context) -> payload.handle(context.player()));
 
     }
 

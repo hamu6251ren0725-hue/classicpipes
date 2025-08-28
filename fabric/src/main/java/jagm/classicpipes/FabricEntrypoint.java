@@ -62,6 +62,8 @@ public class FabricEntrypoint implements ModInitializer {
         registerServerPayload(ServerBoundActiveStockingPayload.TYPE, ServerBoundActiveStockingPayload.STREAM_CODEC);
         registerServerPayload(ServerBoundSlotDirectionPayload.TYPE, ServerBoundSlotDirectionPayload.STREAM_CODEC);
 
+        PayloadTypeRegistry.playS2C().register(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
+
     }
 
     private static <T extends BlockEntity> void registerBlockEntity(String name, BlockEntityType<T> blockEntityType) {
