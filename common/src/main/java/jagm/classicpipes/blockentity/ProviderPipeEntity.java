@@ -29,7 +29,7 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
 
     private final SingleItemFilterContainer filter;
     private boolean leaveOne;
-    private List<ItemStack> cache;
+    private final List<ItemStack> cache;
     private boolean cacheInitialised = false;
 
     public ProviderPipeEntity(BlockPos pos, BlockState state) {
@@ -111,6 +111,7 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
     }
 
     public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
+        this.cache.clear();
         List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
         Iterator<ItemStack> iterator = stacks.iterator();
         while (iterator.hasNext()) {
@@ -124,7 +125,7 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 }
             }
         }
-        this.cache = stacks;
+        this.cache.addAll(stacks);
         if (this.hasNetwork()) {
             this.getNetwork().cacheUpdated();
         }

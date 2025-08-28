@@ -189,7 +189,7 @@ public class ForgeService implements LoaderService {
                         }
                     }
                     if (!matched) {
-                        stacks.add(slotStack);
+                        stacks.add(slotStack.copy());
                     }
                 }
                 return stacks;
