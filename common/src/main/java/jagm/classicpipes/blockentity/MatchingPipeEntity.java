@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MatchingPipeEntity extends NetworkedPipeEntity implements MenuProvider {
+public class MatchingPipeEntity extends NetworkedPipeEntity implements MenuProvider, MatchingPipe {
 
     private boolean matchComponents;
     private final List<ItemStack> cache;
@@ -48,6 +48,7 @@ public class MatchingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         this.cache.addAll(Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite()));
     }
 
+    @Override
     public boolean matches(ItemStack stack) {
         for (ItemStack containerStack : this.cache) {
             if (stack.is(containerStack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, containerStack))) {
@@ -55,6 +56,11 @@ public class MatchingPipeEntity extends NetworkedPipeEntity implements MenuProvi
             }
         }
         return false;
+    }
+
+    @Override
+    public NetworkedPipeEntity getAsPipe() {
+        return this;
     }
 
     @Override

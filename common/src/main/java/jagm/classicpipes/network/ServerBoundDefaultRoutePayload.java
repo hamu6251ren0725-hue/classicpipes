@@ -1,6 +1,7 @@
 package jagm.classicpipes.network;
 
 import jagm.classicpipes.inventory.menu.RoutingPipeMenu;
+import jagm.classicpipes.inventory.menu.StoragePipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,8 +25,12 @@ public record ServerBoundDefaultRoutePayload(boolean defaultRoute) implements Se
 
     @Override
     public void handle(Player player) {
-        if (player != null && player.containerMenu instanceof RoutingPipeMenu menu) {
-            menu.setDefaultRoute(this.defaultRoute());
+        if (player != null) {
+            if (player.containerMenu instanceof RoutingPipeMenu menu) {
+                menu.setDefaultRoute(this.defaultRoute());
+            } else if (player.containerMenu instanceof StoragePipeMenu menu) {
+                menu.setDefaultRoute(this.defaultRoute());
+            }
         }
     }
 

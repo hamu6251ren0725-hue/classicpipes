@@ -21,17 +21,17 @@ public class PipeNetwork {
 
     private final BlockPos pos;
     private final Set<RoutingPipeEntity> routingPipes;
-    private final Set<RoutingPipeEntity> defaultRoutes;
-    private final Set<ProviderPipeEntity> providerPipes;
+    private final Set<NetworkedPipeEntity> defaultRoutes;
+    private final Set<ProviderPipe> providerPipes;
     private final Set<StockingPipeEntity> stockingPipes;
-    private final Set<MatchingPipeEntity> matchingPipes;
+    private final Set<MatchingPipe> matchingPipes;
     private final Set<RecipePipeEntity> recipePipes;
     private SortingMode sortingMode;
     private boolean cacheChanged;
     private byte cacheCooldown;
     private final List<RequestedItem> requestedItems;
-    private final List<Tuple<ProviderPipeEntity, RequestedItem>> queue;
-    private final Map<ProviderPipeEntity, List<ItemStack>> takenFromCache;
+    private final List<Tuple<ProviderPipe, RequestedItem>> queue;
+    private final Map<ProviderPipe, List<ItemStack>> takenFromCache;
     private final List<ItemStack> spareItems;
 
     public PipeNetwork(BlockPos pos, SortingMode sortingMode) {
@@ -55,10 +55,10 @@ public class PipeNetwork {
         this(pos, SortingMode.AMOUNT_DESCENDING);
     }
 
-    private void enqueue(ItemStack stack, int amount, BlockPos requestPos, String playerName, ProviderPipeEntity providerPipe) {
+    private void enqueue(ItemStack stack, int amount, BlockPos requestPos, String playerName, ProviderPipe providerPipe) {
         RequestedItem requestedItem = new RequestedItem(stack.copyWithCount(amount), requestPos, playerName);
         boolean matched = false;
-        for (Tuple<ProviderPipeEntity, RequestedItem> tuple : this.queue) {
+        for (Tuple<ProviderPipe, RequestedItem> tuple : this.queue) {
             if (tuple.a() == providerPipe && requestedItem.matches(tuple.b())) {
                 matched = true;
                 tuple.b().getStack().grow(amount);
@@ -89,7 +89,7 @@ public class PipeNetwork {
             }
         }
         if (!missingItem.isEmpty()) {
-            for (ProviderPipeEntity providerPipe : this.providerPipes) {
+            for (ProviderPipe providerPipe : this.providerPipes) {
                 if (missingItem.isEmpty()) {
                     break;
                 }
@@ -184,12 +184,12 @@ public class PipeNetwork {
         MissingItem missingItem = this.queueRequest(stack.copy(), requestPos, player, new ArrayList<>());
         if (missingItem.isEmpty()) {
             boolean cancelled = false;
-            for (Tuple<ProviderPipeEntity, RequestedItem> tuple : this.queue) {
+            for (Tuple<ProviderPipe, RequestedItem> tuple : this.queue) {
                 this.addRequestedItem(tuple.b());
                 if (tuple.a() != null && !tuple.a().extractItem(level, tuple.b().getStack())) {
                     cancelled = true;
                     if (!partialRequest) {
-                        tuple.b().sendMessage(level, Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), tuple.a().getBlockPos().toShortString()).withStyle(ChatFormatting.RED));
+                        tuple.b().sendMessage(level, Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), tuple.a().getProviderPipePos().toShortString()).withStyle(ChatFormatting.RED));
                     }
                     break;
                 }
@@ -262,7 +262,7 @@ public class PipeNetwork {
         return this.routingPipes;
     }
 
-    public Set<RoutingPipeEntity> getDefaultRoutes() {
+    public Set<NetworkedPipeEntity> getDefaultRoutes() {
         return this.defaultRoutes;
     }
 
@@ -270,7 +270,7 @@ public class PipeNetwork {
         return this.stockingPipes;
     }
 
-    public Set<MatchingPipeEntity> getMatchingPipes() {
+    public Set<MatchingPipe> getMatchingPipes() {
         return this.matchingPipes;
     }
 
@@ -279,35 +279,43 @@ public class PipeNetwork {
     }
 
     public void addPipe(NetworkedPipeEntity pipe) {
+        if (pipe.isDefaultRoute()) {
+            this.defaultRoutes.add(pipe);
+        }
         if (pipe instanceof RoutingPipeEntity routingPipe) {
             this.routingPipes.add(routingPipe);
-            if (routingPipe.isDefaultRoute()) {
-                this.defaultRoutes.add(routingPipe);
-            }
-        } else if (pipe instanceof ProviderPipeEntity providerPipe) {
+        }
+        if (pipe instanceof ProviderPipe providerPipe) {
             this.providerPipes.add(providerPipe);
-        } else if (pipe instanceof StockingPipeEntity stockingPipe) {
+        }
+        if (pipe instanceof StockingPipeEntity stockingPipe) {
             this.stockingPipes.add(stockingPipe);
-        } else if (pipe instanceof MatchingPipeEntity matchingPipe) {
+        }
+        if (pipe instanceof MatchingPipe matchingPipe) {
             this.matchingPipes.add(matchingPipe);
-        } else if (pipe instanceof RecipePipeEntity recipePipe) {
+        }
+        if (pipe instanceof RecipePipeEntity recipePipe) {
             this.recipePipes.add(recipePipe);
         }
     }
 
     public void removePipe(ServerLevel level, NetworkedPipeEntity pipe) {
+        if (pipe.isDefaultRoute()) {
+            this.defaultRoutes.remove(pipe);
+        }
         if (pipe instanceof RoutingPipeEntity routingPipe) {
             this.routingPipes.remove(routingPipe);
-            if (routingPipe.isDefaultRoute()) {
-                this.defaultRoutes.remove(routingPipe);
-            }
-        } else if (pipe instanceof ProviderPipeEntity providerPipe) {
+        }
+        if (pipe instanceof ProviderPipe providerPipe) {
             this.providerPipes.remove(providerPipe);
-        } else if (pipe instanceof StockingPipeEntity stockingPipe) {
+        }
+        if (pipe instanceof StockingPipeEntity stockingPipe) {
             this.stockingPipes.remove(stockingPipe);
-        } else if (pipe instanceof MatchingPipeEntity matchingPipe) {
+        }
+        if (pipe instanceof MatchingPipe matchingPipe) {
             this.matchingPipes.remove(matchingPipe);
-        } else if (pipe instanceof RecipePipeEntity recipePipe) {
+        }
+        if (pipe instanceof RecipePipeEntity recipePipe) {
             this.recipePipes.remove(recipePipe);
         }
         this.requestedItems.removeIf(requestedItem -> {
@@ -321,7 +329,7 @@ public class PipeNetwork {
 
     public ClientBoundItemListPayload requestItemList(BlockPos requestPos) {
         List<ItemStack> existingItems = new ArrayList<>();
-        for (ProviderPipeEntity providerPipe : this.providerPipes) {
+        for (ProviderPipe providerPipe : this.providerPipes) {
             for (ItemStack stack : providerPipe.getCache()) {
                 boolean alreadyThere = false;
                 for (ItemStack inStack : existingItems) {
@@ -340,8 +348,8 @@ public class PipeNetwork {
             }
         }
         List<ItemStack> craftableItems = new ArrayList<>();
-        for (RecipePipeEntity craftingPipe : this.recipePipes) {
-            ItemStack result = craftingPipe.getResult();
+        for (RecipePipeEntity recipePipe : this.recipePipes) {
+            ItemStack result = recipePipe.getResult();
             if (!result.isEmpty()) {
                 boolean matched = false;
                 for (ItemStack alreadyCraftable : craftableItems) {

@@ -45,6 +45,7 @@ public class ForgeEntrypoint {
                 helper.register("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
                 helper.register("stocking_pipe", ClassicPipes.STOCKING_PIPE_ENTITY);
                 helper.register("matching_pipe", ClassicPipes.MATCHING_PIPE_ENTITY);
+                helper.register("storage_pipe", ClassicPipes.STORAGE_PIPE_ENTITY);
                 helper.register("recipe_pipe", ClassicPipes.RECIPE_PIPE_ENTITY);
             });
 
@@ -55,6 +56,7 @@ public class ForgeEntrypoint {
                 helper.register("request", ClassicPipes.REQUEST_MENU);
                 helper.register("stocking_pipe", ClassicPipes.STOCKING_PIPE_MENU);
                 helper.register("matching_pipe", ClassicPipes.MATCHING_PIPE_MENU);
+                helper.register("storage_pipe", ClassicPipes.STORAGE_PIPE_MENU);
                 helper.register("recipe_pipe", ClassicPipes.RECIPE_PIPE_MENU);
             });
 
@@ -94,6 +96,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.STORAGE_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.RECIPE_PIPE_ENTITY, CraftingPipeRenderer::new);
         }
 
@@ -113,6 +116,7 @@ public class ForgeEntrypoint {
                 MenuScreens.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
                 MenuScreens.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
                 MenuScreens.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
+                MenuScreens.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
                 MenuScreens.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
             });
         }

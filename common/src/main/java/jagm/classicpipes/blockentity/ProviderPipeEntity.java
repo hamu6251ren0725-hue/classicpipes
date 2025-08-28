@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvider {
+public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvider, ProviderPipe {
 
     private final SingleItemFilterContainer filter;
     private boolean leaveOne;
@@ -137,16 +137,23 @@ public class ProviderPipeEntity extends NetworkedPipeEntity implements MenuProvi
         }
     }
 
+    @Override
     public List<ItemStack> getCache() {
         return this.cache;
     }
 
+    @Override
     public boolean extractItem(ServerLevel level, ItemStack stack) {
         Direction direction = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
         if (direction != null) {
             return Services.LOADER_SERVICE.extractSpecificItem(this, level, this.getBlockPos().relative(direction), direction.getOpposite(), stack.copy());
         }
         return false;
+    }
+
+    @Override
+    public BlockPos getProviderPipePos() {
+        return this.getBlockPos();
     }
 
 }

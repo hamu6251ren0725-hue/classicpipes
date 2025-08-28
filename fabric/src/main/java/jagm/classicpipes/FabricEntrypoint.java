@@ -40,6 +40,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
         registerBlockEntity("stocking_pipe", ClassicPipes.STOCKING_PIPE_ENTITY);
         registerBlockEntity("matching_pipe", ClassicPipes.MATCHING_PIPE_ENTITY);
+        registerBlockEntity("storage_pipe", ClassicPipes.STORAGE_PIPE_ENTITY);
         registerBlockEntity("recipe_pipe", ClassicPipes.RECIPE_PIPE_ENTITY);
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
@@ -48,6 +49,7 @@ public class FabricEntrypoint implements ModInitializer {
         registerMenu("request", ClassicPipes.REQUEST_MENU);
         registerMenu("stocking_pipe", ClassicPipes.STOCKING_PIPE_MENU);
         registerMenu("matching_pipe", ClassicPipes.MATCHING_PIPE_MENU);
+        registerMenu("storage_pipe", ClassicPipes.STORAGE_PIPE_MENU);
         registerMenu("recipe_pipe", ClassicPipes.RECIPE_PIPE_MENU);
 
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));

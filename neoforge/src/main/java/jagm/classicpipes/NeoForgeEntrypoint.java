@@ -49,6 +49,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("request_pipe"), ClassicPipes.REQUEST_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_ENTITY);
             });
 
@@ -59,6 +60,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("request"), ClassicPipes.REQUEST_MENU);
                 helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_MENU);
             });
 
@@ -105,6 +107,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STOCKING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.STORAGE_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.RECIPE_PIPE_ENTITY, CraftingPipeRenderer::new);
         }
 
@@ -123,6 +126,7 @@ public class NeoForgeEntrypoint {
             event.register(ClassicPipes.REQUEST_MENU, RequestScreen::new);
             event.register(ClassicPipes.STOCKING_PIPE_MENU, StockingPipeScreen::new);
             event.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
+            event.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
             event.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
         }
 

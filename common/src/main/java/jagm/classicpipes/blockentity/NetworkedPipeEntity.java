@@ -129,9 +129,9 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 }
             }
             if (validTargets.isEmpty()) {
-                for (MatchingPipeEntity matchingPipe : this.network.getMatchingPipes()) {
+                for (MatchingPipe matchingPipe : this.network.getMatchingPipes()) {
                     if (matchingPipe.matches(item.getStack())) {
-                        validTargets.add(matchingPipe);
+                        validTargets.add(matchingPipe.getAsPipe());
                     }
                 }
             }
@@ -368,6 +368,10 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
     @Override
     public short getAcceleration() {
         return ItemInPipe.DEFAULT_ACCELERATION * 64;
+    }
+
+    public boolean isDefaultRoute() {
+        return false;
     }
 
     @Override

@@ -66,6 +66,7 @@ public class RoutingPipeEntity extends NetworkedPipeEntity implements MenuProvid
         return this.filter.shouldMatchComponents();
     }
 
+    @Override
     public boolean isDefaultRoute() {
         return this.defaultRoute;
     }

@@ -3,10 +3,7 @@ package jagm.classicpipes;
 import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.*;
-import jagm.classicpipes.network.ClientBoundBoolPayload;
-import jagm.classicpipes.network.ClientBoundItemListPayload;
-import jagm.classicpipes.network.ClientBoundRecipePipePayload;
-import jagm.classicpipes.network.ClientBoundTwoBoolsPayload;
+import jagm.classicpipes.network.*;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
@@ -71,6 +68,7 @@ public class ClassicPipes {
     public static final Block REQUEST_PIPE = createPipe("request_pipe", RequestPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("request_pipe"));
     public static final Block STOCKING_PIPE = createPipe("stocking_pipe", StockingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("stocking_pipe"));
     public static final Block MATCHING_PIPE = createPipe("matching_pipe", MatchingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("matching_pipe"));
+    public static final Block STORAGE_PIPE = createPipe("storage_pipe", StoragePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("storage_pipe.a"), translateDesc("storage_pipe.b"));
     public static final Block RECIPE_PIPE = createPipe("recipe_pipe", RecipePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("recipe_pipe.a"), translateDesc("recipe_pipe.b"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
@@ -86,6 +84,7 @@ public class ClassicPipes {
     public static final BlockEntityType<RequestPipeEntity> REQUEST_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RequestPipeEntity::new, REQUEST_PIPE);
     public static final BlockEntityType<StockingPipeEntity> STOCKING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(StockingPipeEntity::new, STOCKING_PIPE);
     public static final BlockEntityType<MatchingPipeEntity> MATCHING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(MatchingPipeEntity::new, MATCHING_PIPE);
+    public static final BlockEntityType<StoragePipeEntity> STORAGE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(StoragePipeEntity::new, STORAGE_PIPE);
     public static final BlockEntityType<RecipePipeEntity> RECIPE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RecipePipeEntity::new, RECIPE_PIPE);
 
     public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
@@ -103,6 +102,7 @@ public class ClassicPipes {
     public static final MenuType<RequestMenu> REQUEST_MENU = Services.LOADER_SERVICE.createMenuType(RequestMenu::new, ClientBoundItemListPayload.STREAM_CODEC);
     public static final MenuType<StockingPipeMenu> STOCKING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(StockingPipeMenu::new, ClientBoundTwoBoolsPayload.STREAM_CODEC);
     public static final MenuType<MatchingPipeMenu> MATCHING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(MatchingPipeMenu::new, ClientBoundBoolPayload.STREAM_CODEC);
+    public static final MenuType<StoragePipeMenu> STORAGE_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(StoragePipeMenu::new, ClientBoundThreeBoolsPayload.STREAM_CODEC);
     public static final MenuType<RecipePipeMenu> RECIPE_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RecipePipeMenu::new, ClientBoundRecipePipePayload.STREAM_CODEC);
 
     private static Item createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {

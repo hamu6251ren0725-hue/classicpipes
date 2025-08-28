@@ -1,6 +1,7 @@
 package jagm.classicpipes.network;
 
 import jagm.classicpipes.inventory.menu.ProviderPipeMenu;
+import jagm.classicpipes.inventory.menu.StoragePipeMenu;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,8 +25,12 @@ public record ServerBoundLeaveOnePayload(boolean leaveOne) implements SelfHandle
 
     @Override
     public void handle(Player player) {
-        if (player != null && player.containerMenu instanceof ProviderPipeMenu menu) {
-            menu.setLeaveOne(this.leaveOne());
+        if (player != null) {
+            if (player.containerMenu instanceof ProviderPipeMenu menu) {
+                menu.setLeaveOne(this.leaveOne());
+            } else if (player.containerMenu instanceof StoragePipeMenu menu) {
+                menu.setLeaveOne(this.leaveOne());
+            }
         }
     }
 
