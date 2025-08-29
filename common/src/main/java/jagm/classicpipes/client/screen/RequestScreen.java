@@ -198,7 +198,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         Slot slot = this.getHoveredSlot(mouseX, mouseY);
         if (slot != null) {
             ItemStack toRequest = slot.getItem();
@@ -216,7 +216,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
                 }
             }
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
