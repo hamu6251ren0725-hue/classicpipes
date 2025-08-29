@@ -4,7 +4,7 @@
   "key": {
     "O": "minecraft:quartz_block",
     "W": "minecraft:tinted_glass",
-    "X": "minecraft:chest"
+    "X": "#c:chests/wooden"
   },
   "pattern": [
     "OWO",

@@ -1,0 +1,31 @@
+{
+  "values": [
+    "classicpipes:copper_pipe",
+    "classicpipes:iron_pipe",
+    "classicpipes:lapis_pipe",
+    "classicpipes:golden_pipe",
+    "classicpipes:diamond_pipe",
+    "classicpipes:flint_pipe",
+    "classicpipes:brick_pipe",
+    "classicpipes:obsidian_pipe",
+    "classicpipes:routing_pipe",
+    "classicpipes:provider_pipe",
+    "classicpipes:request_pipe",
+    "classicpipes:stocking_pipe",
+    "classicpipes:matching_pipe",
+    "classicpipes:recipe_pipe",
+    "classicpipes:storage_pipe",
+    "classicpipes:acacia_pipe",
+    "classicpipes:bamboo_pipe",
+    "classicpipes:birch_pipe",
+    "classicpipes:cherry_pipe",
+    "classicpipes:crimson_pipe",
+    "classicpipes:dark_oak_pipe",
+    "classicpipes:jungle_pipe",
+    "classicpipes:mangrove_pipe",
+    "classicpipes:oak_pipe",
+    "classicpipes:pale_oak_pipe",
+    "classicpipes:spruce_pipe",
+    "classicpipes:warped_pipe"
+  ]
+}

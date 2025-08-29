@@ -2,16 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "#classicpipes:pipes/networked",
-    "W": "minecraft:iron_ingot"
+    "O": "minecraft:iron_nugget",
+    "W": "#classicpipes:pipes/networked"
   },
   "pattern": [
-    "OOO",
-    "OWO",
-    "OOO"
+    "OWO"
   ],
   "result": {
-    "count": 8,
+    "count": 1,
     "id": "classicpipes:matching_pipe"
   }
 }

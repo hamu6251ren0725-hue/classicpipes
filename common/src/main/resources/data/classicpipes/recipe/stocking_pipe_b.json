@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "O": "classicpipes:routing_pipe",
+    "O": "#classicpipes:pipes/networked",
     "W": "minecraft:lapis_lazuli"
   },
   "pattern": [
