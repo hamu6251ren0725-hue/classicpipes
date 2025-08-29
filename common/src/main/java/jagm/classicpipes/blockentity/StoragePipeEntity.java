@@ -34,7 +34,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     public StoragePipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.STORAGE_PIPE_ENTITY, pos, state);
-        this.defaultRoute = true;
+        this.defaultRoute = false;
         this.matchComponents = false;
         this.leaveOne = false;
         this.cache = new ArrayList<>();
@@ -134,7 +134,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
     protected void loadAdditional(ValueInput valueInput) {
         this.cacheInitialised = false;
         super.loadAdditional(valueInput);
-        this.defaultRoute = valueInput.getBooleanOr("default_route", true);
+        this.defaultRoute = valueInput.getBooleanOr("default_route", false);
         this.matchComponents = valueInput.getBooleanOr("match_components", false);
         this.leaveOne = valueInput.getBooleanOr("leave_one", false);
     }
