@@ -8,4 +8,6 @@ public interface MatchingPipe {
 
     NetworkedPipeEntity getAsPipe();
 
+    void markCannotFit(ItemStack stack);
+
 }

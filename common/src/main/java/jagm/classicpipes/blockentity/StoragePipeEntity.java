@@ -30,6 +30,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
     private boolean leaveOne;
     private final List<ItemStack> cache;
     private boolean cacheInitialised;
+    private final List<ItemStack> cannotFit;
 
     public StoragePipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.STORAGE_PIPE_ENTITY, pos, state);
@@ -38,6 +39,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
         this.leaveOne = false;
         this.cache = new ArrayList<>();
         this.cacheInitialised = false;
+        this.cannotFit = new ArrayList<>();
     }
 
     @Override
@@ -51,6 +53,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
         this.cache.clear();
+        this.cannotFit.clear();
         List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
         Iterator<ItemStack> iterator = stacks.iterator();
         while (iterator.hasNext()) {
@@ -70,6 +73,11 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     @Override
     public boolean matches(ItemStack stack) {
+        for (ItemStack cannotFitStack : this.cannotFit) {
+            if (ItemStack.isSameItemSameComponents(cannotFitStack, stack)) {
+                return false;
+            }
+        }
         for (ItemStack containerStack : this.cache) {
             if (stack.is(containerStack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, containerStack))) {
                 return true;
@@ -81,6 +89,11 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
     @Override
     public NetworkedPipeEntity getAsPipe() {
         return this;
+    }
+
+    @Override
+    public void markCannotFit(ItemStack stack) {
+        this.cannotFit.add(stack);
     }
 
     @Override
