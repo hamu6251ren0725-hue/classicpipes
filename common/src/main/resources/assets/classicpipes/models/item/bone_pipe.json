@@ -1,0 +1,30 @@
+{
+  "parent": "classicpipes:item/pipe",
+  "textures": {
+    "texture": "classicpipes:block/bone_pipe",
+    "particle": "classicpipes:block/bone_pipe",
+    "interior": "classicpipes:block/bone_pipe_interior"
+  },
+  "elements": [
+    {
+      "from": [ 4, 0, 4 ],
+      "to": [ 12, 16, 12 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 12, 16, 12 ],
+      "to": [ 4, 0, 4 ],
+      "faces": {
+        "north": { "texture": "#interior"},
+        "south": { "texture": "#interior"},
+        "east": { "texture": "#interior"},
+        "west": { "texture": "#interior"}
+      }
+    }
+  ]
+}

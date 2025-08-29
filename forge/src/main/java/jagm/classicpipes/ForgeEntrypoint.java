@@ -40,6 +40,7 @@ public class ForgeEntrypoint {
                 helper.register("flint_pipe", ClassicPipes.FLINT_PIPE_ENTITY);
                 helper.register("lapis_pipe", ClassicPipes.LAPIS_PIPE_ENTITY);
                 helper.register("obsidian_pipe", ClassicPipes.OBSIDIAN_PIPE_ENTITY);
+                helper.register("bone_pipe", ClassicPipes.BONE_PIPE_ENTITY);
                 helper.register("routing_pipe", ClassicPipes.ROUTING_PIPE_ENTITY);
                 helper.register("provider_pipe", ClassicPipes.PROVIDER_PIPE_ENTITY);
                 helper.register("request_pipe", ClassicPipes.REQUEST_PIPE_ENTITY);
@@ -91,6 +92,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.FLINT_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.BONE_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.ROUTING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);

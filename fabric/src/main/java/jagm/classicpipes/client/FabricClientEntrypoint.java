@@ -5,17 +5,12 @@ import jagm.classicpipes.client.renderer.CraftingPipeRenderer;
 import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.screen.*;
 import jagm.classicpipes.network.ClientBoundItemListPayload;
-import jagm.classicpipes.network.SelfHandler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 @SuppressWarnings("unused")
 public class FabricClientEntrypoint implements ClientModInitializer {
@@ -33,6 +28,7 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         BlockEntityRenderers.register(ClassicPipes.FLINT_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.LAPIS_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.OBSIDIAN_PIPE_ENTITY, PipeRenderer::new);
+        BlockEntityRenderers.register(ClassicPipes.BONE_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.ROUTING_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.PROVIDER_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.REQUEST_PIPE_ENTITY, PipeRenderer::new);
@@ -50,14 +46,8 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         MenuScreens.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
         MenuScreens.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
 
-        //registerClientPayload(ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
         ClientPlayNetworking.registerGlobalReceiver(ClientBoundItemListPayload.TYPE, (payload, context) -> payload.handle(context.player()));
 
-    }
-
-    private static <T extends SelfHandler> void registerClientPayload(CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
-        PayloadTypeRegistry.playS2C().register(type, codec);
-        ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) -> payload.handle(context.player()));
     }
 
 }

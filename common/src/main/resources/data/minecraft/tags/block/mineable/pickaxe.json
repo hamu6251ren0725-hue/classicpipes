@@ -14,6 +14,7 @@
     "classicpipes:stocking_pipe",
     "classicpipes:matching_pipe",
     "classicpipes:recipe_pipe",
-    "classicpipes:storage_pipe"
+    "classicpipes:storage_pipe",
+    "classicpipes:bone_pipe"
   ]
 }
