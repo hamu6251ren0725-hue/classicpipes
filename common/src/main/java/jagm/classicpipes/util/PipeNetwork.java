@@ -133,7 +133,6 @@ public class PipeNetwork {
                         }
                         break;
                     }
-                    visited.add(stack);
                     int requiredCrafts = Math.ceilDiv(missingItem.getCount(), result.getCount());
                     List<ItemStack> ingredients = craftingPipe.getIngredientsCollated();
                     boolean canCraft = true;
@@ -147,7 +146,9 @@ public class PipeNetwork {
                             }
                         }
                         if (!alreadyVisited) {
-                            MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player, visited);
+                            List<ItemStack> visited2 = new ArrayList<>(visited);
+                            visited2.add(stack);
+                            MissingItem missingForCraft = this.queueRequest(ingredient.copyWithCount(ingredient.getCount() * requiredCrafts), craftingPipe.getBlockPos(), player, visited2);
                             if (!missingForCraft.isEmpty()) {
                                 missingItem.addMissingIngredient(missingForCraft);
                                 canCraft = false;
