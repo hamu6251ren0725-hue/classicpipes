@@ -19,12 +19,14 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
     private final Map<ItemStack, ScheduledRoute> routingSchedule;
     private PipeNetwork network;
     private boolean controller;
+    public BlockPos syncedNetworkPos;
 
     public NetworkedPipeEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state) {
         super(blockEntityType, pos, state);
         this.routingSchedule = new HashMap<>();
         this.network = null;
         this.controller = false;
+        this.syncedNetworkPos = this.getBlockPos();
     }
 
     @Override
@@ -385,6 +387,9 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
             for (RequestedItem requestedItem : requestedItems) {
                 this.network.addRequestedItem(requestedItem);
             }
+            this.syncedNetworkPos = this.getBlockPos();
+        } else {
+            this.syncedNetworkPos = valueInput.read("synced_network_pos", BlockPos.CODEC).orElse(this.getBlockPos());
         }
         ValueInput.TypedInputList<ItemStackWithSlot> routingList = valueInput.listOrEmpty("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStackWithSlot slotStack : routingList) {
@@ -405,6 +410,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 }
             }
         }
+        valueOutput.store("synced_network_pos", BlockPos.CODEC, this.hasNetwork() ? this.network.getPos() : this.getBlockPos());
         ValueOutput.TypedOutputList<ItemStackWithSlot> routingList = valueOutput.list("routing_schedule", ItemStackWithSlot.CODEC);
         for (ItemStack stack : this.routingSchedule.keySet()) {
             routingList.add(new ItemStackWithSlot(this.routingSchedule.get(stack).getDirection().get3DDataValue(), stack));
