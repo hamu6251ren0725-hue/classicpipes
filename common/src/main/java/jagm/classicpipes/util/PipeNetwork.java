@@ -72,7 +72,6 @@ public class PipeNetwork {
 
     private MissingItem queueRequest(ItemStack stack, BlockPos requestPos, Player player, List<ItemStack> visited) {
         MissingItem missingItem = new MissingItem(stack.copy());
-        visited.add(stack);
         String playerName = player != null ? player.getName().getString() : "";
         Iterator<ItemStack> iterator = this.spareItems.listIterator();
         while (iterator.hasNext()) {
@@ -134,6 +133,7 @@ public class PipeNetwork {
                         }
                         break;
                     }
+                    visited.add(stack);
                     int requiredCrafts = Math.ceilDiv(missingItem.getCount(), result.getCount());
                     List<ItemStack> ingredients = craftingPipe.getIngredientsCollated();
                     boolean canCraft = true;
