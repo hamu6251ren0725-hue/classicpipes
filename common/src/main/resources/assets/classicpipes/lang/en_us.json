@@ -104,5 +104,8 @@
   "chat.classicpipes.timed_out": "Request for %sx %s timed out.",
   "chat.classicpipes.multiple_recipes": "Warning: Found multiple Recipe Pipes configured to make %s. The network can only handle one Recipe Pipe per item type.",
   "chat.classicpipes.destination_removed": "Request for %sx %s cancelled because the destination pipe at [%s] was disconnected from the network.",
-  "chat.classicpipes.requested": "Requested %sx %s."
+  "chat.classicpipes.requested": "Requested %sx %s.",
+  "tag.item.classicpipes.pipes": "Pipes",
+  "tag.item.classicpipes.pipes.networked": "Networked Pipes",
+  "tag.item.c.chests.wooden": "Wooden Chests"
 }
