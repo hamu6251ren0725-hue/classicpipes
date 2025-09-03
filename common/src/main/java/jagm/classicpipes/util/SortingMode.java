@@ -15,7 +15,7 @@ public enum SortingMode {
     MOD_A_TO_Z((byte) 4, MiscUtil.MOD.thenComparing(MiscUtil.AMOUNT.reversed().thenComparing(MiscUtil.NAME)), "mod", "az"),
     MOD_Z_TO_A((byte) 5, MiscUtil.MOD.reversed().thenComparing(MiscUtil.AMOUNT.reversed().thenComparing(MiscUtil.NAME.reversed())), "mod", "za"),
     CRAFTABLE_A_TO_Z((byte) 6, MiscUtil.CRAFTABLE.reversed().thenComparing(MiscUtil.NAME), "craftable", "az"),
-    CRAFTABLE_Z_TO_A((byte) 7, MiscUtil.CRAFTABLE.thenComparing(MiscUtil.NAME.reversed()), "craftable", "za");
+    CRAFTABLE_Z_TO_A((byte) 7, MiscUtil.CRAFTABLE.reversed().thenComparing(MiscUtil.NAME.reversed()), "craftable", "za");
 
     private final byte value;
     private final Comparator<Tuple<ItemStack, Boolean>> comparator;
