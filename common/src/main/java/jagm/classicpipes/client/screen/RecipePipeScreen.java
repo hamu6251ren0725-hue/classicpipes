@@ -22,12 +22,14 @@ public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
     private static final ChatFormatting[] DIRECTION_COLOURS = new ChatFormatting[]{ChatFormatting.LIGHT_PURPLE, ChatFormatting.GREEN, ChatFormatting.YELLOW, ChatFormatting.BLUE, ChatFormatting.GRAY, ChatFormatting.RED};
 
     private final Button[] slotDirectionButtons;
+    private boolean buttonsNeedUpdate;
 
     public RecipePipeScreen(RecipePipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.slotDirectionButtons = new Button[10];
         this.imageHeight = 171;
         this.inventoryLabelY = this.imageHeight - 94;
+        this.buttonsNeedUpdate = true;
     }
 
     @Override
@@ -55,13 +57,13 @@ public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
         for (Button button : this.slotDirectionButtons) {
             this.addRenderableWidget(button);
         }
-        this.updateButtons();
+        this.buttonsNeedUpdate = true;
     }
 
     private void cycleSlotDirection(int slot) {
         Direction newDirection = hasShiftDown() ? this.menu.prevDirection(this.menu.getSlotDirection(slot)) : this.menu.nextDirection(this.menu.getSlotDirection(slot));
         this.menu.setSlotDirection(slot, newDirection);
-        this.updateButtons();
+        this.buttonsNeedUpdate = true;
         Services.LOADER_SERVICE.sendToServer(new ServerBoundSlotDirectionPayload(this.menu.getPos(), slot, newDirection));
     }
 
@@ -81,10 +83,15 @@ public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
             this.slotDirectionButtons[slot].setMessage(active ? Component.translatable("direction." + ClassicPipes.MOD_ID + ".short." + direction.name().toLowerCase()).withStyle(DIRECTION_COLOURS[direction.get3DDataValue()]) : Component.empty());
             this.slotDirectionButtons[slot].setTooltip(active ? createDirectionTooltip(direction, slot == 9) : null);
         }
+        this.setFocused(null);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        if (this.buttonsNeedUpdate) {
+            this.updateButtons();
+            this.buttonsNeedUpdate = false;
+        }
         super.render(graphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(graphics, mouseX, mouseY);
     }
@@ -103,10 +110,9 @@ public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        boolean ret = super.mouseReleased(mouseX, mouseY, button);
-        this.updateButtons();
-        return ret;
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        this.buttonsNeedUpdate = true;
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
 }
