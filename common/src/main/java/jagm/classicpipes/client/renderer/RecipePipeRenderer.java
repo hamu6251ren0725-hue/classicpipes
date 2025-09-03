@@ -11,11 +11,11 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-public class CraftingPipeRenderer implements BlockEntityRenderer<RecipePipeEntity> {
+public class RecipePipeRenderer implements BlockEntityRenderer<RecipePipeEntity> {
 
     private final BlockEntityRendererProvider.Context context;
 
-    public CraftingPipeRenderer(BlockEntityRendererProvider.Context context) {
+    public RecipePipeRenderer(BlockEntityRendererProvider.Context context) {
         this.context = context;
     }
 

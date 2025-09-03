@@ -282,8 +282,6 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             boolean wasLinked = networkedBlock.isLinked(state, nextDirection);
             boolean isLinked = this.networkDistances.containsKey(nextDirection);
             if (wasLinked != isLinked && triggerNetworkChanges) {
-                ClassicPipes.LOGGER.info("================");
-                ClassicPipes.LOGGER.info("Calling networkChanged from AbstractPipeEntity::updateNetworking (this).");
                 networkedPipe.networkChanged(level, pos, isLinked);
             }
             level.setBlock(pos, networkedBlock.setLinked(state, nextDirection, isLinked), 3);
@@ -293,8 +291,6 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             boolean wasLinked = networkedBlock.isLinked(networkedPipe.getBlockState(), nextDirection.getOpposite());
             boolean isLinked = networkedPipe.networkDistances.containsKey(nextDirection.getOpposite());
             if (wasLinked != isLinked && triggerNetworkChanges) {
-                ClassicPipes.LOGGER.info("================");
-                ClassicPipes.LOGGER.info("Calling networkChanged from AbstractPipeEntity::updateNetworking (nextPipe).");
                 networkedPipe.networkChanged(level, nextPos, isLinked);
             }
             level.setBlock(nextPos, networkedBlock.setLinked(networkedPipe.getBlockState(), nextDirection.getOpposite(), isLinked), 3);
