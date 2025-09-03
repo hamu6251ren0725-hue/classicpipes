@@ -36,10 +36,12 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     private PageButton next_page;
     private Button sort_type;
     private Button sort_direction;
+    private boolean refocus;
 
     public RequestScreen(RequestMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageHeight = 222;
+        this.refocus = false;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         super.init();
 
         this.searchBar = new EditBox(this.font, this.leftPos + 21, this.topPos + 22, 146, 12, Component.translatable("container.classicpipes.search"));
-        this.searchBar.setCanLoseFocus(false);
+        this.searchBar.setCanLoseFocus(true);
         this.searchBar.setMaxLength(32);
         this.searchBar.setValue(this.menu.getSearch());
         this.searchBar.setTextColor(-1);
@@ -229,23 +231,27 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
         }
-        this.setFocused(this.searchBar);
         return this.searchBar.keyPressed(keyCode, scanCode, modifiers) || this.searchBar.canConsumeInput() || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        this.changePage((int) -scrollY);
+        this.menu.changePage((int) -scrollY);
         return true;
     }
 
     private void changePage(int increment) {
         this.menu.changePage(increment);
+        this.refocus = true;
     }
 
     private void updatePageButtons() {
         this.prev_page.active = this.menu.getPage() > 0;
         this.next_page.active = this.menu.getPage() < this.menu.getMaxPage();
+        if (this.refocus) {
+            this.setFocused(this.searchBar);
+            this.refocus = false;
+        }
     }
 
     private void changeSortType(Button button) {
@@ -253,6 +259,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.sort_type.setMessage(nextMode.getType());
         this.sort_direction.setMessage(nextMode.getDirection());
         this.menu.setSortingMode(nextMode);
+        this.refocus = true;
     }
 
     private void changeSortDirection(Button button) {
@@ -260,6 +267,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.sort_type.setMessage(nextMode.getType());
         this.sort_direction.setMessage(nextMode.getDirection());
         this.menu.setSortingMode(nextMode);
+        this.refocus = true;
     }
 
 }
