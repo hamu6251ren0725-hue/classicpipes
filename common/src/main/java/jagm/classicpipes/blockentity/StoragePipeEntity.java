@@ -31,6 +31,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
     private final List<ItemStack> cache;
     private boolean cacheInitialised;
     private final List<ItemStack> cannotFit;
+    private long lastCached;
 
     public StoragePipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.STORAGE_PIPE_ENTITY, pos, state);
@@ -40,6 +41,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
         this.cache = new ArrayList<>();
         this.cacheInitialised = false;
         this.cannotFit = new ArrayList<>();
+        this.lastCached = 0;
     }
 
     @Override
@@ -51,24 +53,34 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
         super.tickServer(level, pos, state);
     }
 
+    @Override
     public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
-        this.cache.clear();
-        this.cannotFit.clear();
-        List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
-        Iterator<ItemStack> iterator = stacks.iterator();
-        while (iterator.hasNext()) {
-            ItemStack stack = iterator.next();
-            if (this.shouldLeaveOne()) {
-                stack.shrink(1);
-                if (stack.isEmpty()) {
-                    iterator.remove();
+        long time = level.getGameTime();
+        if (this.lastCached != time) {
+            this.lastCached = time;
+            this.cache.clear();
+            this.cannotFit.clear();
+            List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
+            Iterator<ItemStack> iterator = stacks.iterator();
+            while (iterator.hasNext()) {
+                ItemStack stack = iterator.next();
+                if (this.shouldLeaveOne()) {
+                    stack.shrink(1);
+                    if (stack.isEmpty()) {
+                        iterator.remove();
+                    }
                 }
             }
+            this.cache.addAll(stacks);
+            if (this.hasNetwork()) {
+                this.getNetwork().cacheUpdated();
+            }
         }
-        this.cache.addAll(stacks);
-        if (this.hasNetwork()) {
-            this.getNetwork().cacheUpdated();
-        }
+    }
+
+    @Override
+    public Direction getFacing() {
+        return this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
     }
 
     @Override
@@ -164,9 +176,11 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     @Override
     public boolean extractItem(ServerLevel level, ItemStack stack) {
-        Direction direction = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
-        if (direction != null) {
-            return Services.LOADER_SERVICE.extractSpecificItem(this, level, this.getBlockPos().relative(direction), direction.getOpposite(), stack.copy());
+        Direction facing = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
+        if (facing != null) {
+            boolean extracted = Services.LOADER_SERVICE.extractSpecificItem(this, level, this.getBlockPos().relative(facing), facing.getOpposite(), stack.copy());
+            this.updateCache(level, this.getBlockPos(), facing);
+            return extracted;
         }
         return false;
     }

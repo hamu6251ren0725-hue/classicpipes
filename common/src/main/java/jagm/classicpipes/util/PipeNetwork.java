@@ -7,6 +7,7 @@ import jagm.classicpipes.network.ClientBoundItemListPayload;
 import jagm.classicpipes.services.Services;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,7 +38,7 @@ public class PipeNetwork {
     public PipeNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
         this.defaultRoutes = new HashSet<>();
-        this.providerPipes = new HashSet<>();
+        this.providerPipes = new LinkedHashSet<>();
         this.stockingPipes = new HashSet<>();
         this.matchingPipes = new HashSet<>();
         this.recipePipes = new HashSet<>();
@@ -220,6 +221,20 @@ public class PipeNetwork {
     }
 
     public void tick(ServerLevel level) {
+        int pipeToUpdate = level.getRandom().nextInt(Math.max(100, this.providerPipes.size()));
+        if (pipeToUpdate < this.providerPipes.size()) {
+            int i = 0;
+            for (ProviderPipe providerPipe : this.providerPipes) {
+                if (i == pipeToUpdate) {
+                    Direction facing = providerPipe.getFacing();
+                    if (facing != null) {
+                        providerPipe.updateCache(level, providerPipe.getProviderPipePos(), facing);
+                    }
+                    break;
+                }
+                i++;
+            }
+        }
         if (this.cacheChanged && this.cacheCooldown <= 0) {
             List<ServerPlayer> playerList = level.getPlayers(player -> player.containerMenu instanceof RequestMenu menu && menu.getNetworkPos().equals(this.getPos()));
             if (!playerList.isEmpty()) {
