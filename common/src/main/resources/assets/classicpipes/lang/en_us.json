@@ -50,6 +50,7 @@
   "item.classicpipes.pipe_slicer.desc": "Requests items to any networked pipe.",
   "item.classicpipes.storage_pipe.a.desc": "Combines functions of a Matching Pipe and Provider Pipe.",
   "item.classicpipes.storage_pipe.b.desc": "Useful for setting up a quick and simple storage system.",
+  "item.classicpipes.tag_label.desc": "Use with an offhand item to cycle through that item's tags.",
   "itemGroup.classicpipes.pipes": "Classic Pipes",
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
   "subtitle.classicpipes.pipe_adjust": "Pipe adjusted",
@@ -106,6 +107,10 @@
   "chat.classicpipes.multiple_recipes": "Warning: Found multiple Recipe Pipes configured to make %s. The network can only handle one Recipe Pipe per item type.",
   "chat.classicpipes.destination_removed": "Request for %sx %s cancelled because the destination pipe at [%s] was disconnected from the network.",
   "chat.classicpipes.requested": "Requested %sx %s.",
+  "chat.classicpipes.nothing_in_offhand": "You have no item in your other hand.",
+  "chat.classicpipes.no_tags_in_hand": "The item in your other hand does not have any tags.",
+  "chat.classicpipes.tag_set": "Label's tag set to %s.",
+  "chat.classicpipes.tag_set_translatable": "Label's tag set to %s (%s).",
   "tag.item.classicpipes.pipes": "Pipes",
   "tag.item.classicpipes.pipes.networked": "Networked Pipes",
   "tag.item.c.chests.wooden": "Wooden Chests"

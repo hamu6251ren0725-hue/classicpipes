@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "#classicpipes:pipes"
+  ],
+  "result": {
+    "count": 1,
+    "id": "classicpipes:tag_label"
+  }
+}
