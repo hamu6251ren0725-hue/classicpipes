@@ -28,6 +28,7 @@
   "item.classicpipes.recipe_pipe": "Networked Recipe Pipe",
   "item.classicpipes.pipe_slicer": "Pipe Slicer",
   "item.classicpipes.storage_pipe": "Networked Storage Pipe",
+  "item.classicpipes.tag_label": "Tag Label",
   "item.classicpipes.wooden_pipe.desc": "Basic item pipe.",
   "item.classicpipes.golden_pipe.desc": "Accelerates items.",
   "item.classicpipes.copper_pipe.desc": "Extracts items from containers.",

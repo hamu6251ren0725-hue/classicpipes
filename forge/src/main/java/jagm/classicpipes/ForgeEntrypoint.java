@@ -30,6 +30,7 @@ public class ForgeEntrypoint {
             event.register(ForgeRegistries.Keys.ITEMS, helper -> ClassicPipes.ITEMS.forEach(helper::register));
             event.register(ForgeRegistries.Keys.SOUND_EVENTS, helper -> ClassicPipes.SOUNDS.forEach(helper::register));
             event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB));
+            event.register(Registries.DATA_COMPONENT_TYPE, helper -> helper.register(ClassicPipes.LABEL_COMPONENT_KEY, ClassicPipes.LABEL_COMPONENT));
 
             event.register(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, helper -> {
                 helper.register("basic_pipe", ClassicPipes.BASIC_PIPE_ENTITY);

@@ -1,8 +1,10 @@
 package jagm.classicpipes.inventory.container;
 
+import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.blockentity.StockingPipeEntity;
+import jagm.classicpipes.item.TagLabelItem;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -104,10 +106,10 @@ public class FilterContainer implements Filter {
 
     public boolean matches(ItemStack stack) {
         for (ItemStack filterStack : this.filter) {
-            if (stack.is(filterStack.getItem())) {
-                if (!this.matchComponents || ItemStack.isSameItemSameComponents(stack, filterStack)) {
-                    return true;
-                }
+            if (filterStack.is(ClassicPipes.TAG_LABEL) && TagLabelItem.itemMatches(filterStack, stack)) {
+                return true;
+            } else if (filterStack.is(stack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, filterStack))) {
+                return true;
             }
         }
         return false;
