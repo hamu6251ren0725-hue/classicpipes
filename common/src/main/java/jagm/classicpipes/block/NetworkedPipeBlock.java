@@ -37,7 +37,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Map;
 
-public class NetworkedPipeBlock extends AbstractPipeBlock {
+public class NetworkedPipeBlock extends PipeBlock {
 
     public static final EnumProperty<ConnectionState> NORTH = EnumProperty.create("north", ConnectionState.class, ConnectionState.values());
     public static final EnumProperty<ConnectionState> EAST = EnumProperty.create("east", ConnectionState.class, ConnectionState.values());

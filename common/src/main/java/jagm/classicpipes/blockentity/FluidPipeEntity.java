@@ -1,0 +1,210 @@
+package jagm.classicpipes.blockentity;
+
+import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.FluidInPipe;
+import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.MiscUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+
+import java.util.*;
+
+public class FluidPipeEntity extends PipeEntity {
+
+    protected Fluid fluid;
+    protected final List<FluidInPipe> contents;
+    protected final List<FluidInPipe> queued;
+    private final Map<FluidInPipe, Long> tickAdded;
+
+    public FluidPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+        this.contents = new ArrayList<>();
+        this.queued = new ArrayList<>();
+        this.tickAdded = new HashMap<>();
+    }
+
+    @Override
+    public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
+        boolean sendBlockUpdate = false;
+        if (!this.contents.isEmpty()) {
+            ListIterator<FluidInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                FluidInPipe fluidPacket = iterator.next();
+                if (this.tickAdded.containsKey(fluidPacket)) {
+                    if (this.tickAdded.get(fluidPacket) == level.getGameTime()) {
+                        continue;
+                    }
+                    this.tickAdded.remove(fluidPacket);
+                }
+                fluidPacket.move(this.getTargetSpeed(), this.getAcceleration());
+                if (fluidPacket.getAge() > ItemInPipe.DESPAWN_AGE) {
+                    iterator.remove();
+                    sendBlockUpdate = true;
+                    continue;
+                }
+                if (fluidPacket.getProgress() >= ItemInPipe.PIPE_LENGTH) {
+                    if (Services.LOADER_SERVICE.handleFluidInsertion(this, level, pos, state, this.fluid, fluidPacket)) {
+                        iterator.remove();
+                    }
+                    sendBlockUpdate = true;
+                }
+            }
+            this.addQueuedPackets(level, false);
+        }
+        if (sendBlockUpdate) {
+            level.sendBlockUpdated(pos, state, state, 2);
+        }
+    }
+
+    @Override
+    public void tickClient(Level level, BlockPos pos) {
+        if (!this.contents.isEmpty()) {
+            ListIterator<FluidInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                FluidInPipe fluidPacket = iterator.next();
+                if (this.tickAdded.containsKey(fluidPacket)) {
+                    if (this.tickAdded.get(fluidPacket) == level.getGameTime()) {
+                        continue;
+                    }
+                    this.tickAdded.remove(fluidPacket);
+                }
+                fluidPacket.move(this.getTargetSpeed(), this.getAcceleration());
+                if (fluidPacket.getProgress() >= ItemInPipe.PIPE_LENGTH) {
+                    BlockPos nextPos = pos.relative(fluidPacket.getTargetDirection());
+                    // TODO fluid insertion
+                    /*if (level.getBlockEntity(nextPos) instanceof FluidPipeEntity nextPipe && nextPipe.emptyOrMatches(this.fluid)) {
+                        fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
+                        nextPipe.setFluid(this.fluid);
+                        nextPipe.insertFluidPacket(level, fluidPacket);
+                        iterator.remove();
+                    }*/
+                }
+            }
+        }
+    }
+
+    @Override
+    public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
+        if (!this.contents.isEmpty()) {
+            ListIterator<FluidInPipe> iterator = this.contents.listIterator();
+            while (iterator.hasNext()) {
+                FluidInPipe fluidPacket = iterator.next();
+                if (!wasConnected || (fluidPacket.getTargetDirection() == direction && fluidPacket.getProgress() < ItemInPipe.HALFWAY)) {
+                    this.routePacket(state, fluidPacket);
+                } else if ((fluidPacket.getFromDirection() == direction && fluidPacket.getProgress() < ItemInPipe.HALFWAY) || (fluidPacket.getTargetDirection() == direction && fluidPacket.getProgress() >= ItemInPipe.HALFWAY)) {
+                    iterator.remove();
+                    // TODO spawn particles or something?
+                }
+            }
+            this.addQueuedPackets(level, false);
+        }
+        this.setChanged();
+        level.sendBlockUpdated(pos, state, state, 2);
+    }
+
+    @Override
+    public int getComparatorOutput() {
+        if (this.contents.isEmpty()) {
+            return 0;
+        }
+        return Math.max(1, Math.round(15.0F * (float) this.totalAmount() / 1000));
+    }
+
+    @Override
+    public short getTargetSpeed() {
+        //TODO different speeds for thick and thin fluids.
+        return ItemInPipe.DEFAULT_SPEED;
+    }
+
+    @Override
+    public short getAcceleration() {
+        return ItemInPipe.DEFAULT_ACCELERATION;
+    }
+
+    public void addQueuedPackets(Level level, boolean waitForNextTick) {
+        for (FluidInPipe fluidPacket : this.queued) {
+            this.contents.add(fluidPacket);
+            if (waitForNextTick) {
+                this.tickAdded.put(fluidPacket, level.getGameTime());
+            }
+        }
+        this.setChanged();
+        this.queued.clear();
+    }
+
+    public boolean emptyOrMatches(Fluid fluid) {
+        return this.contents.isEmpty() || this.fluid == fluid;
+    }
+
+    public int totalAmount() {
+        int total = 0;
+        for (FluidInPipe fluidPacket : this.contents) {
+            total += fluidPacket.getAmount();
+        }
+        return total;
+    }
+
+    public int remainingCapacity() {
+        return 1000 - this.totalAmount();
+    }
+
+    public void setFluid(Fluid fluid) {
+        this.fluid = fluid;
+    }
+
+    public void insertFluidPacket(Level level, FluidInPipe fluidPacket) {
+        this.queued.add(fluidPacket);
+        this.routePacket(fluidPacket);
+        this.addQueuedPackets(level, true);
+    }
+
+    protected List<Direction> getValidDirections(BlockState state, FluidInPipe fluidPacket) {
+        List<Direction> validDirections = new ArrayList<>();
+        Direction direction = MiscUtil.nextDirection(fluidPacket.getFromDirection());
+        for (int i = 0; i < 5; i++) {
+            if (this.isPipeConnected(state, direction)) {
+                validDirections.add(direction);
+            }
+            direction = MiscUtil.nextDirection(direction);
+        }
+        return validDirections;
+    }
+
+    public void routePacket(BlockState state, FluidInPipe fluidPacket) {
+        List<Direction> validDirections = this.getValidDirections(state, fluidPacket);
+        int numDirections = validDirections.size();
+        if (numDirections == 0) {
+            fluidPacket.setTargetDirection(fluidPacket.getFromDirection());
+        } else if (numDirections == 1) {
+            fluidPacket.setTargetDirection(validDirections.getFirst());
+        } else {
+            if (fluidPacket.getAmount() > 24) {
+                int splitAmount = fluidPacket.getAmount() / numDirections;
+                int leftoverAmount = fluidPacket.getAmount() % numDirections;
+                Collections.shuffle(validDirections);
+                for (int i = 0; i < numDirections; i++) {
+                    if (i == 0) {
+                        fluidPacket.setAmount(splitAmount + leftoverAmount);
+                        fluidPacket.setTargetDirection(validDirections.get(i));
+                    } else {
+                        FluidInPipe newPacket = fluidPacket.copyWithAmount(splitAmount);
+                        newPacket.setTargetDirection(validDirections.get(i));
+                        this.queued.add(newPacket);
+                    }
+                }
+            } else if (this.getLevel() != null) {
+                fluidPacket.setTargetDirection(validDirections.get(this.getLevel().getRandom().nextInt(validDirections.size())));
+            }
+        }
+    }
+
+    public void routePacket(FluidInPipe fluidPacket) {
+        this.routePacket(this.getBlockState(), fluidPacket);
+    }
+
+}

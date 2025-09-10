@@ -1,6 +1,7 @@
 package jagm.classicpipes.block;
 
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.blockentity.PipeEntity;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,13 +33,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class AbstractPipeBlock extends TransparentBlock implements SimpleWaterloggedBlock, EntityBlock {
+public abstract class PipeBlock extends TransparentBlock implements SimpleWaterloggedBlock, EntityBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private final Function<BlockState, VoxelShape> shapes;
 
-    public AbstractPipeBlock(BlockBehaviour.Properties properties) {
+    public PipeBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(WATERLOGGED, false)
@@ -61,17 +62,17 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
 
     protected boolean canConnect(Level level, BlockPos pipePos, Direction direction) {
         BlockPos neighbourPos = pipePos.relative(direction);
-        if (level.getBlockState(neighbourPos).getBlock() instanceof AbstractPipeBlock pipeBlock) {
+        if (level.getBlockState(neighbourPos).getBlock() instanceof PipeBlock pipeBlock) {
             return canConnectToPipeBothWays(this, pipeBlock);
         }
         return Services.LOADER_SERVICE.canAccessContainer(level, neighbourPos, direction.getOpposite());
     }
 
-    protected static boolean canConnectToPipeBothWays(AbstractPipeBlock pipe1, AbstractPipeBlock pipe2) {
+    protected static boolean canConnectToPipeBothWays(PipeBlock pipe1, PipeBlock pipe2) {
         return pipe1.canConnectToPipe(pipe2) && pipe2.canConnectToPipe(pipe1);
     }
 
-    protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){
+    protected boolean canConnectToPipe(PipeBlock pipeBlock){
         return true;
     }
 
@@ -88,7 +89,7 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
         boolean wasConnected = this.isPipeConnected(state, direction);
         boolean willConnect = this.canConnect((Level) level, pipePos, direction);
         BlockState newState = this.setPipeConnected(state, direction, willConnect);
-        if (wasConnected != willConnect && level.getBlockEntity(pipePos) instanceof AbstractPipeEntity pipe && level instanceof ServerLevel serverLevel) {
+        if (wasConnected != willConnect && level.getBlockEntity(pipePos) instanceof PipeEntity pipe && level instanceof ServerLevel serverLevel) {
             pipe.update(serverLevel, newState, pipePos, direction, wasConnected);
         }
         return newState;
@@ -121,9 +122,9 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (level instanceof ServerLevel serverLevel) {
+        if (!(this instanceof FluidPipeBlock) && level instanceof ServerLevel serverLevel) {
             BlockEntity blockEntity = serverLevel.getBlockEntity(pos);
-            if (blockEntity instanceof AbstractPipeEntity pipe) {
+            if (blockEntity instanceof ItemPipeEntity pipe) {
                 pipe.dropItems(serverLevel, pos);
             }
         }
@@ -138,8 +139,8 @@ public abstract class AbstractPipeBlock extends TransparentBlock implements Simp
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof AbstractPipeEntity pipe) {
-            return Math.min(15, pipe.getContents().size());
+        if (blockEntity instanceof PipeEntity pipe) {
+            return pipe.getComparatorOutput();
         }
         return 0;
     }

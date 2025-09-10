@@ -84,7 +84,7 @@ public class RecipePipeEntity extends NetworkedPipeEntity implements MenuProvide
                     this.crafterTicked = true;
                 }
             } else if (this.cooldown-- <= 0) {
-                if (!(container instanceof AbstractPipeEntity) && Services.LOADER_SERVICE.extractSpecificItem(this, level, crafterPos, this.slotDirections[9].getOpposite(), this.getResult().copyWithCount(1))) {
+                if (!(container instanceof ItemPipeEntity) && Services.LOADER_SERVICE.extractSpecificItem(this, level, crafterPos, this.slotDirections[9].getOpposite(), this.getResult().copyWithCount(1))) {
                     level.sendBlockUpdated(pos, state, state, 2);
                     this.setChanged();
                 }

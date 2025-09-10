@@ -1,6 +1,6 @@
 package jagm.classicpipes.inventory.container;
 
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
 import net.minecraft.world.Container;
 
 public interface Filter extends Container {
@@ -9,6 +9,6 @@ public interface Filter extends Container {
 
     boolean shouldMatchComponents();
 
-    AbstractPipeEntity getPipe();
+    ItemPipeEntity getPipe();
 
 }

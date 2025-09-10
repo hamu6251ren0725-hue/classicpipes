@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class FlintPipeBlock extends BasicPipeBlock {
+public class FlintPipeBlock extends BooleanDirectionsPipeBlock {
 
     public FlintPipeBlock(Properties properties) {
         super(properties);
@@ -26,7 +26,7 @@ public class FlintPipeBlock extends BasicPipeBlock {
     }
 
     @Override
-    protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){
+    protected boolean canConnectToPipe(PipeBlock pipeBlock){
         return pipeBlock != this;
     }
 

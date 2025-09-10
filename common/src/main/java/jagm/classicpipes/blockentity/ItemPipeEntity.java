@@ -1,38 +1,32 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.block.AbstractPipeBlock;
 import jagm.classicpipes.block.NetworkedPipeBlock;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.Tuple;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyContainer {
+public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContainer {
 
     protected final List<ItemInPipe> contents;
     protected final List<ItemInPipe> queued;
@@ -40,7 +34,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     private boolean networkingInitialised = false;
     private final Map<ItemInPipe, Long> tickAdded;
 
-    public AbstractPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public ItemPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.contents = new ArrayList<>();
         this.queued = new ArrayList<>();
@@ -48,16 +42,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         this.tickAdded = new HashMap<>();
     }
 
-    public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T blockEntity) {
-        if (blockEntity instanceof AbstractPipeEntity pipe) {
-            if (level instanceof ServerLevel serverLevel) {
-                pipe.tickServer(serverLevel, pos, state);
-            } else {
-                pipe.tickClient(level, pos);
-            }
-        }
-    }
-
+    @Override
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         boolean sendBlockUpdate = false;
         if (!this.networkingInitialised) {
@@ -105,6 +90,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
     }
 
+    @Override
     public void tickClient(Level level, BlockPos pos) {
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
@@ -119,7 +105,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
                 item.move(this.getTargetSpeed(), this.getAcceleration());
                 if (item.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                     BlockPos nextPos = pos.relative(item.getTargetDirection());
-                    if (level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
+                    if (level.getBlockEntity(nextPos) instanceof ItemPipeEntity nextPipe) {
                         item.resetProgress(item.getTargetDirection().getOpposite());
                         nextPipe.insertPipeItem(level, item);
                         iterator.remove();
@@ -156,23 +142,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         return true;
     }
 
-    protected final boolean isPipeConnected(BlockState state, Direction direction) {
-        if (state.getBlock() instanceof AbstractPipeBlock pipeBlock) {
-            return pipeBlock.isPipeConnected(state, direction);
-        }
-        return false;
-    }
-
-    protected final int countConnections(BlockState state) {
-        int count = 0;
-        for (Direction direction : Direction.values()) {
-            if (isPipeConnected(state, direction)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
+    @Override
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
@@ -202,7 +172,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
         for (Direction otherDirection : Direction.values()) {
             BlockPos nextPos = pos.relative(otherDirection);
-            if (this.isPipeConnected(state, otherDirection) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
+            if (this.isPipeConnected(state, otherDirection) && level.getBlockEntity(nextPos) instanceof ItemPipeEntity nextPipe) {
                 this.updateNetworking(level, state, pos, nextPipe, nextPos, otherDirection, new HashSet<>(), true);
             }
         }
@@ -214,7 +184,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         Set<Tuple<BlockPos, Direction>> visited = new HashSet<>();
         for (Direction direction : Direction.values()) {
             BlockPos nextPos = pos.relative(direction);
-            if (this.isPipeConnected(state, direction) && level.getBlockEntity(nextPos) instanceof AbstractPipeEntity nextPipe) {
+            if (this.isPipeConnected(state, direction) && level.getBlockEntity(nextPos) instanceof ItemPipeEntity nextPipe) {
                 visited = this.updateNetworking(level, state, pos, nextPipe, nextPos, direction, visited, false);
             } else {
                 this.networkDistances.remove(direction);
@@ -223,7 +193,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         this.setChanged();
     }
 
-    private Set<Tuple<BlockPos, Direction>> updateNetworking(ServerLevel level, BlockState state, BlockPos pos, AbstractPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<Tuple<BlockPos, Direction>> visited, boolean triggerNetworkChanges) {
+    private Set<Tuple<BlockPos, Direction>> updateNetworking(ServerLevel level, BlockState state, BlockPos pos, ItemPipeEntity nextPipe, BlockPos nextPos, Direction nextDirection, Set<Tuple<BlockPos, Direction>> visited, boolean triggerNetworkChanges) {
 
         for (Tuple<BlockPos, Direction> tuple : visited) {
             if (tuple.a().equals(pos) && tuple.b().equals(nextDirection)) {
@@ -269,7 +239,7 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             for (Direction direction : Direction.values()) {
                 if (!direction.equals(nextDirection.getOpposite())) {
                     BlockPos anotherPos = nextPos.relative(direction);
-                    if (nextPipe.isPipeConnected(nextPipe.getBlockState(), direction) && level.getBlockEntity(anotherPos) instanceof AbstractPipeEntity anotherPipe) {
+                    if (nextPipe.isPipeConnected(nextPipe.getBlockState(), direction) && level.getBlockEntity(anotherPos) instanceof ItemPipeEntity anotherPipe) {
                         visited = nextPipe.updateNetworking(level, nextPipe.getBlockState(), nextPos, anotherPipe, anotherPos, direction, visited, triggerNetworkChanges);
                     } else {
                         nextPipe.networkDistances.remove(direction);
@@ -330,10 +300,6 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
         }
     }
 
-    public abstract short getTargetSpeed();
-
-    public abstract short getAcceleration();
-
     public List<ItemInPipe> getContents() {
         return this.contents;
     }
@@ -377,26 +343,6 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
             valueOutput.store(direction.getName() + "_pos", BlockPos.CODEC, tuple.a());
             valueOutput.putInt(direction.getName() + "_distance", tuple.b());
         }
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider levelRegistry) {
-        ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(this.problemPath(), ClassicPipes.LOGGER);
-        CompoundTag tag;
-        try {
-            TagValueOutput valueOutput = TagValueOutput.createWithContext(scopedCollector, levelRegistry);
-            this.saveAdditional(valueOutput);
-            tag = valueOutput.buildResult();
-        } catch (Throwable error) {
-            try {
-                scopedCollector.close();
-            } catch (Throwable error2) {
-                error.addSuppressed(error2);
-            }
-            throw error;
-        }
-        scopedCollector.close();
-        return tag;
     }
 
     @Override
@@ -471,6 +417,11 @@ public abstract class AbstractPipeEntity extends BlockEntity implements WorldlyC
     @Override
     public boolean stillValid(Player player) {
         return Container.stillValidBlockEntity(this, player);
+    }
+
+    @Override
+    public int getComparatorOutput() {
+        return Math.min(15, this.getContents().size());
     }
 
     public static class ItemStackIterator implements Iterator<ItemStack> {

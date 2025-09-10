@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class GoldenPipeBlock extends BasicPipeBlock {
+public class GoldenPipeBlock extends BooleanDirectionsPipeBlock {
 
     public GoldenPipeBlock(Properties properties) {
         super(properties);

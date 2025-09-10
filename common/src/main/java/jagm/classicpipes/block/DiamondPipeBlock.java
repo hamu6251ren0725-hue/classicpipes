@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class DiamondPipeBlock extends BasicPipeBlock {
+public class DiamondPipeBlock extends BooleanDirectionsPipeBlock {
 
     public DiamondPipeBlock(Properties properties) {
         super(properties);

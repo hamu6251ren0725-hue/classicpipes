@@ -1,6 +1,8 @@
 package jagm.classicpipes.services;
 
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.FluidPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.List;
@@ -38,14 +41,18 @@ public interface LoaderService {
 
     boolean canAccessContainer(Level level, BlockPos containerPos, Direction face);
 
-    boolean handleItemInsertion(AbstractPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item);
+    boolean handleItemInsertion(ItemPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item);
 
-    boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
+    boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
 
     List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face);
 
-    boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack);
+    boolean extractSpecificItem(ItemPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack);
 
     String getModName(String modId);
+
+    boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pos, BlockState state, Fluid fluid, FluidInPipe fluidPacket);
+
+    boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite);
 
 }

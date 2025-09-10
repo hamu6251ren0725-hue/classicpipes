@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class CopperPipeBlock extends BasicPipeBlock {
+public class CopperPipeBlock extends BooleanDirectionsPipeBlock {
 
     public static final EnumProperty<FacingOrNone> FACING = FacingOrNone.BLOCK_PROPERTY;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
@@ -123,7 +123,7 @@ public class CopperPipeBlock extends BasicPipeBlock {
     }
 
     @Override
-    protected boolean canConnectToPipe(AbstractPipeBlock pipeBlock){
+    protected boolean canConnectToPipe(PipeBlock pipeBlock){
         return pipeBlock != this;
     }
 

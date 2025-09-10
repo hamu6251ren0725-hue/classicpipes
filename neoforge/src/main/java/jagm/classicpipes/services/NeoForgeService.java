@@ -1,6 +1,8 @@
 package jagm.classicpipes.services;
 
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.FluidPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -64,7 +67,7 @@ public class NeoForgeService implements LoaderService {
     @Override
     public boolean canAccessContainer(Level level, BlockPos containerPos, Direction face) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        if (blockEntity instanceof AbstractPipeEntity) {
+        if (blockEntity instanceof ItemPipeEntity) {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
@@ -76,10 +79,10 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public boolean handleItemInsertion(AbstractPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item) {
+    public boolean handleItemInsertion(ItemPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item) {
         BlockPos containerPos = pipePos.relative(item.getTargetDirection());
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        if (blockEntity instanceof AbstractPipeEntity nextPipe) {
+        if (blockEntity instanceof ItemPipeEntity nextPipe) {
             item.resetProgress(item.getTargetDirection().getOpposite());
             nextPipe.insertPipeItem(level, item);
             level.sendBlockUpdated(containerPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
@@ -104,9 +107,9 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        if (blockEntity instanceof AbstractPipeEntity) {
+        if (blockEntity instanceof ItemPipeEntity) {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
@@ -124,7 +127,7 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
+    public boolean extractSpecificItem(ItemPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
         ItemStack target = stack.copy();
         IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, face);
         if (itemHandler != null) {
@@ -173,6 +176,16 @@ public class NeoForgeService implements LoaderService {
     @Override
     public String getModName(String modId) {
         return ModList.get().getModContainerById(modId).map(ModContainer::getModInfo).map(IModInfo::getDisplayName).orElse(modId);
+    }
+
+    @Override
+    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pos, BlockState state, Fluid fluid, FluidInPipe fluidPacket) {
+        return false;//TODO
+    }
+
+    @Override
+    public boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite) {
+        return false;//TODO
     }
 
 }

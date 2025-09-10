@@ -3,7 +3,7 @@ package jagm.classicpipes.util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.block.AbstractPipeBlock;
+import jagm.classicpipes.block.PipeBlock;
 import jagm.classicpipes.services.Services;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -49,7 +49,7 @@ public class MiscUtil {
 
     public static boolean itemIsPipe(ItemStack stack) {
         if (stack.getItem() instanceof BlockItem blockItem) {
-            return blockItem.getBlock() instanceof AbstractPipeBlock;
+            return blockItem.getBlock() instanceof PipeBlock;
         }
         return false;
     }

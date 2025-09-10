@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BonePipeEntity extends AbstractPipeEntity {
+public class BonePipeEntity extends ItemPipeEntity {
 
     public BonePipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.BONE_PIPE_ENTITY, pos, state);

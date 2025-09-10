@@ -1,7 +1,9 @@
 package jagm.classicpipes.services;
 
-import jagm.classicpipes.block.AbstractPipeBlock;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.block.PipeBlock;
+import jagm.classicpipes.blockentity.FluidPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -35,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
@@ -79,7 +82,7 @@ public class FabricService implements LoaderService {
     @Override
     public boolean canAccessContainer(Level level, BlockPos containerPos, Direction face) {
         BlockState state = level.getBlockState(containerPos);
-        if (state.getBlock() instanceof AbstractPipeBlock) {
+        if (state.getBlock() instanceof PipeBlock) {
             return false;
         }
         Storage<ItemVariant> itemHandler = ItemStorage.SIDED.find(level, containerPos, face);
@@ -100,10 +103,10 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public boolean handleItemInsertion(AbstractPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item) {
+    public boolean handleItemInsertion(ItemPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item) {
         BlockPos containerPos = pipePos.relative(item.getTargetDirection());
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        if (blockEntity instanceof AbstractPipeEntity nextPipe) {
+        if (blockEntity instanceof ItemPipeEntity nextPipe) {
             item.resetProgress(item.getTargetDirection().getOpposite());
             nextPipe.insertPipeItem(level, item);
             level.sendBlockUpdated(containerPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
@@ -129,9 +132,9 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public boolean handleItemExtraction(AbstractPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
         BlockState state = level.getBlockState(containerPos);
-        if (state.getBlock() instanceof AbstractPipeBlock) {
+        if (state.getBlock() instanceof PipeBlock) {
             return false;
         }
         Storage<ItemVariant> itemHandler = ItemStorage.SIDED.find(level, containerPos, face);
@@ -185,7 +188,7 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public boolean extractSpecificItem(AbstractPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
+    public boolean extractSpecificItem(ItemPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
         Storage<ItemVariant> itemHandler = ItemStorage.SIDED.find(level, containerPos, face);
         boolean success = false;
         if (itemHandler != null) {
@@ -211,6 +214,16 @@ public class FabricService implements LoaderService {
     @Override
     public String getModName(String modId) {
         return FabricLoader.getInstance().getModContainer(modId).map(ModContainer::getMetadata).map(ModMetadata::getName).orElse(modId);
+    }
+
+    @Override
+    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pos, BlockState state, Fluid fluid, FluidInPipe fluidPacket) {
+        return false; //TODO
+    }
+
+    @Override
+    public boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite) {
+        return false; //TODO
     }
 
 }

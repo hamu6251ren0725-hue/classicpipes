@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 import java.util.Map;
 
-public abstract class BasicPipeBlock extends AbstractPipeBlock {
+public abstract class BooleanDirectionsPipeBlock extends PipeBlock {
 
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
@@ -22,7 +22,7 @@ public abstract class BasicPipeBlock extends AbstractPipeBlock {
     public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
     private static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN)));
 
-    public BasicPipeBlock(Properties properties) {
+    public BooleanDirectionsPipeBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.defaultBlockState()
                 .setValue(NORTH, false)

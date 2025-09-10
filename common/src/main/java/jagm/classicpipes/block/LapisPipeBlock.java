@@ -1,7 +1,7 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
 import jagm.classicpipes.blockentity.LapisPipeEntity;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class LapisPipeBlock extends BasicPipeBlock {
+public class LapisPipeBlock extends BooleanDirectionsPipeBlock {
 
     public static final EnumProperty<FacingOrNone> FACING = FacingOrNone.BLOCK_PROPERTY;
 
@@ -89,7 +89,7 @@ public class LapisPipeBlock extends BasicPipeBlock {
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pipePos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
-                    if (level.getBlockEntity(pipePos) instanceof AbstractPipeEntity pipe) {
+                    if (level.getBlockEntity(pipePos) instanceof ItemPipeEntity pipe) {
                         for (ItemInPipe item : pipe.getContents()) {
                             if (item.getProgress() < ItemInPipe.HALFWAY) {
                                 pipe.routeItem(state, item);

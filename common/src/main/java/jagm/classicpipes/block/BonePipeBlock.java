@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class BonePipeBlock extends BasicPipeBlock {
+public class BonePipeBlock extends BooleanDirectionsPipeBlock {
 
     public BonePipeBlock(Properties properties) {
         super(properties);

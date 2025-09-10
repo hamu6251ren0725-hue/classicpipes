@@ -6,7 +6,7 @@ import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class IronPipeEntity extends AbstractPipeEntity {
+public class IronPipeEntity extends ItemPipeEntity {
 
     public IronPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.IRON_PIPE_ENTITY, pos, state);

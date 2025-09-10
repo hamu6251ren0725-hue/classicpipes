@@ -1,6 +1,6 @@
 package jagm.classicpipes.inventory.container;
 
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
 import jagm.classicpipes.blockentity.ProviderPipeEntity;
 import jagm.classicpipes.blockentity.StockingPipeEntity;
 import jagm.classicpipes.item.LabelItem;
@@ -12,11 +12,11 @@ import net.minecraft.world.item.ItemStack;
 public class FilterContainer implements Filter {
 
     private final NonNullList<ItemStack> filter;
-    private final AbstractPipeEntity pipe;
+    private final ItemPipeEntity pipe;
     private final int size;
     private boolean matchComponents;
 
-    public FilterContainer(AbstractPipeEntity pipe, int size, boolean matchComponents) {
+    public FilterContainer(ItemPipeEntity pipe, int size, boolean matchComponents) {
         this.pipe = pipe;
         this.filter = NonNullList.create();
         this.size = size;
@@ -99,7 +99,7 @@ public class FilterContainer implements Filter {
     }
 
     @Override
-    public AbstractPipeEntity getPipe() {
+    public ItemPipeEntity getPipe() {
         return this.pipe;
     }
 

@@ -1,8 +1,8 @@
 package jagm.classicpipes.block;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.blockentity.AbstractPipeEntity;
 import jagm.classicpipes.blockentity.IronPipeEntity;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 
-public class IronPipeBlock extends BasicPipeBlock {
+public class IronPipeBlock extends BooleanDirectionsPipeBlock {
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
@@ -101,7 +101,7 @@ public class IronPipeBlock extends BasicPipeBlock {
                     if (level instanceof ServerLevel serverLevel) {
                         serverLevel.playSound(null, pos, ClassicPipes.PIPE_ADJUST_SOUND, SoundSource.BLOCKS);
                     }
-                    if (level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe) {
+                    if (level.getBlockEntity(pos) instanceof ItemPipeEntity pipe) {
                         for (ItemInPipe item : pipe.getContents()) {
                             if (item.getProgress() < ItemInPipe.HALFWAY) {
                                 pipe.routeItem(state, item);
@@ -131,7 +131,7 @@ public class IronPipeBlock extends BasicPipeBlock {
         } else if (!state.getValue(ENABLED) && level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.setValue(ENABLED, true).setValue(FACING, this.getSecondaryDirection(state.getValue(FACING), state)), 2);
         }
-        if (level.getBlockEntity(pos) instanceof AbstractPipeEntity pipe) {
+        if (level.getBlockEntity(pos) instanceof ItemPipeEntity pipe) {
             for (ItemInPipe item : pipe.getContents()) {
                 if (item.getProgress() < ItemInPipe.HALFWAY) {
                     pipe.routeItem(state, item);

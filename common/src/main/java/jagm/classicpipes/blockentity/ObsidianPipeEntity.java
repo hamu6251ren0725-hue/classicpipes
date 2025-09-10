@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ObsidianPipeEntity extends AbstractPipeEntity {
+public class ObsidianPipeEntity extends ItemPipeEntity {
 
     public ObsidianPipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.OBSIDIAN_PIPE_ENTITY, pos, state);
