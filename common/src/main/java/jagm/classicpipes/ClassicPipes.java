@@ -1,8 +1,10 @@
 package jagm.classicpipes;
 
+import com.mojang.serialization.Codec;
 import jagm.classicpipes.block.*;
 import jagm.classicpipes.blockentity.*;
 import jagm.classicpipes.inventory.menu.*;
+import jagm.classicpipes.item.ModLabelItem;
 import jagm.classicpipes.item.TagLabelItem;
 import jagm.classicpipes.network.*;
 import jagm.classicpipes.services.Services;
@@ -13,9 +15,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -94,10 +96,11 @@ public class ClassicPipes {
 
     public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
     public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, new Item.Properties().stacksTo(1));
+    public static final Item MOD_LABEL = createItem("mod_label", ModLabelItem::new, new Item.Properties().stacksTo(1));
 
-    public static final DataComponentType<TagKey<Item>> LABEL_COMPONENT = DataComponentType.<TagKey<Item>>builder().persistent(TagKey.codec(Registries.ITEM)).networkSynchronized(TagKey.streamCodec(Registries.ITEM)).build();
+    public static final DataComponentType<String> LABEL_COMPONENT = DataComponentType.<String>builder().persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8).build();
     public static final ResourceKey<DataComponentType<?>> LABEL_COMPONENT_KEY = MiscUtil.makeKey(BuiltInRegistries.DATA_COMPONENT_TYPE.key(), "label");
-    
+
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
     public static final SoundEvent OBSIDIAN_PIPE_DESTROY_ITEM = createSoundEvent("obsidian_pipe_destroy_item");

@@ -14,10 +14,11 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class TagLabelItem extends Item {
+public class TagLabelItem extends LabelItem {
 
     public TagLabelItem(Properties properties) {
         super(properties);
@@ -26,7 +27,10 @@ public class TagLabelItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack targetStack = player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
-        List<TagKey<Item>> tags = targetStack.getTags().toList();
+        List<String> tags = new ArrayList<>();
+        for (TagKey<Item> tagKey : targetStack.getTags().toList()) {
+            tags.add(tagKey.location().toString());
+        }
         if (targetStack.isEmpty()) {
             if (level.isClientSide()) {
                 player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".nothing_in_offhand"), false);
@@ -37,7 +41,7 @@ public class TagLabelItem extends Item {
             }
         } else {
             ItemStack labelStack = player.getItemInHand(hand);
-            TagKey<Item> currentTag = labelStack.get(ClassicPipes.LABEL_COMPONENT);
+            String currentTag = labelStack.get(ClassicPipes.LABEL_COMPONENT);
             if (currentTag == null || !tags.contains(currentTag)) {
                 labelStack.set(ClassicPipes.LABEL_COMPONENT, tags.getFirst());
                 if (level.isClientSide()) {
@@ -46,7 +50,7 @@ public class TagLabelItem extends Item {
             } else {
                 for (int i = 0; i < tags.size(); i++) {
                     if (tags.get(i).equals(currentTag)) {
-                        TagKey<Item> tag = tags.get((i + 1) % tags.size());
+                        String tag = tags.get((i + 1) % tags.size());
                         labelStack.set(ClassicPipes.LABEL_COMPONENT, tag);
                         if (level.isClientSide()) {
                             player.displayClientMessage(tagSetMessage(tag), false);
@@ -59,12 +63,12 @@ public class TagLabelItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
-    private Component tagSetMessage(TagKey<Item> tag) {
-        MutableComponent tagTranslation = Component.translatableWithFallback(labelToTranslationKey(tag.location().toString()), "");
+    private Component tagSetMessage(String tag) {
+        MutableComponent tagTranslation = Component.translatableWithFallback(labelToTranslationKey(tag), "");
         if (tagTranslation.getString().isEmpty()) {
-            return Component.translatable("chat." + ClassicPipes.MOD_ID + ".tag_set", Component.literal("#" + tag.location().toString()).withStyle(ChatFormatting.YELLOW));
+            return Component.translatable("chat." + ClassicPipes.MOD_ID + ".tag_set", Component.literal("#" + tag).withStyle(ChatFormatting.YELLOW));
         } else {
-            return Component.translatable("chat." + ClassicPipes.MOD_ID + ".tag_set_translatable", Component.literal("#" + tag.location().toString()).withStyle(ChatFormatting.YELLOW), tagTranslation.withStyle(ChatFormatting.YELLOW));
+            return Component.translatable("chat." + ClassicPipes.MOD_ID + ".tag_set_translatable", Component.literal("#" + tag).withStyle(ChatFormatting.YELLOW), tagTranslation.withStyle(ChatFormatting.YELLOW));
         }
     }
 
@@ -79,22 +83,29 @@ public class TagLabelItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay tooltipDisplay, Consumer<Component> tooltipAdder, TooltipFlag flag) {
-        TagKey<Item> tag = stack.get(ClassicPipes.LABEL_COMPONENT);
+        String tag = stack.get(ClassicPipes.LABEL_COMPONENT);
         if (tag != null) {
-            String label = tag.location().toString();
-            MutableComponent tagTranslation = Component.translatableWithFallback(labelToTranslationKey(label), "");
+            MutableComponent tagTranslation = Component.translatableWithFallback(labelToTranslationKey(tag), "");
             if (!tagTranslation.getString().isEmpty()) {
                 tooltipAdder.accept(tagTranslation.withStyle(ChatFormatting.YELLOW));
             }
-            tooltipAdder.accept(Component.literal("#" + label).withStyle(ChatFormatting.YELLOW));
+            tooltipAdder.accept(Component.literal("#" + tag).withStyle(ChatFormatting.YELLOW));
         } else {
             tooltipAdder.accept(Component.translatable("item." + ClassicPipes.MOD_ID + ".tag_label.desc").withStyle(ChatFormatting.GRAY));
         }
     }
 
-    public static boolean itemMatches(ItemStack tagStack, ItemStack compareStack) {
-        TagKey<Item> tag = tagStack.get(ClassicPipes.LABEL_COMPONENT);
-        return tag != null && compareStack.is(tag);
+    @Override
+    public boolean itemMatches(ItemStack tagStack, ItemStack compareStack) {
+        String tag = tagStack.get(ClassicPipes.LABEL_COMPONENT);
+        if (tag != null) {
+            for (TagKey<Item> tagKey : compareStack.getTags().toList()) {
+                if (tag.equals(tagKey.location().toString())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

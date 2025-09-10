@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "classicpipes:mod_label"
+  ],
+  "result": {
+    "count": 1,
+    "id": "classicpipes:tag_label"
+  }
+}
