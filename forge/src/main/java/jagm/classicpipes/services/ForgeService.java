@@ -241,4 +241,9 @@ public class ForgeService implements LoaderService {
         return false;//TODO
     }
 
+    @Override
+    public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+        return false;
+    }
+
 }

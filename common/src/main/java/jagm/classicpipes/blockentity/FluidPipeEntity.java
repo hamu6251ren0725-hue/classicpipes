@@ -239,4 +239,8 @@ public class FluidPipeEntity extends PipeEntity {
         return this.fluid;
     }
 
+    public boolean isEmpty() {
+        return this.contents.isEmpty();
+    }
+
 }

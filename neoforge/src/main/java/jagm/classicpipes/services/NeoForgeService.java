@@ -223,4 +223,23 @@ public class NeoForgeService implements LoaderService {
         return false;
     }
 
+    @Override
+    public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+        BlockEntity blockEntity = level.getBlockEntity(containerPos);
+        if (blockEntity instanceof FluidPipeEntity) {
+            return false;
+        }
+        BlockState state = level.getBlockState(containerPos);
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
+        if (fluidHandler != null) {
+            FluidStack drainedStack = pipe.isEmpty() ? fluidHandler.drain(amount, IFluidHandler.FluidAction.EXECUTE) : fluidHandler.drain(new FluidStack(pipe.getFluid(), amount), IFluidHandler.FluidAction.EXECUTE);
+            if (!drainedStack.isEmpty()) {
+                pipe.setFluid(drainedStack.getFluid());
+                pipe.insertFluidPacket(level, new FluidInPipe(drainedStack.getAmount(), pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

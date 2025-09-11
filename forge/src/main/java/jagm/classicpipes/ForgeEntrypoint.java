@@ -49,6 +49,8 @@ public class ForgeEntrypoint {
                 helper.register("matching_pipe", ClassicPipes.MATCHING_PIPE_ENTITY);
                 helper.register("storage_pipe", ClassicPipes.STORAGE_PIPE_ENTITY);
                 helper.register("recipe_pipe", ClassicPipes.RECIPE_PIPE_ENTITY);
+                helper.register("fluid_pipe", ClassicPipes.FLUID_PIPE_ENTITY);
+                helper.register("copper_fluid_pipe", ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
             });
 
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {

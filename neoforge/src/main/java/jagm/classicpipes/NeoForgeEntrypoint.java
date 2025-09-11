@@ -57,6 +57,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("fluid_pipe"), ClassicPipes.FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("copper_fluid_pipe"), ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
@@ -75,6 +76,7 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
         }
 
         @SubscribeEvent

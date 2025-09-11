@@ -55,4 +55,6 @@ public interface LoaderService {
 
     boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite);
 
+    boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
+
 }
