@@ -1,8 +1,21 @@
 package jagm.classicpipes.util;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
 
 public class FluidInPipe {
+
+    public static final Codec<FluidInPipe> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("amount").orElse(0).forGetter(FluidInPipe::getAmount),
+                    Codec.SHORT.fieldOf("speed").orElse((short) 0).forGetter(FluidInPipe::getSpeed),
+                    Codec.SHORT.fieldOf("progress").orElse((short) 0).forGetter(FluidInPipe::getProgress),
+                    Codec.BYTE.fieldOf("from_direction").orElse((byte) 0).forGetter(fluidPacket -> (byte) fluidPacket.getFromDirection().get3DDataValue()),
+                    Codec.BYTE.fieldOf("target_direction").orElse((byte) 0).forGetter(fluidPacket -> (byte) fluidPacket.getTargetDirection().get3DDataValue()),
+                    Codec.SHORT.fieldOf("age").orElse((short) 0).forGetter(FluidInPipe::getAge)
+            ).apply(instance, FluidInPipe::new)
+    );
 
     private int amount;
     private short speed;
@@ -18,6 +31,10 @@ public class FluidInPipe {
         this.fromDirection = fromDirection;
         this.targetDirection = targetDirection;
         this.age = age;
+    }
+
+    public FluidInPipe(int amount, short speed, short progress, byte fromDirection, byte targetDirection, short age) {
+        this(amount, speed, progress, Direction.from3DDataValue(fromDirection), Direction.from3DDataValue(targetDirection), age);
     }
 
     public void move(short targetSpeed, short acceleration) {
@@ -46,6 +63,10 @@ public class FluidInPipe {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public short getSpeed() {
+        return speed;
     }
 
     public short getProgress() {

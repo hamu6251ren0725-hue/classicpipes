@@ -27,6 +27,8 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforgespi.language.IModInfo;
@@ -179,13 +181,46 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pos, BlockState state, Fluid fluid, FluidInPipe fluidPacket) {
-        return false;//TODO
+    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, Fluid fluid, FluidInPipe fluidPacket) {
+        BlockPos containerPos = pipePos.relative(fluidPacket.getTargetDirection());
+        BlockEntity blockEntity = level.getBlockEntity(containerPos);
+        if (blockEntity instanceof FluidPipeEntity nextPipe) {
+            if (nextPipe.emptyOrMatches(fluid)) {
+                fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
+                nextPipe.setFluid(fluid);
+                nextPipe.insertFluidPacket(level, fluidPacket);
+                level.sendBlockUpdated(containerPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
+                return true;
+            }
+        } else {
+            Direction face = fluidPacket.getTargetDirection().getOpposite();
+            BlockState state = level.getBlockState(containerPos);
+            IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
+            if (fluidHandler != null) {
+                int amountFilled = fluidHandler.fill(new FluidStack(fluid, fluidPacket.getAmount()), IFluidHandler.FluidAction.EXECUTE);
+                if (amountFilled >= fluidPacket.getAmount()) {
+                    return true;
+                }
+                fluidPacket.setAmount(fluidPacket.getAmount() - amountFilled);
+            }
+        }
+        fluidPacket.resetProgress(fluidPacket.getTargetDirection());
+        pipe.routePacket(pipeState, fluidPacket);
+        return false;
     }
 
     @Override
-    public boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite) {
-        return false;//TODO
+    public boolean canAccessFluidContainer(Level level, BlockPos containerPos, Direction face) {
+        BlockEntity blockEntity = level.getBlockEntity(containerPos);
+        if (blockEntity instanceof FluidPipeEntity) {
+            return false;
+        }
+        BlockState state = level.getBlockState(containerPos);
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
+        if (fluidHandler != null) {
+            return fluidHandler.getTanks() > 0;
+        }
+        return false;
     }
 
 }

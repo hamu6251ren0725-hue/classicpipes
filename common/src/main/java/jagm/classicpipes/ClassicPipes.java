@@ -46,7 +46,6 @@ public class ClassicPipes {
     public static final Map<String, SoundEvent> SOUNDS = new LinkedHashMap<>();
 
     public static final List<Block> TRANSPARENT_BLOCKS = new ArrayList<>();
-    private static final List<Block> BASIC_PIPES = new ArrayList<>();
 
     public static final Block OAK_PIPE = createWoodenPipe("oak_pipe");
     public static final Block SPRUCE_PIPE = createWoodenPipe("spruce_pipe");
@@ -66,7 +65,7 @@ public class ClassicPipes {
     public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("golden_pipe"));
     public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("diamond_pipe"));
     public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("flint_pipe"));
-    public static final Block BRICK_PIPE = createBasicPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("brick_pipe"));
+    public static final Block BRICK_PIPE = createPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("brick_pipe"));
     public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("obsidian_pipe"));
     public static final Block BONE_PIPE = createPipe("bone_pipe", BonePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.BONE_BLOCK).destroyTime(0.25F), translateDesc("bone_pipe"));
     public static final Block ROUTING_PIPE = createPipe("routing_pipe", NetworkedPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
@@ -76,8 +75,9 @@ public class ClassicPipes {
     public static final Block MATCHING_PIPE = createPipe("matching_pipe", MatchingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("matching_pipe"));
     public static final Block STORAGE_PIPE = createPipe("storage_pipe", StoragePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("storage_pipe.a"), translateDesc("storage_pipe.b"));
     public static final Block RECIPE_PIPE = createPipe("recipe_pipe", RecipePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("recipe_pipe.a"), translateDesc("recipe_pipe.b"));
+    public static final Block OAK_FLUID_PIPE = createWoodenFluidPipe("oak_fluid_pipe");
 
-    public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, BASIC_PIPES.toArray(new Block[0]));
+    public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, OAK_PIPE, SPRUCE_PIPE, BIRCH_PIPE, JUNGLE_PIPE, ACACIA_PIPE, DARK_OAK_PIPE, MANGROVE_PIPE, CHERRY_PIPE, PALE_OAK_PIPE, BAMBOO_PIPE, CRIMSON_PIPE, WARPED_PIPE, BRICK_PIPE);
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
     public static final BlockEntityType<CopperPipeEntity> COPPER_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(CopperPipeEntity::new, COPPER_PIPE);
     public static final BlockEntityType<IronPipeEntity> IRON_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(IronPipeEntity::new, IRON_PIPE);
@@ -93,6 +93,7 @@ public class ClassicPipes {
     public static final BlockEntityType<MatchingPipeEntity> MATCHING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(MatchingPipeEntity::new, MATCHING_PIPE);
     public static final BlockEntityType<StoragePipeEntity> STORAGE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(StoragePipeEntity::new, STORAGE_PIPE);
     public static final BlockEntityType<RecipePipeEntity> RECIPE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RecipePipeEntity::new, RECIPE_PIPE);
+    public static final BlockEntityType<FluidPipeEntity> FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(FluidPipeEntity::new, OAK_FLUID_PIPE);
 
     public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
     public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, new Item.Properties().stacksTo(1));
@@ -139,14 +140,12 @@ public class ClassicPipes {
         return pipe;
     }
 
-    private static Block createBasicPipe(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
-        Block pipe = createPipe(name, factory, props, lore);
-        BASIC_PIPES.add(pipe);
-        return pipe;
+    private static Block createWoodenPipe(String name) {
+        return createPipe(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING), translateDesc("wooden_pipe"));
     }
 
-    private static Block createWoodenPipe(String name) {
-        return createBasicPipe(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING), translateDesc("wooden_pipe"));
+    private static Block createWoodenFluidPipe(String name) {
+        return createPipe(name, WoodenFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING), translateDesc("wooden_fluid_pipe"));
     }
 
     private static SoundEvent createSoundEvent(String name) {

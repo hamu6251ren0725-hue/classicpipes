@@ -1,5 +1,6 @@
 package jagm.classicpipes.blockentity;
 
+import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
@@ -11,15 +12,23 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.*;
 
 public class FluidPipeEntity extends PipeEntity {
 
+    public static final int CAPACITY = 1000;
+
     protected Fluid fluid;
     protected final List<FluidInPipe> contents;
     protected final List<FluidInPipe> queued;
     private final Map<FluidInPipe, Long> tickAdded;
+
+    public FluidPipeEntity(BlockPos pos, BlockState state) {
+        this(ClassicPipes.FLUID_PIPE_ENTITY, pos, state);
+    }
 
     public FluidPipeEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -76,13 +85,12 @@ public class FluidPipeEntity extends PipeEntity {
                 fluidPacket.move(this.getTargetSpeed(), this.getAcceleration());
                 if (fluidPacket.getProgress() >= ItemInPipe.PIPE_LENGTH) {
                     BlockPos nextPos = pos.relative(fluidPacket.getTargetDirection());
-                    // TODO fluid insertion
-                    /*if (level.getBlockEntity(nextPos) instanceof FluidPipeEntity nextPipe && nextPipe.emptyOrMatches(this.fluid)) {
+                    if (level.getBlockEntity(nextPos) instanceof FluidPipeEntity nextPipe && nextPipe.emptyOrMatches(this.fluid)) {
                         fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
                         nextPipe.setFluid(this.fluid);
                         nextPipe.insertFluidPacket(level, fluidPacket);
                         iterator.remove();
-                    }*/
+                    }
                 }
             }
         }
@@ -112,7 +120,7 @@ public class FluidPipeEntity extends PipeEntity {
         if (this.contents.isEmpty()) {
             return 0;
         }
-        return Math.max(1, Math.round(15.0F * (float) this.totalAmount() / 1000));
+        return Math.max(1, Math.round(15.0F * (float) this.totalAmount() / CAPACITY));
     }
 
     @Override
@@ -124,6 +132,26 @@ public class FluidPipeEntity extends PipeEntity {
     @Override
     public short getAcceleration() {
         return ItemInPipe.DEFAULT_ACCELERATION;
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput valueInput) {
+        this.contents.clear();
+        this.tickAdded.clear();
+        super.loadAdditional(valueInput);
+        ValueInput.TypedInputList<FluidInPipe> fluidPacketList = valueInput.listOrEmpty("fluid_packets", FluidInPipe.CODEC);
+        fluidPacketList.forEach(this.contents::add);
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput valueOutput) {
+        super.saveAdditional(valueOutput);
+        ValueOutput.TypedOutputList<FluidInPipe> fluidPacketList = valueOutput.list("fluid_packets", FluidInPipe.CODEC);
+        for (FluidInPipe fluidPacket : this.contents) {
+            if (fluidPacket.getAmount() > 0) {
+                fluidPacketList.add(fluidPacket);
+            }
+        }
     }
 
     public void addQueuedPackets(Level level, boolean waitForNextTick) {
@@ -150,7 +178,7 @@ public class FluidPipeEntity extends PipeEntity {
     }
 
     public int remainingCapacity() {
-        return 1000 - this.totalAmount();
+        return CAPACITY - this.totalAmount();
     }
 
     public void setFluid(Fluid fluid) {
@@ -205,6 +233,10 @@ public class FluidPipeEntity extends PipeEntity {
 
     public void routePacket(FluidInPipe fluidPacket) {
         this.routePacket(this.getBlockState(), fluidPacket);
+    }
+
+    public Fluid getFluid() {
+        return this.fluid;
     }
 
 }

@@ -1,5 +1,6 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.blockentity.NeoForgeFluidPipeWrapper;
 import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.renderer.RecipePipeRenderer;
 import jagm.classicpipes.client.screen.*;
@@ -13,6 +14,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -53,6 +56,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("fluid_pipe"), ClassicPipes.FLUID_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
@@ -66,6 +70,11 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_MENU);
             });
 
+        }
+
+        @SubscribeEvent
+        public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
         }
 
         @SubscribeEvent

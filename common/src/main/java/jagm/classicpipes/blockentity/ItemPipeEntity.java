@@ -322,7 +322,7 @@ public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContai
         this.tickAdded.clear();
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<ItemInPipe> itemsList = valueInput.listOrEmpty("items", ItemInPipe.CODEC);
-        itemsList.forEach(contents::add);
+        itemsList.forEach(this.contents::add);
         for (Direction direction : Direction.values()) {
             BlockPos pos = valueInput.read(direction.getName() + "_pos", BlockPos.CODEC).orElse(BlockPos.ZERO);
             valueInput.getInt(direction.getName() + "_distance").ifPresent(distance -> this.networkDistances.put(direction, new Tuple<>(pos, distance)));
