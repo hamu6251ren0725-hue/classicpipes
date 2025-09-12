@@ -7,11 +7,13 @@ import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -35,6 +37,7 @@ public class FluidPipeEntity extends PipeEntity {
         this.contents = new ArrayList<>();
         this.queued = new ArrayList<>();
         this.tickAdded = new HashMap<>();
+        this.fluid = Fluids.WATER;
     }
 
     @Override
@@ -141,6 +144,7 @@ public class FluidPipeEntity extends PipeEntity {
         super.loadAdditional(valueInput);
         ValueInput.TypedInputList<FluidInPipe> fluidPacketList = valueInput.listOrEmpty("fluid_packets", FluidInPipe.CODEC);
         fluidPacketList.forEach(this.contents::add);
+        this.setFluid(valueInput.read("fluid", BuiltInRegistries.FLUID.byNameCodec()).orElse(Fluids.WATER));
     }
 
     @Override
@@ -152,6 +156,7 @@ public class FluidPipeEntity extends PipeEntity {
                 fluidPacketList.add(fluidPacket);
             }
         }
+        valueOutput.store("fluid", BuiltInRegistries.FLUID.byNameCodec(), this.fluid);
     }
 
     public void addQueuedPackets(Level level, boolean waitForNextTick) {
@@ -241,6 +246,10 @@ public class FluidPipeEntity extends PipeEntity {
 
     public boolean isEmpty() {
         return this.contents.isEmpty();
+    }
+
+    public List<FluidInPipe> getContents() {
+        return this.contents;
     }
 
 }

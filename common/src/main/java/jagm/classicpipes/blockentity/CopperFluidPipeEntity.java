@@ -13,7 +13,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 public class CopperFluidPipeEntity extends FluidPipeEntity {
 
-    private static final byte DEFAULT_COOLDOWN = 8;
+    private static final byte DEFAULT_COOLDOWN = 4;
+    private static final byte EXTRACT_AMOUNT = 125;
 
     private byte cooldown;
 
@@ -28,7 +29,7 @@ public class CopperFluidPipeEntity extends FluidPipeEntity {
         if (state.getValue(CopperFluidPipeBlock.ENABLED) && state.getValue(CopperFluidPipeBlock.FACING) != FacingOrNone.NONE) {
             if (this.cooldown-- <= 0) {
                 Direction direction = state.getValue(CopperFluidPipeBlock.FACING).getDirection();
-                if (Services.LOADER_SERVICE.handleFluidExtraction(this, state, level, pos.relative(direction), direction.getOpposite(), 100)) {
+                if (Services.LOADER_SERVICE.handleFluidExtraction(this, state, level, pos.relative(direction), direction.getOpposite(), EXTRACT_AMOUNT)) {
                     level.sendBlockUpdated(pos, state, state, 2);
                     this.setChanged();
                 }

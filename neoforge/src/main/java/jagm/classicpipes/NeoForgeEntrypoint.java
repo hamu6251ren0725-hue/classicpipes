@@ -1,6 +1,7 @@
 package jagm.classicpipes;
 
 import jagm.classicpipes.blockentity.NeoForgeFluidPipeWrapper;
+import jagm.classicpipes.client.renderer.FluidPipeRenderer;
 import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.renderer.RecipePipeRenderer;
 import jagm.classicpipes.client.screen.*;
@@ -123,6 +124,8 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STORAGE_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.RECIPE_PIPE_ENTITY, RecipePipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.COPPER_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
         }
 
         @SubscribeEvent

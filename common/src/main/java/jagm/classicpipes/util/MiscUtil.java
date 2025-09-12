@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.Comparator;
 
@@ -56,6 +57,13 @@ public class MiscUtil {
 
     public static String modFromItem(ItemStack stack) {
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().split(":")[0];
+    }
+
+    public static Triple<Float, Float, Float> intToRGB(int color) {
+        float red = (float) (color >> 16 & 255) / 255.0F;
+        float green = (float) (color >> 8 & 255) / 255.0F;
+        float blue = (float) (color & 255) / 255.0F;
+        return Triple.of(red, green, blue);
     }
 
 }

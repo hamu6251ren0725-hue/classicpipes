@@ -58,7 +58,7 @@ public class FluidInPipe {
     }
 
     public int getAmount() {
-        return amount;
+        return this.amount;
     }
 
     public void setAmount(int amount) {
@@ -66,19 +66,19 @@ public class FluidInPipe {
     }
 
     public short getSpeed() {
-        return speed;
+        return this.speed;
     }
 
     public short getProgress() {
-        return progress;
+        return this.progress;
     }
 
     public Direction getFromDirection() {
-        return fromDirection;
+        return this.fromDirection;
     }
 
     public Direction getTargetDirection() {
-        return targetDirection;
+        return this.targetDirection;
     }
 
     public void setTargetDirection(Direction targetDirection) {
@@ -86,7 +86,7 @@ public class FluidInPipe {
     }
 
     public short getAge() {
-        return age;
+        return this.age;
     }
 
 }

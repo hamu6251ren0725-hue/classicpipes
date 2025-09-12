@@ -2,6 +2,7 @@ package jagm.classicpipes.services;
 
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.client.renderer.FluidRenderInfo;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import net.minecraft.core.BlockPos;
@@ -16,15 +17,18 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -226,13 +230,13 @@ public class NeoForgeService implements LoaderService {
     @Override
     public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        if (blockEntity instanceof FluidPipeEntity) {
+        if (blockEntity instanceof FluidPipeEntity || pipe.totalAmount() >= FluidPipeEntity.CAPACITY) {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
         IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
         if (fluidHandler != null) {
-            FluidStack drainedStack = pipe.isEmpty() ? fluidHandler.drain(amount, IFluidHandler.FluidAction.EXECUTE) : fluidHandler.drain(new FluidStack(pipe.getFluid(), amount), IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drainedStack = pipe.isEmpty() ? fluidHandler.drain(Math.min(amount, pipe.remainingCapacity()), IFluidHandler.FluidAction.EXECUTE) : fluidHandler.drain(new FluidStack(pipe.getFluid(), amount), IFluidHandler.FluidAction.EXECUTE);
             if (!drainedStack.isEmpty()) {
                 pipe.setFluid(drainedStack.getFluid());
                 pipe.insertFluidPacket(level, new FluidInPipe(drainedStack.getAmount(), pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
@@ -240,6 +244,12 @@ public class NeoForgeService implements LoaderService {
             }
         }
         return false;
+    }
+
+    @Override
+    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
+        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
+        return new FluidRenderInfo(fluidInfo.getTintColor(fluidState, level, pos), fluidInfo.getStillTexture(fluidState, level, pos));
     }
 
 }
