@@ -190,11 +190,23 @@ public class NeoForgeService implements LoaderService {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof FluidPipeEntity nextPipe) {
             if (nextPipe.emptyOrMatches(fluid)) {
-                fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
                 nextPipe.setFluid(fluid);
-                nextPipe.insertFluidPacket(level, fluidPacket);
+                boolean bounced = false;
+                int amountToPass = Math.min(fluidPacket.getAmount(), nextPipe.remainingCapacity());
+                if (amountToPass == fluidPacket.getAmount()) {
+                    fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
+                    nextPipe.insertFluidPacket(level, fluidPacket);
+                } else {
+                    bounced = true;
+                    FluidInPipe newPacket = fluidPacket.copyWithAmount(amountToPass);
+                    newPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
+                    nextPipe.insertFluidPacket(level, newPacket);
+                    fluidPacket.setAmount(fluidPacket.getAmount() - amountToPass);
+                    fluidPacket.resetProgress(fluidPacket.getTargetDirection());
+                    pipe.routePacket(pipeState, fluidPacket);
+                }
                 level.sendBlockUpdated(containerPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
-                return true;
+                return !bounced;
             }
         } else {
             Direction face = fluidPacket.getTargetDirection().getOpposite();
