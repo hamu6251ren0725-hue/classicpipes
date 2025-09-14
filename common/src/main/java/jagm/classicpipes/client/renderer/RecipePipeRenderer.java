@@ -20,7 +20,7 @@ public class RecipePipeRenderer implements BlockEntityRenderer<RecipePipeEntity>
     }
 
     @Override
-    public void render(RecipePipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 vec3) {
+    public void render(RecipePipeEntity pipe, float partialTicks, PoseStack poses, MultiBufferSource bufferSource, int light, int overlay, Vec3 cameraPos) {
         PipeRenderer.renderPipeItems(this.context, pipe, partialTicks, poses, bufferSource, light, overlay);
         NonNullList<ItemStack> heldItems = pipe.getHeldItems();
         for (int i = 0; i < heldItems.size(); i++) {
