@@ -1,20 +1,35 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.blockentity.FluidPipeEntity;
+import jagm.classicpipes.blockentity.ForgeFluidPipeWrapper;
+import jagm.classicpipes.client.renderer.FluidPipeRenderer;
 import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.renderer.RecipePipeRenderer;
 import jagm.classicpipes.client.screen.*;
 import jagm.classicpipes.network.*;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Mod(ClassicPipes.MOD_ID)
 @SuppressWarnings("unused")
@@ -82,6 +97,31 @@ public class ForgeEntrypoint {
 
     }
 
+    @Mod.EventBusSubscriber(modid = ClassicPipes.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static class ForgeEventHandler {
+
+        @SubscribeEvent
+        public static void onRegisterCapabilities(AttachCapabilitiesEvent<BlockEntity> event) {
+            if (event.getObject() instanceof FluidPipeEntity pipe) {
+                Map<Direction, LazyOptional<IFluidHandler>> wrapperForSide = new HashMap<>();
+                for (Direction side : Direction.values()) {
+                    wrapperForSide.put(side, LazyOptional.of(() -> new ForgeFluidPipeWrapper(pipe, side)));
+                }
+                event.addCapability(MiscUtil.resourceLocation("fluid_pipe"), new ICapabilityProvider() {
+                    @Override
+                    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+                        if (cap == ForgeCapabilities.FLUID_HANDLER && side != null) {
+                            return wrapperForSide.get(side).cast();
+                        }
+                        return LazyOptional.empty();
+                    }
+                });
+                event.addListener(() -> wrapperForSide.forEach((direction, lazyOptional) -> lazyOptional.invalidate()));
+            }
+        }
+
+    }
+
     @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ClassicPipes.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientModEventHandler {
 
@@ -103,6 +143,8 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.STORAGE_PIPE_ENTITY, PipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.RECIPE_PIPE_ENTITY, RecipePipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.FLUID_PIPE_ENTITY, context -> new FluidPipeRenderer());
+            event.registerBlockEntityRenderer(ClassicPipes.COPPER_FLUID_PIPE_ENTITY, context -> new FluidPipeRenderer());
         }
 
         @SubscribeEvent

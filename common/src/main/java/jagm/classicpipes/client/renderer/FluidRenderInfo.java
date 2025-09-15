@@ -1,6 +1,6 @@
 package jagm.classicpipes.client.renderer;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-public record FluidRenderInfo(int tint, ResourceLocation texture) {
+public record FluidRenderInfo(int tint, TextureAtlasSprite sprite) {
 }

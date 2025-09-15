@@ -5,6 +5,9 @@ import jagm.classicpipes.blockentity.ItemPipeEntity;
 import jagm.classicpipes.client.renderer.FluidRenderInfo;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -261,7 +264,9 @@ public class NeoForgeService implements LoaderService {
     @Override
     public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
         IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        return new FluidRenderInfo(fluidInfo.getTintColor(fluidState, level, pos), fluidInfo.getStillTexture(fluidState, level, pos));
+        int tint = fluidInfo.getTintColor(fluidState, level, pos);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture(fluidState, level, pos));
+        return new FluidRenderInfo(tint, sprite);
     }
 
 }
