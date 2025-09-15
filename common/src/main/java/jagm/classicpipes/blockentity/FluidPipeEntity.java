@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -139,7 +140,6 @@ public class FluidPipeEntity extends PipeEntity {
                     this.routePacket(state, fluidPacket);
                 } else if ((fluidPacket.getFromDirection() == direction && fluidPacket.getProgress() < ItemInPipe.HALFWAY) || (fluidPacket.getTargetDirection() == direction && fluidPacket.getProgress() >= ItemInPipe.HALFWAY)) {
                     iterator.remove();
-                    // TODO spawn particles or something?
                 }
             }
             this.addQueuedPackets(level, false);
@@ -158,8 +158,14 @@ public class FluidPipeEntity extends PipeEntity {
 
     @Override
     public short getTargetSpeed() {
-        //TODO different speeds for thick and thin fluids.
-        return ItemInPipe.DEFAULT_SPEED;
+        FluidState fluidState = this.fluid.defaultFluidState();
+        if (fluidState.is(ClassicPipes.THIN_FLUIDS)) {
+            return ItemInPipe.DEFAULT_SPEED * 4;
+        } else if (fluidState.is(ClassicPipes.THICK_FLUIDS) && this.level != null && !this.level.dimensionType().ultraWarm()) {
+            return ItemInPipe.DEFAULT_SPEED;
+        } else {
+            return ItemInPipe.DEFAULT_SPEED * 2;
+        }
     }
 
     @Override

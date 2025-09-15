@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.Fluid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +105,9 @@ public class ClassicPipes {
 
     public static final DataComponentType<String> LABEL_COMPONENT = DataComponentType.<String>builder().persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8).build();
     public static final ResourceKey<DataComponentType<?>> LABEL_COMPONENT_KEY = MiscUtil.makeKey(BuiltInRegistries.DATA_COMPONENT_TYPE.key(), "label");
+
+    public static final TagKey<Fluid> THIN_FLUIDS = TagKey.create(Registries.FLUID, MiscUtil.resourceLocation("thin"));
+    public static final TagKey<Fluid> THICK_FLUIDS = TagKey.create(Registries.FLUID, MiscUtil.resourceLocation("thick"));
 
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
