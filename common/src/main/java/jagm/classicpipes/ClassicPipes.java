@@ -78,7 +78,19 @@ public class ClassicPipes {
     public static final Block STORAGE_PIPE = createPipe("storage_pipe", StoragePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("storage_pipe.a"), translateDesc("storage_pipe.b"));
     public static final Block RECIPE_PIPE = createPipe("recipe_pipe", RecipePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("recipe_pipe.a"), translateDesc("recipe_pipe.b"));
     public static final Block OAK_FLUID_PIPE = createWoodenFluidPipe("oak_fluid_pipe");
+    public static final Block SPRUCE_FLUID_PIPE = createWoodenFluidPipe("spruce_fluid_pipe");
+    public static final Block BIRCH_FLUID_PIPE = createWoodenFluidPipe("birch_fluid_pipe");
+    public static final Block JUNGLE_FLUID_PIPE = createWoodenFluidPipe("jungle_fluid_pipe");
+    public static final Block ACACIA_FLUID_PIPE = createWoodenFluidPipe("acacia_fluid_pipe");
+    public static final Block DARK_OAK_FLUID_PIPE = createWoodenFluidPipe("dark_oak_fluid_pipe");
+    public static final Block MANGROVE_FLUID_PIPE = createWoodenFluidPipe("mangrove_fluid_pipe");
+    public static final Block CHERRY_FLUID_PIPE = createWoodenFluidPipe("cherry_fluid_pipe");
+    public static final Block PALE_OAK_FLUID_PIPE = createWoodenFluidPipe("pale_oak_fluid_pipe");
+    public static final Block BAMBOO_FLUID_PIPE = createWoodenFluidPipe("bamboo_fluid_pipe");
+    public static final Block CRIMSON_FLUID_PIPE = createWoodenFluidPipe("crimson_fluid_pipe");
+    public static final Block WARPED_FLUID_PIPE = createWoodenFluidPipe("warped_fluid_pipe");
     public static final Block COPPER_FLUID_PIPE = createPipe("copper_fluid_pipe", CopperFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("copper_fluid_pipe"));
+    public static final Block IRON_FLUID_PIPE = createPipe("iron_fluid_pipe", IronFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("iron_fluid_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, OAK_PIPE, SPRUCE_PIPE, BIRCH_PIPE, JUNGLE_PIPE, ACACIA_PIPE, DARK_OAK_PIPE, MANGROVE_PIPE, CHERRY_PIPE, PALE_OAK_PIPE, BAMBOO_PIPE, CRIMSON_PIPE, WARPED_PIPE, BRICK_PIPE);
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
@@ -96,8 +108,9 @@ public class ClassicPipes {
     public static final BlockEntityType<MatchingPipeEntity> MATCHING_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(MatchingPipeEntity::new, MATCHING_PIPE);
     public static final BlockEntityType<StoragePipeEntity> STORAGE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(StoragePipeEntity::new, STORAGE_PIPE);
     public static final BlockEntityType<RecipePipeEntity> RECIPE_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RecipePipeEntity::new, RECIPE_PIPE);
-    public static final BlockEntityType<FluidPipeEntity> FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(FluidPipeEntity::new, OAK_FLUID_PIPE);
+    public static final BlockEntityType<FluidPipeEntity> FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(FluidPipeEntity::new, OAK_FLUID_PIPE, SPRUCE_FLUID_PIPE, BIRCH_FLUID_PIPE, JUNGLE_FLUID_PIPE, ACACIA_FLUID_PIPE, DARK_OAK_FLUID_PIPE, MANGROVE_FLUID_PIPE, CHERRY_FLUID_PIPE, PALE_OAK_FLUID_PIPE, BAMBOO_FLUID_PIPE, CRIMSON_FLUID_PIPE, WARPED_FLUID_PIPE);
     public static final BlockEntityType<CopperFluidPipeEntity> COPPER_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(CopperFluidPipeEntity::new, COPPER_FLUID_PIPE);
+    public static final BlockEntityType<IronFluidPipeEntity> IRON_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(IronFluidPipeEntity::new, IRON_FLUID_PIPE);
 
     public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
     public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, new Item.Properties().stacksTo(1));
