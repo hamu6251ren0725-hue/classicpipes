@@ -58,18 +58,25 @@ public class FluidPipeRenderer implements BlockEntityRenderer<FluidPipeEntity> {
             fluidSprite = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(Blocks.WATER.defaultBlockState());
         }
         VertexConsumer vertexBuffer = bufferSource.getBuffer(RenderType.text(fluidSprite.atlasLocation()));
-        float targetWidth = Math.min(7.0F, pipe.totalAmount() * 7.0F / FluidPipeEntity.CAPACITY) / 16.0F;
+        boolean[] middleSides = new boolean[6];
+        Arrays.fill(middleSides, true);
+        int totalAmount = 0;
+        for (FluidInPipe fluidPacket : pipe.getContents()) {
+            totalAmount += fluidPacket.getAmount();
+            middleSides[fluidPacket.getFromDirection().get3DDataValue()] = false;
+            middleSides[fluidPacket.getTargetDirection().get3DDataValue()] = false;
+        }
+        float targetWidth = Math.min(7.0F, totalAmount * 7.0F / FluidPipeEntity.CAPACITY) / 16.0F;
         float lastWidth = this.lastWidths.get(pipe);
         float width = lastWidth + (targetWidth - lastWidth) / 32.0F;
         this.lastWidths.put(pipe, width);
-        boolean[] middleSides = new boolean[6];
-        Arrays.fill(middleSides, true);
         if (width > 0.01F) {
             float start = 0.5F - width / 2;
             float end = 0.5F + width / 2;
+            boolean renderMiddle = false;
             for (Direction direction : Direction.values()) {
-                if (pipe.getBlockState().getValue(FluidPipeBlock.PROPERTY_BY_DIRECTION.get(direction))) {
-                    middleSides[direction.get3DDataValue()] = false;
+                if (!middleSides[direction.get3DDataValue()] && pipe.getBlockState().getValue(FluidPipeBlock.PROPERTY_BY_DIRECTION.get(direction))) {
+                    renderMiddle = true;
                     boolean[] renderSides = new boolean[6];
                     Arrays.fill(renderSides, true);
                     renderSides[direction.getOpposite().get3DDataValue()] = false;
@@ -83,7 +90,9 @@ public class FluidPipeRenderer implements BlockEntityRenderer<FluidPipeEntity> {
                     }
                 }
             }
-            this.renderFluidCuboid(vertexBuffer, matrix, start, start, start, end, end, end, fluidSprite, info.tint(), light, middleSides);
+            if (renderMiddle) {
+                this.renderFluidCuboid(vertexBuffer, matrix, start, start, start, end, end, end, fluidSprite, info.tint(), light, middleSides);
+            }
         }
         poses.popPose();
         if (MiscUtil.DEBUG_MODE) {
