@@ -145,7 +145,7 @@ public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContai
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 ItemInPipe item = iterator.next();
-                if (!wasConnected || (item.getTargetDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY)) {
+                if (!wasConnected || (item.getTargetDirection() == direction && item.getFromDirection() != direction && item.getProgress() < ItemInPipe.HALFWAY)) {
                     this.routeItem(state, item);
                 } else if ((item.getFromDirection() == direction && item.getProgress() < ItemInPipe.HALFWAY) || (item.getTargetDirection() == direction && item.getProgress() >= ItemInPipe.HALFWAY)) {
                     iterator.remove();

@@ -135,7 +135,7 @@ public class FluidPipeEntity extends PipeEntity {
             ListIterator<FluidInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
                 FluidInPipe fluidPacket = iterator.next();
-                if (!wasConnected || (fluidPacket.getTargetDirection() == direction && fluidPacket.getProgress() < ItemInPipe.HALFWAY)) {
+                if (!wasConnected || (fluidPacket.getTargetDirection() == direction && fluidPacket.getFromDirection() != direction && fluidPacket.getProgress() < ItemInPipe.HALFWAY)) {
                     this.routePacket(state, fluidPacket);
                 } else if ((fluidPacket.getFromDirection() == direction && fluidPacket.getProgress() < ItemInPipe.HALFWAY) || (fluidPacket.getTargetDirection() == direction && fluidPacket.getProgress() >= ItemInPipe.HALFWAY)) {
                     iterator.remove();
