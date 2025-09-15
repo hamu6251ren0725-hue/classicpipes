@@ -1,11 +1,14 @@
 package jagm.classicpipes;
 
+import jagm.classicpipes.blockentity.FabricFluidPipeWrapper;
 import jagm.classicpipes.network.*;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -18,6 +21,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 @SuppressWarnings("unused")
 public class FabricEntrypoint implements ModInitializer {
+
+    public static final long FLUID_CONVERSION_RATE = FluidConstants.BUCKET / 1000;
 
     @Override
     public void onInitialize() {
@@ -46,6 +51,9 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("recipe_pipe", ClassicPipes.RECIPE_PIPE_ENTITY);
         registerBlockEntity("fluid_pipe", ClassicPipes.FLUID_PIPE_ENTITY);
         registerBlockEntity("copper_fluid_pipe", ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
+
+        FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.FLUID_PIPE_ENTITY);
+        FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);

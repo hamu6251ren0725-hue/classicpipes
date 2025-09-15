@@ -54,9 +54,9 @@ public interface LoaderService {
 
     String getModName(String modId);
 
-    boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pos, BlockState state, Fluid fluid, FluidInPipe fluidPacket);
+    boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, BlockEntity containerEntity, BlockPos containerPos, Fluid fluid, FluidInPipe fluidPacket);
 
-    boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite);
+    boolean canAccessFluidContainer(Level level, BlockPos containerPos, Direction face);
 
     boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
 

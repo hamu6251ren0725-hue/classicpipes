@@ -188,43 +188,17 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, Fluid fluid, FluidInPipe fluidPacket) {
-        BlockPos containerPos = pipePos.relative(fluidPacket.getTargetDirection());
-        BlockEntity blockEntity = level.getBlockEntity(containerPos);
-        if (blockEntity instanceof FluidPipeEntity nextPipe) {
-            if (nextPipe.emptyOrMatches(fluid)) {
-                nextPipe.setFluid(fluid);
-                boolean bounced = false;
-                int amountToPass = Math.min(fluidPacket.getAmount(), nextPipe.remainingCapacity());
-                if (amountToPass == fluidPacket.getAmount()) {
-                    fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
-                    nextPipe.insertFluidPacket(level, fluidPacket);
-                } else {
-                    bounced = true;
-                    FluidInPipe newPacket = fluidPacket.copyWithAmount(amountToPass);
-                    newPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
-                    nextPipe.insertFluidPacket(level, newPacket);
-                    fluidPacket.setAmount(fluidPacket.getAmount() - amountToPass);
-                    fluidPacket.resetProgress(fluidPacket.getTargetDirection());
-                    pipe.routePacket(pipeState, fluidPacket);
-                }
-                level.sendBlockUpdated(containerPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
-                return !bounced;
+    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, BlockEntity containerEntity, BlockPos containerPos, Fluid fluid, FluidInPipe fluidPacket) {
+        Direction face = fluidPacket.getTargetDirection().getOpposite();
+        BlockState state = level.getBlockState(containerPos);
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, containerEntity, face);
+        if (fluidHandler != null) {
+            int amountFilled = fluidHandler.fill(new FluidStack(fluid, fluidPacket.getAmount()), IFluidHandler.FluidAction.EXECUTE);
+            if (amountFilled >= fluidPacket.getAmount()) {
+                return true;
             }
-        } else {
-            Direction face = fluidPacket.getTargetDirection().getOpposite();
-            BlockState state = level.getBlockState(containerPos);
-            IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
-            if (fluidHandler != null) {
-                int amountFilled = fluidHandler.fill(new FluidStack(fluid, fluidPacket.getAmount()), IFluidHandler.FluidAction.EXECUTE);
-                if (amountFilled >= fluidPacket.getAmount()) {
-                    return true;
-                }
-                fluidPacket.setAmount(fluidPacket.getAmount() - amountFilled);
-            }
+            fluidPacket.setAmount(fluidPacket.getAmount() - amountFilled);
         }
-        fluidPacket.resetProgress(fluidPacket.getTargetDirection());
-        pipe.routePacket(pipeState, fluidPacket);
         return false;
     }
 

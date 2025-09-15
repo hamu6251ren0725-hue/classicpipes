@@ -1,8 +1,11 @@
 package jagm.classicpipes.services;
 
+import jagm.classicpipes.FabricEntrypoint;
+import jagm.classicpipes.block.FluidPipeBlock;
 import jagm.classicpipes.block.PipeBlock;
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.client.renderer.FluidRenderInfo;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,6 +13,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -18,6 +24,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -32,12 +39,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
@@ -217,18 +226,78 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pos, BlockState state, Fluid fluid, FluidInPipe fluidPacket) {
-        return false; //TODO
+    public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, BlockEntity containerEntity, BlockPos containerPos, Fluid fluid, FluidInPipe fluidPacket) {
+        Direction face = fluidPacket.getTargetDirection().getOpposite();
+        Storage<FluidVariant> fluidHandler = FluidStorage.SIDED.find(level, containerPos, containerEntity.getBlockState(), containerEntity, face);
+        if (fluidHandler != null && fluidHandler.supportsInsertion()) {
+            long inserted;
+            long amount = fluidPacket.getAmount() * FabricEntrypoint.FLUID_CONVERSION_RATE;
+            try (Transaction transaction = Transaction.openOuter()) {
+                inserted = fluidHandler.insert(FluidVariant.of(fluid), amount, transaction);
+                transaction.commit();
+            }
+            if (inserted >= amount) {
+                return true;
+            }
+            fluidPacket.setAmount((int) ((amount - inserted) / FabricEntrypoint.FLUID_CONVERSION_RATE));
+        }
+        return false;
     }
 
     @Override
-    public boolean canAccessFluidContainer(Level level, BlockPos neighbourPos, Direction opposite) {
-        return false; //TODO
+    public boolean canAccessFluidContainer(Level level, BlockPos containerPos, Direction face) {
+        BlockState state = level.getBlockState(containerPos);
+        if (state.getBlock() instanceof FluidPipeBlock) {
+            return false;
+        }
+        Storage<FluidVariant> fluidHandler = FluidStorage.SIDED.find(level, containerPos, face);
+        if (fluidHandler != null) {
+            return fluidHandler.supportsExtraction() || fluidHandler.supportsInsertion();
+        }
+        return false;
     }
 
     @Override
     public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+        BlockState state = level.getBlockState(containerPos);
+        if (state.getBlock() instanceof FluidPipeBlock || pipe.totalAmount() >= FluidPipeEntity.CAPACITY) {
+            return false;
+        }
+        Storage<FluidVariant> fluidHandler = FluidStorage.SIDED.find(level, containerPos, face);
+        if (fluidHandler != null && fluidHandler.supportsExtraction()) {
+            long extracted;
+            try (Transaction transaction = Transaction.openOuter()) {
+                long amountToExtract = Math.min(amount, pipe.remainingCapacity()) * FabricEntrypoint.FLUID_CONVERSION_RATE;
+                extracted = fluidHandler.extract(FluidVariant.of(pipe.getFluid()), amountToExtract, transaction);
+                if (extracted <= 0 && pipe.isEmpty()) {
+                    Iterator<StorageView<FluidVariant>> iterator = fluidHandler.nonEmptyIterator();
+                    while (iterator.hasNext()) {
+                        StorageView<FluidVariant> fluidStorage = iterator.next();
+                        extracted = fluidHandler.extract(fluidStorage.getResource(), amountToExtract, transaction);
+                        if (extracted > 0) {
+                            pipe.setFluid(fluidStorage.getResource().getFluid());
+                            break;
+                        }
+                    }
+                }
+                if (extracted > 0) {
+                    transaction.commit();
+                }
+            }
+            if (extracted > 0) {
+                pipe.insertFluidPacket(level, new FluidInPipe((int) (extracted / FabricEntrypoint.FLUID_CONVERSION_RATE), pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
+                return true;
+            }
+        }
         return false;
+    }
+
+    @Override
+    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
+        FluidVariant fluidVariant = FluidVariant.of(fluidState.getType());
+        int tint = FluidVariantRendering.getColor(fluidVariant, level, pos);
+        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidVariant);
+        return new FluidRenderInfo(tint, sprite);
     }
 
 }

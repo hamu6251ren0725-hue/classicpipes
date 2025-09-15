@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -22,6 +23,7 @@ import java.util.*;
 public class FluidPipeEntity extends PipeEntity {
 
     public static final int CAPACITY = 1000;
+    public static final int MIN_PACKET_SIZE = 20;
 
     protected Fluid fluid;
     protected final List<FluidInPipe> contents;
@@ -60,8 +62,36 @@ public class FluidPipeEntity extends PipeEntity {
                     continue;
                 }
                 if (fluidPacket.getProgress() >= ItemInPipe.PIPE_LENGTH) {
-                    if (Services.LOADER_SERVICE.handleFluidInsertion(this, level, pos, state, this.fluid, fluidPacket)) {
+                    boolean remove = false;
+                    BlockPos containerPos = pos.relative(fluidPacket.getTargetDirection());
+                    BlockEntity blockEntity = level.getBlockEntity(containerPos);
+                    if (blockEntity instanceof FluidPipeEntity nextPipe) {
+                        if (nextPipe.emptyOrMatches(fluid)) {
+                            nextPipe.setFluid(fluid);
+                            remove = true;
+                            int amountToPass = Math.min(fluidPacket.getAmount(), nextPipe.remainingCapacity());
+                            if (amountToPass == fluidPacket.getAmount()) {
+                                fluidPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
+                                nextPipe.insertFluidPacket(level, fluidPacket);
+                            } else {
+                                remove = false;
+                                if (amountToPass >= FluidPipeEntity.MIN_PACKET_SIZE) {
+                                    FluidInPipe newPacket = fluidPacket.copyWithAmount(amountToPass);
+                                    newPacket.resetProgress(fluidPacket.getTargetDirection().getOpposite());
+                                    nextPipe.insertFluidPacket(level, newPacket);
+                                    fluidPacket.setAmount(fluidPacket.getAmount() - amountToPass);
+                                }
+                            }
+                            level.sendBlockUpdated(containerPos, nextPipe.getBlockState(), nextPipe.getBlockState(), 2);
+                        }
+                    } else if (blockEntity != null) {
+                        remove = Services.LOADER_SERVICE.handleFluidInsertion(this, level, pos, state, blockEntity, containerPos, this.fluid, fluidPacket);
+                    }
+                    if (remove) {
                         iterator.remove();
+                    } else {
+                        fluidPacket.resetProgress(fluidPacket.getTargetDirection());
+                        this.routePacket(state, fluidPacket);
                     }
                     sendBlockUpdate = true;
                 }
@@ -216,7 +246,7 @@ public class FluidPipeEntity extends PipeEntity {
         } else if (numDirections == 1) {
             fluidPacket.setTargetDirection(validDirections.getFirst());
         } else {
-            if (fluidPacket.getAmount() > 24) {
+            if (fluidPacket.getAmount() > MIN_PACKET_SIZE) {
                 int splitAmount = fluidPacket.getAmount() / numDirections;
                 int leftoverAmount = fluidPacket.getAmount() % numDirections;
                 Collections.shuffle(validDirections);
