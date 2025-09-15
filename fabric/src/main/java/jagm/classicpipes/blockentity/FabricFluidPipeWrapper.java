@@ -38,7 +38,7 @@ public class FabricFluidPipeWrapper implements Storage<FluidVariant>, StorageVie
             return 0L;
         } else {
             long amount = Math.min(this.pipe.remainingCapacity() * FabricEntrypoint.FLUID_CONVERSION_RATE, maxAmount);
-            transaction.addCloseCallback((context, result) -> {
+            transaction.addCloseCallback((closingTransaction, result) -> {
                 if (result.wasCommitted()) {
                     if (this.pipe.getLevel() instanceof ServerLevel serverLevel) {
                         this.pipe.setFluid(fluidVariant.getFluid());
@@ -54,18 +54,18 @@ public class FabricFluidPipeWrapper implements Storage<FluidVariant>, StorageVie
     }
 
     @Override
-    public long extract(FluidVariant fluidVariant, long l, TransactionContext transactionContext) {
+    public long extract(FluidVariant fluidVariant, long maxAmount, TransactionContext transaction) {
         return 0L;
     }
 
     @Override
     public boolean isResourceBlank() {
-        return false;
+        return this.pipe.isEmpty();
     }
 
     @Override
     public FluidVariant getResource() {
-        return FluidVariant.of(this.pipe.getFluid());
+        return this.pipe.isEmpty() ? FluidVariant.blank() : FluidVariant.of(this.pipe.getFluid());
     }
 
     @Override

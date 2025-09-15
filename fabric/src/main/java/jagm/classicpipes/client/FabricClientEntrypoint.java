@@ -37,8 +37,8 @@ public class FabricClientEntrypoint implements ClientModInitializer {
         BlockEntityRenderers.register(ClassicPipes.MATCHING_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.STORAGE_PIPE_ENTITY, PipeRenderer::new);
         BlockEntityRenderers.register(ClassicPipes.RECIPE_PIPE_ENTITY, RecipePipeRenderer::new);
-        BlockEntityRenderers.register(ClassicPipes.FLUID_PIPE_ENTITY, context -> new FluidPipeRenderer());
-        BlockEntityRenderers.register(ClassicPipes.COPPER_FLUID_PIPE_ENTITY, context -> new FluidPipeRenderer());
+        BlockEntityRenderers.register(ClassicPipes.FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
+        BlockEntityRenderers.register(ClassicPipes.COPPER_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
 
         MenuScreens.register(ClassicPipes.DIAMOND_PIPE_MENU, DiamondPipeScreen::new);
         MenuScreens.register(ClassicPipes.ROUTING_PIPE_MENU, RoutingPipeScreen::new);
