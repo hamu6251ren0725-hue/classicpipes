@@ -15,6 +15,12 @@
     "classicpipes:matching_pipe",
     "classicpipes:recipe_pipe",
     "classicpipes:storage_pipe",
-    "classicpipes:bone_pipe"
+    "classicpipes:bone_pipe",
+    "classicpipes:brick_fluid_pipe",
+    "classicpipes:copper_fluid_pipe",
+    "classicpipes:diamond_fluid_pipe",
+    "classicpipes:iron_fluid_pipe",
+    "classicpipes:lapis_fluid_pipe",
+    "classicpipes:obsidian_fluid_pipe"
   ]
 }

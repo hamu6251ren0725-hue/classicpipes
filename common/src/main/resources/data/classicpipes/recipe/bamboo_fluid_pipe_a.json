@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:bamboo_planks",
+    "W": "minecraft:glass",
+    "X": "minecraft:honeycomb"
+  },
+  "pattern": [
+    "OWO",
+    " X "
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:bamboo_fluid_pipe"
+  }
+}

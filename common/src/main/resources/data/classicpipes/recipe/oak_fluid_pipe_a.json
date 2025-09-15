@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:oak_planks",
+    "W": "minecraft:glass",
+    "X": "minecraft:honeycomb"
+  },
+  "pattern": [
+    "OWO",
+    " X "
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:oak_fluid_pipe"
+  }
+}

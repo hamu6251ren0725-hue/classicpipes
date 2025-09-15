@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "classicpipes:item/copper_pipe"
+    "model": "classicpipes:item/copper_fluid_pipe"
   }
 }

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:warped_planks",
+    "W": "minecraft:glass",
+    "X": "minecraft:honeycomb"
+  },
+  "pattern": [
+    "OWO",
+    " X "
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:warped_fluid_pipe"
+  }
+}

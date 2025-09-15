@@ -1,0 +1,71 @@
+{
+  "parent": "classicpipes:item/pipe",
+  "textures": {
+    "texture": "classicpipes:block/diamond_fluid_pipe_up",
+    "down": "classicpipes:block/diamond_fluid_pipe_down",
+    "interior": "minecraft:block/diamond_block",
+    "particle": "classicpipes:block/diamond_fluid_pipe_up"
+  },
+  "elements": [
+    {
+      "from": [ 4, 12, 4 ],
+      "to": [ 12, 16, 12 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 12, 16, 12 ],
+      "to": [ 4, 12, 4 ],
+      "faces": {
+        "north": { "texture": "#interior"},
+        "south": { "texture": "#interior"},
+        "east": { "texture": "#interior"},
+        "west": { "texture": "#interior"}
+      }
+    },
+    {
+      "from": [ 4, 4, 4 ],
+      "to": [ 12, 12, 12 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 12, 12, 12 ],
+      "to": [ 4, 4, 4 ],
+      "faces": {
+        "north": { "texture": "#texture"},
+        "south": { "texture": "#texture"},
+        "east": { "texture": "#texture"},
+        "west": { "texture": "#texture"}
+      }
+    },
+    {
+      "from": [ 4, 0, 4 ],
+      "to": [ 12, 4, 12 ],
+      "faces": {
+        "north": { "texture": "#down"},
+        "south": { "texture": "#down"},
+        "east": { "texture": "#down"},
+        "west": { "texture": "#down"}
+      }
+    },
+    {
+      "from": [ 12, 4, 12 ],
+      "to": [ 4, 0, 4 ],
+      "faces": {
+        "north": { "texture": "#interior"},
+        "south": { "texture": "#interior"},
+        "east": { "texture": "#interior"},
+        "west": { "texture": "#interior"}
+      }
+    }
+  ]
+}

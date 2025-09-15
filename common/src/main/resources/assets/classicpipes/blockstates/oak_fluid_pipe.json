@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_side"
+        "model": "classicpipes:block/oak_fluid_pipe_side"
       },
       "when": {
         "north": "true"
@@ -10,7 +10,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_middle"
+        "model": "classicpipes:block/oak_fluid_pipe_middle"
       },
       "when": {
         "north": "false"
@@ -18,7 +18,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_side",
+        "model": "classicpipes:block/oak_fluid_pipe_side",
         "uvlock": true,
         "y": 90
       },
@@ -28,7 +28,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_middle",
+        "model": "classicpipes:block/oak_fluid_pipe_middle",
         "uvlock": true,
         "y": 90
       },
@@ -38,7 +38,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_side",
+        "model": "classicpipes:block/oak_fluid_pipe_side",
         "uvlock": true,
         "y": 180
       },
@@ -48,7 +48,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_middle",
+        "model": "classicpipes:block/oak_fluid_pipe_middle",
         "uvlock": true,
         "y": 180
       },
@@ -58,7 +58,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_side",
+        "model": "classicpipes:block/oak_fluid_pipe_side",
         "uvlock": true,
         "y": 270
       },
@@ -68,7 +68,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_middle",
+        "model": "classicpipes:block/oak_fluid_pipe_middle",
         "uvlock": true,
         "y": 270
       },
@@ -78,7 +78,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_side",
+        "model": "classicpipes:block/oak_fluid_pipe_side",
         "uvlock": true,
         "x": 270
       },
@@ -88,7 +88,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_middle",
+        "model": "classicpipes:block/oak_fluid_pipe_middle",
         "uvlock": true,
         "x": 270
       },
@@ -98,7 +98,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_side",
+        "model": "classicpipes:block/oak_fluid_pipe_side",
         "uvlock": true,
         "x": 90
       },
@@ -108,7 +108,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/oak_pipe_middle",
+        "model": "classicpipes:block/oak_fluid_pipe_middle",
         "uvlock": true,
         "x": 90
       },

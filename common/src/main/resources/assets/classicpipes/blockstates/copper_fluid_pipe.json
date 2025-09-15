@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side"
+        "model": "classicpipes:block/copper_fluid_pipe_side"
       },
       "when": {
         "north": "true",
@@ -11,7 +11,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_attached"
+        "model": "classicpipes:block/copper_fluid_pipe_side_attached"
       },
       "when": {
         "north": "true",
@@ -21,7 +21,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_enabled"
+        "model": "classicpipes:block/copper_fluid_pipe_side_enabled"
       },
       "when": {
         "north": "true",
@@ -31,7 +31,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_middle"
+        "model": "classicpipes:block/copper_fluid_pipe_middle"
       },
       "when": {
         "north": "false"
@@ -39,7 +39,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
+        "model": "classicpipes:block/copper_fluid_pipe_side",
         "uvlock": true,
         "y": 90
       },
@@ -50,7 +50,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_attached",
+        "model": "classicpipes:block/copper_fluid_pipe_side_attached",
         "uvlock": true,
         "y": 90
       },
@@ -62,7 +62,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_enabled",
+        "model": "classicpipes:block/copper_fluid_pipe_side_enabled",
         "uvlock": true,
         "y": 90
       },
@@ -74,7 +74,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_middle",
+        "model": "classicpipes:block/copper_fluid_pipe_middle",
         "uvlock": true,
         "y": 90
       },
@@ -84,7 +84,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
+        "model": "classicpipes:block/copper_fluid_pipe_side",
         "uvlock": true,
         "y": 180
       },
@@ -95,7 +95,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_attached",
+        "model": "classicpipes:block/copper_fluid_pipe_side_attached",
         "uvlock": true,
         "y": 180
       },
@@ -107,7 +107,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_enabled",
+        "model": "classicpipes:block/copper_fluid_pipe_side_enabled",
         "uvlock": true,
         "y": 180
       },
@@ -119,7 +119,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_middle",
+        "model": "classicpipes:block/copper_fluid_pipe_middle",
         "uvlock": true,
         "y": 180
       },
@@ -129,7 +129,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
+        "model": "classicpipes:block/copper_fluid_pipe_side",
         "uvlock": true,
         "y": 270
       },
@@ -140,7 +140,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_attached",
+        "model": "classicpipes:block/copper_fluid_pipe_side_attached",
         "uvlock": true,
         "y": 270
       },
@@ -152,7 +152,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_enabled",
+        "model": "classicpipes:block/copper_fluid_pipe_side_enabled",
         "uvlock": true,
         "y": 270
       },
@@ -164,7 +164,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_middle",
+        "model": "classicpipes:block/copper_fluid_pipe_middle",
         "uvlock": true,
         "y": 270
       },
@@ -174,7 +174,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
+        "model": "classicpipes:block/copper_fluid_pipe_side",
         "uvlock": true,
         "x": 270
       },
@@ -185,7 +185,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_attached",
+        "model": "classicpipes:block/copper_fluid_pipe_side_attached",
         "uvlock": true,
         "x": 270
       },
@@ -197,7 +197,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_enabled",
+        "model": "classicpipes:block/copper_fluid_pipe_side_enabled",
         "uvlock": true,
         "x": 270
       },
@@ -209,7 +209,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_middle",
+        "model": "classicpipes:block/copper_fluid_pipe_middle",
         "uvlock": true,
         "x": 270
       },
@@ -219,7 +219,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side",
+        "model": "classicpipes:block/copper_fluid_pipe_side",
         "uvlock": true,
         "x": 90
       },
@@ -230,7 +230,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_attached",
+        "model": "classicpipes:block/copper_fluid_pipe_side_attached",
         "uvlock": true,
         "x": 90
       },
@@ -242,7 +242,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_side_enabled",
+        "model": "classicpipes:block/copper_fluid_pipe_side_enabled",
         "uvlock": true,
         "x": 90
       },
@@ -254,7 +254,7 @@
     },
     {
       "apply": {
-        "model": "classicpipes:block/copper_pipe_middle",
+        "model": "classicpipes:block/copper_fluid_pipe_middle",
         "uvlock": true,
         "x": 90
       },
