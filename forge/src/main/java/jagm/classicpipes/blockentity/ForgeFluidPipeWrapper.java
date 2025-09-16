@@ -1,5 +1,6 @@
 package jagm.classicpipes.blockentity;
 
+import jagm.classicpipes.block.FluidPipeBlock;
 import jagm.classicpipes.util.FluidInPipe;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -38,7 +39,7 @@ public class ForgeFluidPipeWrapper implements IFluidHandler {
 
     @Override
     public int fill(FluidStack fluidStack, FluidAction fluidAction) {
-        if (fluidStack.isEmpty() || !this.pipe.emptyOrMatches(fluidStack.getFluid())) {
+        if (fluidStack.isEmpty() || !this.pipe.emptyOrMatches(fluidStack.getFluid()) || !this.pipe.getBlockState().getValue(FluidPipeBlock.PROPERTY_BY_DIRECTION.get(this.side))) {
             return 0;
         } else {
             int amount = Math.min(this.pipe.remainingCapacity(), fluidStack.getAmount());

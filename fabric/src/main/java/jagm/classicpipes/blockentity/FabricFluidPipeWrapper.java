@@ -1,6 +1,7 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.FabricEntrypoint;
+import jagm.classicpipes.block.FluidPipeBlock;
 import jagm.classicpipes.util.FluidInPipe;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -34,7 +35,7 @@ public class FabricFluidPipeWrapper implements Storage<FluidVariant>, StorageVie
 
     @Override
     public long insert(FluidVariant fluidVariant, long maxAmount, TransactionContext transaction) {
-        if (maxAmount <= 0 || !this.pipe.emptyOrMatches(fluidVariant.getFluid())) {
+        if (maxAmount <= 0 || !this.pipe.emptyOrMatches(fluidVariant.getFluid()) || !this.pipe.getBlockState().getValue(FluidPipeBlock.PROPERTY_BY_DIRECTION.get(this.side))) {
             return 0L;
         } else {
             long amount = Math.min(this.pipe.remainingCapacity() * FabricEntrypoint.FLUID_CONVERSION_RATE, maxAmount);
