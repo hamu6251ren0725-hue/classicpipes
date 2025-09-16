@@ -92,7 +92,7 @@ public class ClassicPipes {
     public static final Block COPPER_FLUID_PIPE = createPipe("copper_fluid_pipe", CopperFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("copper_fluid_pipe"));
     public static final Block IRON_FLUID_PIPE = createPipe("iron_fluid_pipe", IronFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("iron_fluid_pipe"));
     public static final Block LAPIS_FLUID_PIPE = createPipe("lapis_fluid_pipe", LapisFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("lapis_fluid_pipe"));
-    //public static final Block DIAMOND_FLUID_PIPE = createPipe("diamond_fluid_pipe", DiamondFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("diamond_fluid_pipe"));
+    public static final Block DIAMOND_FLUID_PIPE = createPipe("diamond_fluid_pipe", DiamondFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("diamond_fluid_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, OAK_PIPE, SPRUCE_PIPE, BIRCH_PIPE, JUNGLE_PIPE, ACACIA_PIPE, DARK_OAK_PIPE, MANGROVE_PIPE, CHERRY_PIPE, PALE_OAK_PIPE, BAMBOO_PIPE, CRIMSON_PIPE, WARPED_PIPE, BRICK_PIPE);
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
@@ -114,6 +114,7 @@ public class ClassicPipes {
     public static final BlockEntityType<CopperFluidPipeEntity> COPPER_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(CopperFluidPipeEntity::new, COPPER_FLUID_PIPE);
     public static final BlockEntityType<IronFluidPipeEntity> IRON_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(IronFluidPipeEntity::new, IRON_FLUID_PIPE);
     public static final BlockEntityType<LapisFluidPipeEntity> LAPIS_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(LapisFluidPipeEntity::new, LAPIS_FLUID_PIPE);
+    public static final BlockEntityType<DiamondFluidPipeEntity> DIAMOND_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(DiamondFluidPipeEntity::new, DIAMOND_FLUID_PIPE);
 
     public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
     public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, new Item.Properties().stacksTo(1));
@@ -140,6 +141,7 @@ public class ClassicPipes {
     public static final MenuType<MatchingPipeMenu> MATCHING_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(MatchingPipeMenu::new, ClientBoundBoolPayload.STREAM_CODEC);
     public static final MenuType<StoragePipeMenu> STORAGE_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(StoragePipeMenu::new, ClientBoundThreeBoolsPayload.STREAM_CODEC);
     public static final MenuType<RecipePipeMenu> RECIPE_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(RecipePipeMenu::new, ClientBoundRecipePipePayload.STREAM_CODEC);
+    public static final MenuType<DiamondFluidPipeMenu> DIAMOND_FLUID_PIPE_MENU = Services.LOADER_SERVICE.createSimpleMenuType(DiamondFluidPipeMenu::new);
 
     private static Item createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
         if (lore.length > 0) {

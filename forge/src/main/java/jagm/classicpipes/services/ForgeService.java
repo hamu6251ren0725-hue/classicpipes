@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
@@ -20,8 +21,10 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
@@ -59,6 +62,11 @@ public class ForgeService implements LoaderService {
     @Override
     public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
         return IForgeMenuType.create((id, inventory, buffer) -> menuSupplier.apply(id, inventory, codec.decode(new RegistryFriendlyByteBuf(buffer, inventory.player.registryAccess()))));
+    }
+
+    @Override
+    public <M extends AbstractContainerMenu> MenuType<M> createSimpleMenuType(BiFunction<Integer, Inventory, M> menuSupplier) {
+        return new MenuType<>(menuSupplier::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override
@@ -296,6 +304,30 @@ public class ForgeService implements LoaderService {
         int tint = fluidInfo.getTintColor(fluidState, level, pos);
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture(fluidState, level, pos));
         return new FluidRenderInfo(tint, sprite);
+    }
+
+    @Override
+    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState) {
+        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
+        int tint = fluidInfo.getTintColor();
+        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture());
+        return new FluidRenderInfo(tint, sprite);
+    }
+
+    @Override
+    public Fluid getFluidFromStack(ItemStack stack) {
+        Optional<IFluidHandler> fluidHandlerOptional = stack.getCapability(ForgeCapabilities.FLUID_HANDLER).resolve();
+        if (fluidHandlerOptional.isPresent()) {
+            return fluidHandlerOptional.get().getFluidInTank(0).getFluid();
+        } else if (stack.getItem() instanceof BucketItem bucket) {
+            return bucket.getFluid();
+        }
+        return null;
+    }
+
+    @Override
+    public Component getFluidName(Fluid fluid) {
+        return fluid.getFluidType().getDescription();
     }
 
 }

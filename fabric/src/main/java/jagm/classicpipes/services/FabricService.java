@@ -14,8 +14,10 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -36,8 +38,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
@@ -64,6 +68,11 @@ public class FabricService implements LoaderService {
     @Override
     public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
         return new ExtendedScreenHandlerType<>(menuSupplier::apply, codec);
+    }
+
+    @Override
+    public <M extends AbstractContainerMenu> MenuType<M> createSimpleMenuType(BiFunction<Integer, Inventory, M> menuSupplier) {
+        return new MenuType<>(menuSupplier::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override
@@ -298,6 +307,33 @@ public class FabricService implements LoaderService {
         int tint = FluidVariantRendering.getColor(fluidVariant, level, pos);
         TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidVariant);
         return new FluidRenderInfo(tint, sprite);
+    }
+
+    @Override
+    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState) {
+        FluidVariant fluidVariant = FluidVariant.of(fluidState.getType());
+        int tint = FluidVariantRendering.getColor(fluidVariant);
+        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidVariant);
+        return new FluidRenderInfo(tint, sprite);
+    }
+
+    @Override
+    public Fluid getFluidFromStack(ItemStack stack) {
+        Storage<FluidVariant> fluidHandler = FluidStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack));
+        if (fluidHandler != null) {
+            Iterator<StorageView<FluidVariant>> iterator = fluidHandler.nonEmptyIterator();
+            if (iterator.hasNext()) {
+                return iterator.next().getResource().getFluid();
+            }
+        } else if (stack.getItem() instanceof BucketItem bucket) {
+            return bucket.content;
+        }
+        return null;
+    }
+
+    @Override
+    public Component getFluidName(Fluid fluid) {
+        return FluidVariantAttributes.getName(FluidVariant.of(fluid));
     }
 
 }

@@ -61,6 +61,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("copper_fluid_pipe"), ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("iron_fluid_pipe"), ClassicPipes.IRON_FLUID_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("lapis_fluid_pipe"), ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
@@ -72,6 +73,7 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_MENU);
             });
 
         }
@@ -82,6 +84,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.IRON_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
         }
 
         @SubscribeEvent
@@ -132,6 +135,7 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.COPPER_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.IRON_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
         }
 
         @SubscribeEvent
@@ -151,6 +155,7 @@ public class NeoForgeEntrypoint {
             event.register(ClassicPipes.MATCHING_PIPE_MENU, MatchingPipeScreen::new);
             event.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
             event.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
+            event.register(ClassicPipes.DIAMOND_FLUID_PIPE_MENU, DiamondFluidPipeScreen::new);
         }
 
     }

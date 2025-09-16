@@ -1,6 +1,6 @@
 package jagm.classicpipes.inventory.container;
 
-import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.blockentity.PipeEntity;
 import jagm.classicpipes.item.LabelItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -14,10 +14,10 @@ import java.util.Map;
 public class DirectionalFilterContainer implements Filter {
 
     private final Map<Direction, NonNullList<ItemStack>> filterMap;
-    private final ItemPipeEntity pipe;
+    private final PipeEntity pipe;
     private boolean matchComponents;
 
-    public DirectionalFilterContainer(ItemPipeEntity pipe, boolean matchComponents) {
+    public DirectionalFilterContainer(PipeEntity pipe, boolean matchComponents) {
         this.pipe = pipe;
         this.filterMap = new HashMap<>();
         this.matchComponents = matchComponents;
@@ -122,7 +122,7 @@ public class DirectionalFilterContainer implements Filter {
     }
 
     @Override
-    public ItemPipeEntity getPipe() {
+    public PipeEntity getPipe() {
         return this.pipe;
     }
 

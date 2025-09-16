@@ -91,6 +91,7 @@
   "container.classicpipes.matching_pipe": "Matching adjacent container",
   "container.classicpipes.storage_pipe": "Storage Pipe",
   "container.classicpipes.recipe_pipe": "Set recipe:",
+  "container.classicpipes.diamond_fluid_pipe": "Route by direction:",
   "direction.classicpipes.north": "North",
   "direction.classicpipes.east": "East",
   "direction.classicpipes.south": "South",

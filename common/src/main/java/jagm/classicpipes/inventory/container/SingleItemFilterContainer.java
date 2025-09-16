@@ -1,10 +1,10 @@
 package jagm.classicpipes.inventory.container;
 
-import jagm.classicpipes.blockentity.ItemPipeEntity;
+import jagm.classicpipes.blockentity.PipeEntity;
 
 public class SingleItemFilterContainer extends FilterContainer {
 
-    public SingleItemFilterContainer(ItemPipeEntity pipe, int size, boolean matchComponents) {
+    public SingleItemFilterContainer(PipeEntity pipe, int size, boolean matchComponents) {
         super(pipe, size, matchComponents);
     }
 
