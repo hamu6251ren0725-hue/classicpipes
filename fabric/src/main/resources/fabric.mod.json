@@ -20,6 +20,9 @@
         ],
         "client": [
             "jagm.classicpipes.client.FabricClientEntrypoint"
+        ],
+        "jei_mod_plugin": [
+            "jagm.classicpipes.compat.FabricJEIPlugin"
         ]
     },
     "mixins": [
