@@ -69,6 +69,7 @@ public class ForgeEntrypoint {
                 helper.register("iron_fluid_pipe", ClassicPipes.IRON_FLUID_PIPE_ENTITY);
                 helper.register("lapis_fluid_pipe", ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
                 helper.register("diamond_fluid_pipe", ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
+                helper.register("obsidian_fluid_pipe", ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
             });
 
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
@@ -152,6 +153,7 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.IRON_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
         }
 
         @SubscribeEvent

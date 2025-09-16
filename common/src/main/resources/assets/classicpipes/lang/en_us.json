@@ -82,6 +82,7 @@
   "subtitle.classicpipes.pipe_eject": "Item falls out of pipe",
   "subtitle.classicpipes.pipe_adjust": "Pipe adjusted",
   "subtitle.classicpipes.obsidian_pipe_destroy_item": "Item destroyed",
+  "subtitle.classicpipes.obsidian_fluid_pipe_gurgle": "Fluid gurgles into the void",
   "container.classicpipes.diamond_pipe": "Route by direction:",
   "container.classicpipes.routing_pipe": "Items to route here:",
   "container.classicpipes.provider_pipe": "Items to provide, blank for all:",

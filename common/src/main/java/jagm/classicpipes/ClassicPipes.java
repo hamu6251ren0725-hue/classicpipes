@@ -93,6 +93,7 @@ public class ClassicPipes {
     public static final Block IRON_FLUID_PIPE = createPipe("iron_fluid_pipe", IronFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("iron_fluid_pipe"));
     public static final Block LAPIS_FLUID_PIPE = createPipe("lapis_fluid_pipe", LapisFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("lapis_fluid_pipe"));
     public static final Block DIAMOND_FLUID_PIPE = createPipe("diamond_fluid_pipe", DiamondFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("diamond_fluid_pipe"));
+    public static final Block OBSIDIAN_FLUID_PIPE = createPipe("obsidian_fluid_pipe", ObsidianFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("obsidian_fluid_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, OAK_PIPE, SPRUCE_PIPE, BIRCH_PIPE, JUNGLE_PIPE, ACACIA_PIPE, DARK_OAK_PIPE, MANGROVE_PIPE, CHERRY_PIPE, PALE_OAK_PIPE, BAMBOO_PIPE, CRIMSON_PIPE, WARPED_PIPE, BRICK_PIPE);
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
@@ -115,6 +116,7 @@ public class ClassicPipes {
     public static final BlockEntityType<IronFluidPipeEntity> IRON_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(IronFluidPipeEntity::new, IRON_FLUID_PIPE);
     public static final BlockEntityType<LapisFluidPipeEntity> LAPIS_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(LapisFluidPipeEntity::new, LAPIS_FLUID_PIPE);
     public static final BlockEntityType<DiamondFluidPipeEntity> DIAMOND_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(DiamondFluidPipeEntity::new, DIAMOND_FLUID_PIPE);
+    public static final BlockEntityType<ObsidianFluidPipeEntity> OBSIDIAN_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(ObsidianFluidPipeEntity::new, OBSIDIAN_FLUID_PIPE);
 
     public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
     public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, new Item.Properties().stacksTo(1));
@@ -129,6 +131,7 @@ public class ClassicPipes {
     public static final SoundEvent PIPE_EJECT_SOUND = createSoundEvent("pipe_eject");
     public static final SoundEvent PIPE_ADJUST_SOUND = createSoundEvent("pipe_adjust");
     public static final SoundEvent OBSIDIAN_PIPE_DESTROY_ITEM = createSoundEvent("obsidian_pipe_destroy_item");
+    public static final SoundEvent OBSIDIAN_FLUID_PIPE_GURGLE = createSoundEvent("obsidian_fluid_pipe_gurgle");
 
     public static final CreativeModeTab PIPES_TAB = CreativeModeTab.builder(CreativeModeTab.Row.BOTTOM, 0).title(Component.translatable("itemGroup." + MOD_ID + ".pipes")).icon(() -> new ItemStack(COPPER_PIPE)).build();
     public static final ResourceKey<CreativeModeTab> PIPES_TAB_KEY = MiscUtil.makeKey(BuiltInRegistries.CREATIVE_MODE_TAB.key(), "pipes");

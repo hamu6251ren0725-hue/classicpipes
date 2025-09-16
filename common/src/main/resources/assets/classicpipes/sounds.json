@@ -10,5 +10,9 @@
   "obsidian_pipe_destroy_item": {
     "subtitle": "subtitle.classicpipes.obsidian_pipe_destroy_item",
     "sounds": [ "minecraft:random/glass1", "minecraft:random/glass2", "minecraft:random/glass3" ]
+  },
+  "obsidian_fluid_pipe_gurgle": {
+    "subtitle": "subtitle.classicpipes.obsidian_fluid_pipe_gurgle",
+    "sounds": [ "classicpipes:gurgling1", "classicpipes:gurgling2" ]
   }
 }
