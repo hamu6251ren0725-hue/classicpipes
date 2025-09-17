@@ -9,14 +9,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
+public class RecipePipeScreen extends FilterScreen<RecipePipeMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/recipe_pipe.png");
     private static final ChatFormatting[] DIRECTION_COLOURS = new ChatFormatting[]{ChatFormatting.LIGHT_PURPLE, ChatFormatting.GREEN, ChatFormatting.YELLOW, ChatFormatting.BLUE, ChatFormatting.GRAY, ChatFormatting.RED};
@@ -97,6 +96,12 @@ public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
     }
 
     @Override
+    protected void containerTick() {
+        this.buttonsNeedUpdate = true;
+        super.containerTick();
+    }
+
+    @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawString(this.font, this.title, (this.imageWidth - this.font.width(this.title)) / 2 - 9, this.titleLabelY, -12566464, false);
         graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, -12566464, false);
@@ -113,6 +118,12 @@ public class RecipePipeScreen extends AbstractContainerScreen<RecipePipeMenu> {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         this.buttonsNeedUpdate = true;
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        this.buttonsNeedUpdate = true;
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
 }

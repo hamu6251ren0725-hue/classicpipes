@@ -12,15 +12,15 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ServerBoundTransferRecipe(List<ItemStack> recipe, List<Integer> slots) implements SelfHandler {
+public record ServerBoundTransferRecipePayload(List<ItemStack> recipe, List<Integer> slots) implements SelfHandler {
 
-    public static final Type<ServerBoundTransferRecipe> TYPE = new Type<>(MiscUtil.resourceLocation("transfer_recipe"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerBoundTransferRecipe> STREAM_CODEC = StreamCodec.composite(
+    public static final Type<ServerBoundTransferRecipePayload> TYPE = new Type<>(MiscUtil.resourceLocation("transfer_recipe"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerBoundTransferRecipePayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.collection(ArrayList::new, ItemStack.STREAM_CODEC),
-            ServerBoundTransferRecipe::recipe,
+            ServerBoundTransferRecipePayload::recipe,
             ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.INT),
-            ServerBoundTransferRecipe::slots,
-            ServerBoundTransferRecipe::new
+            ServerBoundTransferRecipePayload::slots,
+            ServerBoundTransferRecipePayload::new
     );
 
     @Override

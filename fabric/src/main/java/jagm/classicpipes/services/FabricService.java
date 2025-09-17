@@ -51,6 +51,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.ArrayList;
@@ -319,16 +320,17 @@ public class FabricService implements LoaderService {
 
     @Override
     public Fluid getFluidFromStack(ItemStack stack) {
+        Fluid fluid = null;
         Storage<FluidVariant> fluidHandler = FluidStorage.ITEM.find(stack, ContainerItemContext.withConstant(stack));
         if (fluidHandler != null) {
             Iterator<StorageView<FluidVariant>> iterator = fluidHandler.nonEmptyIterator();
             if (iterator.hasNext()) {
-                return iterator.next().getResource().getFluid();
+                fluid = iterator.next().getResource().getFluid();
             }
         } else if (stack.getItem() instanceof BucketItem bucket) {
-            return bucket.content;
+            fluid = bucket.content;
         }
-        return null;
+        return fluid != null && fluid.isSame(Fluids.EMPTY) ? null : fluid;
     }
 
     @Override

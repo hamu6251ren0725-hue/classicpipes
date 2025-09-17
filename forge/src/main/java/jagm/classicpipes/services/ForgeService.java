@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
@@ -316,13 +317,14 @@ public class ForgeService implements LoaderService {
 
     @Override
     public Fluid getFluidFromStack(ItemStack stack) {
+        Fluid fluid = null;
         Optional<IFluidHandler> fluidHandlerOptional = stack.getCapability(ForgeCapabilities.FLUID_HANDLER).resolve();
         if (fluidHandlerOptional.isPresent()) {
-            return fluidHandlerOptional.get().getFluidInTank(0).getFluid();
+            fluid = fluidHandlerOptional.get().getFluidInTank(0).getFluid();
         } else if (stack.getItem() instanceof BucketItem bucket) {
-            return bucket.getFluid();
+            fluid = bucket.getFluid();
         }
-        return null;
+        return fluid != null && fluid.isSame(Fluids.EMPTY) ? null : fluid;
     }
 
     @Override

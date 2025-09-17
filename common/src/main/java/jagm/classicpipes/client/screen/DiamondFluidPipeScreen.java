@@ -8,7 +8,6 @@ import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
@@ -21,7 +20,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 
-public class DiamondFluidPipeScreen extends AbstractContainerScreen<DiamondFluidPipeMenu> {
+public class DiamondFluidPipeScreen extends FilterScreen<DiamondFluidPipeMenu> {
 
     private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/diamond_pipe.png");
 
@@ -69,6 +68,7 @@ public class DiamondFluidPipeScreen extends AbstractContainerScreen<DiamondFluid
         super.renderSlot(graphics, slot);
     }
 
+    @Override
     protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         if (this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack stack = this.hoveredSlot.getItem();

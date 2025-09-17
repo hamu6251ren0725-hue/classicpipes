@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -261,13 +262,14 @@ public class NeoForgeService implements LoaderService {
 
     @Override
     public Fluid getFluidFromStack(ItemStack stack) {
+        Fluid fluid = null;
         IFluidHandler fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
         if (fluidHandler != null) {
-            return fluidHandler.getFluidInTank(0).getFluid();
+            fluid = fluidHandler.getFluidInTank(0).getFluid();
         } else if (stack.getItem() instanceof BucketItem bucket) {
-            return bucket.content;
+            fluid = bucket.content;
         }
-        return null;
+        return fluid != null && fluid.isSame(Fluids.EMPTY) ? null : fluid;
     }
 
     @Override
