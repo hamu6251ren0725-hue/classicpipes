@@ -64,6 +64,8 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("lapis_fluid_pipe"), ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
                 helper.register(MiscUtil.resourceLocation("obsidian_fluid_pipe"), ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("advanced_copper_pipe"), ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY);
+                helper.register(MiscUtil.resourceLocation("advanced_copper_fluid_pipe"), ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
@@ -76,6 +78,8 @@ public class NeoForgeEntrypoint {
                 helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_MENU);
                 helper.register(MiscUtil.resourceLocation("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("advanced_copper_pipe"), ClassicPipes.ADVANCED_COPPER_PIPE_MENU);
+                helper.register(MiscUtil.resourceLocation("advanced_copper_fluid_pipe"), ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU);
             });
 
         }
@@ -98,12 +102,14 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.MATCHING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.STORAGE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.RECIPE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.IRON_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
         }
 
         @SubscribeEvent
@@ -158,6 +164,8 @@ public class NeoForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
         }
 
         @SubscribeEvent
@@ -178,6 +186,8 @@ public class NeoForgeEntrypoint {
             event.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
             event.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
             event.register(ClassicPipes.DIAMOND_FLUID_PIPE_MENU, DiamondFluidPipeScreen::new);
+            event.register(ClassicPipes.ADVANCED_COPPER_PIPE_MENU, AdvancedCopperPipeScreen::new);
+            event.register(ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU, AdvancedCopperFluidPipeScreen::new);
         }
 
     }

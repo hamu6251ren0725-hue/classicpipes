@@ -1,0 +1,23 @@
+{
+  "values": [
+    "classicpipes:copper_fluid_pipe",
+    "classicpipes:iron_fluid_pipe",
+    "classicpipes:lapis_fluid_pipe",
+    "classicpipes:diamond_fluid_pipe",
+    "classicpipes:brick_fluid_pipe",
+    "classicpipes:obsidian_fluid_pipe",
+    "classicpipes:acacia_fluid_pipe",
+    "classicpipes:bamboo_fluid_pipe",
+    "classicpipes:birch_fluid_pipe",
+    "classicpipes:cherry_fluid_pipe",
+    "classicpipes:crimson_fluid_pipe",
+    "classicpipes:dark_oak_fluid_pipe",
+    "classicpipes:jungle_fluid_pipe",
+    "classicpipes:mangrove_fluid_pipe",
+    "classicpipes:oak_fluid_pipe",
+    "classicpipes:pale_oak_fluid_pipe",
+    "classicpipes:spruce_fluid_pipe",
+    "classicpipes:warped_fluid_pipe",
+    "classicpipes:advanced_copper_fluid_pipe"
+  ]
+}

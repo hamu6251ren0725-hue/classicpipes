@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 public class FabricService implements LoaderService {
 
@@ -151,7 +152,7 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount, Predicate<ItemStack> predicate) {
         BlockState state = level.getBlockState(containerPos);
         if (state.getBlock() instanceof PipeBlock) {
             return false;
@@ -164,13 +165,14 @@ public class FabricService implements LoaderService {
             try (Transaction transaction = Transaction.openOuter()) {
                 for (int i = itemViewList.size() - 1; i >= 0; i--) {
                     StorageView<ItemVariant> itemView = itemViewList.get(i);
-                    // Must get resource here, otherwise it might return empty after the extraction.
                     ItemVariant resource = itemView.getResource();
-                    int extracted = (int) itemView.extract(itemView.getResource(), amount, transaction);
-                    if (extracted > 0) {
-                        stack = resource.toStack(extracted);
-                        transaction.commit();
-                        break;
+                    if (predicate.test(resource.toStack())) {
+                        int extracted = (int) itemView.extract(resource, amount, transaction);
+                        if (extracted > 0) {
+                            stack = resource.toStack(extracted);
+                            transaction.commit();
+                            break;
+                        }
                     }
                 }
             }
@@ -268,25 +270,29 @@ public class FabricService implements LoaderService {
     }
 
     @Override
-    public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount, Predicate<Fluid> predicate) {
         BlockState state = level.getBlockState(containerPos);
         if (state.getBlock() instanceof FluidPipeBlock || pipe.totalAmount() >= FluidPipeEntity.CAPACITY) {
             return false;
         }
         Storage<FluidVariant> fluidHandler = FluidStorage.SIDED.find(level, containerPos, face);
         if (fluidHandler != null && fluidHandler.supportsExtraction()) {
-            long extracted;
+            long extracted = 0;
             try (Transaction transaction = Transaction.openOuter()) {
                 long amountToExtract = Math.min(amount, pipe.remainingCapacity()) * FabricEntrypoint.FLUID_CONVERSION_RATE;
-                extracted = fluidHandler.extract(FluidVariant.of(pipe.getFluid()), amountToExtract, transaction);
+                if (predicate.test(pipe.getFluid())) {
+                    extracted = fluidHandler.extract(FluidVariant.of(pipe.getFluid()), amountToExtract, transaction);
+                }
                 if (extracted <= 0 && pipe.isEmpty()) {
                     Iterator<StorageView<FluidVariant>> iterator = fluidHandler.nonEmptyIterator();
                     while (iterator.hasNext()) {
                         StorageView<FluidVariant> fluidStorage = iterator.next();
-                        extracted = fluidHandler.extract(fluidStorage.getResource(), amountToExtract, transaction);
-                        if (extracted > 0) {
-                            pipe.setFluid(fluidStorage.getResource().getFluid());
-                            break;
+                        if (predicate.test(fluidStorage.getResource().getFluid())) {
+                            extracted = fluidHandler.extract(fluidStorage.getResource(), amountToExtract, transaction);
+                            if (extracted > 0) {
+                                pipe.setFluid(fluidStorage.getResource().getFluid());
+                                break;
+                            }
                         }
                     }
                 }

@@ -1,0 +1,8 @@
+{
+  "parent": "classicpipes:block/pipe_side_with_interior",
+  "textures": {
+    "texture": "classicpipes:block/advanced_copper_pipe_enabled",
+    "interior": "minecraft:block/copper_block",
+    "particle": "classicpipes:block/advanced_copper_pipe"
+  }
+}

@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 public class ForgeService implements LoaderService {
 
@@ -128,7 +129,7 @@ public class ForgeService implements LoaderService {
     }
 
     @Override
-    public boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount, Predicate<ItemStack> predicate) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof ItemPipeEntity) {
             return false;
@@ -138,10 +139,12 @@ public class ForgeService implements LoaderService {
             if (itemHandlerOptional.isPresent()) {
                 IItemHandler itemHandler = itemHandlerOptional.get();
                 for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
-                    ItemStack stack = itemHandler.extractItem(slot, amount, false);
-                    if (!stack.isEmpty()) {
-                        pipe.setItem(face.getOpposite(), stack);
-                        return true;
+                    if (predicate.test(itemHandler.getStackInSlot(slot))) {
+                        ItemStack stack = itemHandler.extractItem(slot, amount, false);
+                        if (!stack.isEmpty()) {
+                            pipe.setItem(face.getOpposite(), stack);
+                            return true;
+                        }
                     }
                 }
             }
@@ -240,7 +243,7 @@ public class ForgeService implements LoaderService {
     }
 
     @Override
-    public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount) {
+    public boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount, Predicate<Fluid> predicate) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
         if (blockEntity instanceof FluidPipeEntity || pipe.totalAmount() >= FluidPipeEntity.CAPACITY) {
             return false;
@@ -248,11 +251,15 @@ public class ForgeService implements LoaderService {
             Optional<IFluidHandler> fluidHandlerOptional = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).resolve();
             if (fluidHandlerOptional.isPresent()) {
                 IFluidHandler fluidHandler = fluidHandlerOptional.get();
-                FluidStack drainedStack = pipe.isEmpty() ? fluidHandler.drain(Math.min(amount, pipe.remainingCapacity()), IFluidHandler.FluidAction.EXECUTE) : fluidHandler.drain(new FluidStack(pipe.getFluid(), amount), IFluidHandler.FluidAction.EXECUTE);
-                if (!drainedStack.isEmpty()) {
-                    pipe.setFluid(drainedStack.getFluid());
-                    pipe.insertFluidPacket(level, new FluidInPipe(drainedStack.getAmount(), pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
-                    return true;
+                int amountToDrain = Math.min(amount, pipe.remainingCapacity());
+                Fluid fluid = pipe.isEmpty() ? fluidHandler.drain(amountToDrain, IFluidHandler.FluidAction.SIMULATE).getFluid() : pipe.getFluid();
+                if (predicate.test(fluid)) {
+                    FluidStack drainedStack = pipe.isEmpty() ? fluidHandler.drain(amountToDrain, IFluidHandler.FluidAction.EXECUTE) : fluidHandler.drain(new FluidStack(pipe.getFluid(), amountToDrain), IFluidHandler.FluidAction.EXECUTE);
+                    if (!drainedStack.isEmpty()) {
+                        pipe.setFluid(drainedStack.getFluid());
+                        pipe.insertFluidPacket(level, new FluidInPipe(drainedStack.getAmount(), pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
+                        return true;
+                    }
                 }
             }
         }

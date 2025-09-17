@@ -30,6 +30,7 @@ import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 public interface LoaderService {
 
@@ -49,7 +50,7 @@ public interface LoaderService {
 
     boolean handleItemInsertion(ItemPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, ItemInPipe item);
 
-    boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
+    boolean handleItemExtraction(ItemPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount, Predicate<ItemStack> predicate);
 
     List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face);
 
@@ -61,7 +62,7 @@ public interface LoaderService {
 
     boolean canAccessFluidContainer(Level level, BlockPos containerPos, Direction face);
 
-    boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount);
+    boolean handleFluidExtraction(FluidPipeEntity pipe, BlockState pipeState, ServerLevel level, BlockPos containerPos, Direction face, int amount, Predicate<Fluid> predicate);
 
     FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos);
 

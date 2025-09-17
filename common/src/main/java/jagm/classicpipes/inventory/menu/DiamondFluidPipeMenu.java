@@ -2,17 +2,11 @@ package jagm.classicpipes.inventory.menu;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.container.DirectionalFilterContainer;
-import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
 
-public class DiamondFluidPipeMenu extends FilterMenu {
+public class DiamondFluidPipeMenu extends FluidFilterMenu {
 
     private static final ResourceLocation EMPTY_SLOT = MiscUtil.resourceLocation("container/slot/fluid");
 
@@ -26,58 +20,16 @@ public class DiamondFluidPipeMenu extends FilterMenu {
             for (int j = 0; j < 9; j++) {
                 int column = j;
                 this.addSlot(new FilterSlot(filter, j + i * 9, 8 + j * 18, 18 + i * 18) {
+
+                    @Override
                     public ResourceLocation getNoItemIcon() {
                         return column == 0 ? EMPTY_SLOT : null;
                     }
+
                 });
             }
         }
         this.addStandardInventorySlots(playerInventory, 8, 154);
-    }
-
-    @Override
-    public void clicked(int index, int button, ClickType clickType, Player player) {
-        if (index >= this.getFilter().getContainerSize() || index < 0 || clickType.equals(ClickType.CLONE)) {
-            super.clicked(index, button, clickType, player);
-        } else {
-            Slot slot = this.slots.get(index);
-            if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0 || button == 1)) {
-                if (this.getCarried().isEmpty() || clickType == ClickType.QUICK_MOVE) {
-                    slot.remove(1);
-                    slot.setChanged();
-                } else {
-                    Fluid fluid = Services.LOADER_SERVICE.getFluidFromStack(this.getCarried());
-                    if (fluid != null) {
-                        slot.set(new ItemStack(fluid.getBucket()));
-                        slot.setChanged();
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public ItemStack quickMoveStack(Player player, int index) {
-        Slot slot = this.slots.get(index);
-        if (slot.hasItem()) {
-            if (index < this.getFilter().getContainerSize()) {
-                slot.remove(1);
-                slot.setChanged();
-            } else {
-                Fluid fluid = Services.LOADER_SERVICE.getFluidFromStack(slot.getItem());
-                if (fluid != null) {
-                    for (int i = 0; i < this.getFilter().getContainerSize(); i++) {
-                        if (!this.slots.get(i).hasItem()) {
-                            Slot toSlot = this.slots.get(i);
-                            toSlot.set(new ItemStack(fluid.getBucket()));
-                            toSlot.setChanged();
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return ItemStack.EMPTY;
     }
 
 }

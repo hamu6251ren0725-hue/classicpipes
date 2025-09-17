@@ -73,6 +73,8 @@ public class ForgeEntrypoint {
                 helper.register("lapis_fluid_pipe", ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
                 helper.register("diamond_fluid_pipe", ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
                 helper.register("obsidian_fluid_pipe", ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
+                helper.register("advanced_copper_pipe", ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY);
+                helper.register("advanced_copper_fluid_pipe", ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY);
             });
 
             event.register(ForgeRegistries.Keys.MENU_TYPES, helper -> {
@@ -85,6 +87,8 @@ public class ForgeEntrypoint {
                 helper.register("storage_pipe", ClassicPipes.STORAGE_PIPE_MENU);
                 helper.register("recipe_pipe", ClassicPipes.RECIPE_PIPE_MENU);
                 helper.register("diamond_fluid_pipe", ClassicPipes.DIAMOND_FLUID_PIPE_MENU);
+                helper.register("advanced_copper_pipe", ClassicPipes.ADVANCED_COPPER_PIPE_MENU);
+                helper.register("advanced_copper_fluid_pipe", ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU);
             });
 
         }
@@ -174,6 +178,8 @@ public class ForgeEntrypoint {
             event.registerBlockEntityRenderer(ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
             event.registerBlockEntityRenderer(ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY, PipeRenderer::new);
+            event.registerBlockEntityRenderer(ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY, FluidPipeRenderer::new);
         }
 
         @SubscribeEvent
@@ -195,6 +201,8 @@ public class ForgeEntrypoint {
                 MenuScreens.register(ClassicPipes.STORAGE_PIPE_MENU, StoragePipeScreen::new);
                 MenuScreens.register(ClassicPipes.RECIPE_PIPE_MENU, RecipePipeScreen::new);
                 MenuScreens.register(ClassicPipes.DIAMOND_FLUID_PIPE_MENU, DiamondFluidPipeScreen::new);
+                MenuScreens.register(ClassicPipes.ADVANCED_COPPER_PIPE_MENU, AdvancedCopperPipeScreen::new);
+                MenuScreens.register(ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU, AdvancedCopperFluidPipeScreen::new);
             });
         }
 

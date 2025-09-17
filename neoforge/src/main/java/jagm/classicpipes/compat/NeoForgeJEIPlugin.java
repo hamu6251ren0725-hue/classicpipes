@@ -1,8 +1,8 @@
 package jagm.classicpipes.compat;
 
 import jagm.classicpipes.ClassicPipes;
-import jagm.classicpipes.client.screen.DiamondFluidPipeScreen;
 import jagm.classicpipes.client.screen.FilterScreen;
+import jagm.classicpipes.client.screen.FluidFilterScreen;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.menu.RecipePipeMenu;
 import jagm.classicpipes.network.ServerBoundSetFilterPayload;
@@ -95,7 +95,7 @@ public class NeoForgeJEIPlugin implements IModPlugin {
                     return List.of();
                 }
                 Fluid fluid = Services.LOADER_SERVICE.getFluidFromStack(stack);
-                if (filterScreen instanceof DiamondFluidPipeScreen) {
+                if (filterScreen instanceof FluidFilterScreen<?>) {
                     if (fluid != null && !fluid.isSame(Fluids.EMPTY)) {
                         stack = new ItemStack(fluid.getBucket());
                         if (stack.isEmpty()) {

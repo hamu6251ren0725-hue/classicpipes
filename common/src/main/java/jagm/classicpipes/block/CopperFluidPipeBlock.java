@@ -124,7 +124,7 @@ public class CopperFluidPipeBlock extends FluidPipeBlock {
 
     @Override
     protected boolean canConnectToPipe(PipeBlock pipeBlock){
-        return super.canConnectToPipe(pipeBlock) && pipeBlock != this;
+        return super.canConnectToPipe(pipeBlock) && !(pipeBlock instanceof CopperFluidPipeBlock);
     }
 
 }

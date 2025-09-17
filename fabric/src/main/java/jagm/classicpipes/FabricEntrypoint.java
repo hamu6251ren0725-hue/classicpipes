@@ -57,6 +57,8 @@ public class FabricEntrypoint implements ModInitializer {
         registerBlockEntity("lapis_fluid_pipe", ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
         registerBlockEntity("diamond_fluid_pipe", ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
         registerBlockEntity("obsidian_fluid_pipe", ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
+        registerBlockEntity("advanced_copper_pipe", ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY);
+        registerBlockEntity("advanced_copper_fluid_pipe", ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY);
 
         ItemStorage.SIDED.registerForBlockEntity(FabricItemPipeWrapper::new, ClassicPipes.BASIC_PIPE_ENTITY);
         ItemStorage.SIDED.registerForBlockEntity(FabricItemPipeWrapper::new, ClassicPipes.GOLDEN_PIPE_ENTITY);
@@ -74,12 +76,14 @@ public class FabricEntrypoint implements ModInitializer {
         ItemStorage.SIDED.registerForBlockEntity(FabricItemPipeWrapper::new, ClassicPipes.MATCHING_PIPE_ENTITY);
         ItemStorage.SIDED.registerForBlockEntity(FabricItemPipeWrapper::new, ClassicPipes.STORAGE_PIPE_ENTITY);
         ItemStorage.SIDED.registerForBlockEntity(FabricItemPipeWrapper::new, ClassicPipes.RECIPE_PIPE_ENTITY);
+        ItemStorage.SIDED.registerForBlockEntity(FabricItemPipeWrapper::new, ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY);
         FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.FLUID_PIPE_ENTITY);
         FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
         FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.IRON_FLUID_PIPE_ENTITY);
         FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
         FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
         FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
+        FluidStorage.SIDED.registerForBlockEntity(FabricFluidPipeWrapper::new, ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY);
 
         registerMenu("diamond_pipe", ClassicPipes.DIAMOND_PIPE_MENU);
         registerMenu("routing_pipe", ClassicPipes.ROUTING_PIPE_MENU);
@@ -90,6 +94,8 @@ public class FabricEntrypoint implements ModInitializer {
         registerMenu("storage_pipe", ClassicPipes.STORAGE_PIPE_MENU);
         registerMenu("recipe_pipe", ClassicPipes.RECIPE_PIPE_MENU);
         registerMenu("diamond_fluid_pipe", ClassicPipes.DIAMOND_FLUID_PIPE_MENU);
+        registerMenu("advanced_copper_pipe", ClassicPipes.ADVANCED_COPPER_PIPE_MENU);
+        registerMenu("advanced_copper_fluid_pipe", ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU);
 
         ItemGroupEvents.modifyEntriesEvent(ClassicPipes.PIPES_TAB_KEY).register(tab -> ClassicPipes.ITEMS.forEach((name, item) -> tab.accept(item)));
 

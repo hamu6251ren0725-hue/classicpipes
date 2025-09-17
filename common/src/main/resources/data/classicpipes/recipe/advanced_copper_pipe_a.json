@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "O": "minecraft:copper_ingot",
+    "W": "minecraft:glass",
+    "X": "minecraft:netherite_ingot"
+  },
+  "pattern": [
+    "OWO",
+    " X "
+  ],
+  "result": {
+    "count": 8,
+    "id": "classicpipes:advanced_copper_pipe"
+  }
+}

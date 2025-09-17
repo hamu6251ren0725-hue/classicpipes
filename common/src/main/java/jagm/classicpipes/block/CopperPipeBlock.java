@@ -124,7 +124,7 @@ public class CopperPipeBlock extends BooleanDirectionsPipeBlock {
 
     @Override
     protected boolean canConnectToPipe(PipeBlock pipeBlock){
-        return pipeBlock != this;
+        return !(pipeBlock instanceof CopperPipeBlock);
     }
 
 }

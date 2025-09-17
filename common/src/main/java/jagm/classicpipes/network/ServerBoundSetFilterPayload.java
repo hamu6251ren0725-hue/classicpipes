@@ -1,8 +1,8 @@
 package jagm.classicpipes.network;
 
 import jagm.classicpipes.inventory.container.Filter;
-import jagm.classicpipes.inventory.menu.DiamondFluidPipeMenu;
 import jagm.classicpipes.inventory.menu.FilterMenu;
+import jagm.classicpipes.inventory.menu.FluidFilterMenu;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -33,7 +33,7 @@ public record ServerBoundSetFilterPayload(int slot, ItemStack stack) implements 
     public void handle(Player player) {
         if (player != null && player.containerMenu instanceof FilterMenu menu) {
             Slot slot = menu.getSlot(this.slot());
-            if (slot.container instanceof Filter && (!(menu instanceof DiamondFluidPipeMenu) || Services.LOADER_SERVICE.getFluidFromStack(this.stack()) != null)) {
+            if (slot.container instanceof Filter && (!(menu instanceof FluidFilterMenu) || Services.LOADER_SERVICE.getFluidFromStack(this.stack()) != null)) {
                 slot.set(this.stack());
                 slot.setChanged();
             }
