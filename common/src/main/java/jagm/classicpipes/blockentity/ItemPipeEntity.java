@@ -10,7 +10,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContainer {
+public abstract class ItemPipeEntity extends PipeEntity {
 
     protected final List<ItemInPipe> contents;
     protected final List<ItemInPipe> queued;
@@ -301,11 +300,9 @@ public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContai
         return this.contents;
     }
 
-    @Override
-    public void setItem(int slot, ItemStack stack) {
+    public void setItem(Direction side, ItemStack stack) {
         if (this.getLevel() instanceof ServerLevel serverLevel && !stack.isEmpty()) {
-            Direction direction = Direction.from3DDataValue(slot);
-            ItemInPipe item = new ItemInPipe(stack, direction, direction.getOpposite());
+            ItemInPipe item = new ItemInPipe(stack, side, side.getOpposite());
             this.insertPipeItem(serverLevel, item);
             serverLevel.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
         }
@@ -342,71 +339,14 @@ public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContai
         }
     }
 
-    @Override
     public void clearContent() {
         this.contents.clear();
     }
 
-    @Override
-    public int[] getSlotsForFace(Direction direction) {
-        return new int[] {direction.get3DDataValue()};
-    }
-
-    @Override
-    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction) {
-        if (direction != null) {
-            return slot == direction.get3DDataValue() && this.canPlaceItem(slot, stack);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
-        return false;
-    }
-
-    @Override
-    public int getContainerSize() {
-        // Pipes have a fake slot for each of the six directions. These slots always appear to be empty.
-        return 6;
-    }
-
-    @Override
     public boolean isEmpty() {
         return this.contents.isEmpty();
     }
 
-    @Override
-    public ItemStack getItem(int slot) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack removeItem(int slot, int amount) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canPlaceItem(int slot, ItemStack stack) {
-        return this.isPipeConnected(this.getBlockState(), Direction.from3DDataValue(slot));
-    }
-
-    @Override
-    public boolean canTakeItem(Container target, int slot, ItemStack stack) {
-        return false;
-    }
-
-    @Override
-    public Iterator<ItemStack> iterator() {
-        return new ItemStackIterator(this.contents);
-    }
-
-    @Override
     public boolean stillValid(Player player) {
         return Container.stillValidBlockEntity(this, player);
     }
@@ -414,31 +354,6 @@ public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContai
     @Override
     public int getComparatorOutput() {
         return Math.min(15, this.getContents().size());
-    }
-
-    public static class ItemStackIterator implements Iterator<ItemStack> {
-
-        private final List<ItemInPipe> contents;
-        private int index;
-
-        public ItemStackIterator(List<ItemInPipe> contents) {
-            this.contents = contents;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return this.index < this.contents.size();
-        }
-
-        @Override
-        public ItemStack next() {
-            if (!this.hasNext()) {
-                throw new NoSuchElementException();
-            } else {
-                return this.contents.get(this.index++).getStack();
-            }
-        }
-
     }
 
 }

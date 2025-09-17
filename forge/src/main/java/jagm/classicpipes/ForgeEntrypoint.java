@@ -2,6 +2,8 @@ package jagm.classicpipes;
 
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ForgeFluidPipeWrapper;
+import jagm.classicpipes.blockentity.ForgeItemPipeWrapper;
+import jagm.classicpipes.blockentity.ItemPipeEntity;
 import jagm.classicpipes.client.renderer.FluidPipeRenderer;
 import jagm.classicpipes.client.renderer.PipeRenderer;
 import jagm.classicpipes.client.renderer.RecipePipeRenderer;
@@ -25,6 +27,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 
@@ -109,7 +112,22 @@ public class ForgeEntrypoint {
 
         @SubscribeEvent
         public static void onRegisterCapabilities(AttachCapabilitiesEvent<BlockEntity> event) {
-            if (event.getObject() instanceof FluidPipeEntity pipe) {
+            if (event.getObject() instanceof ItemPipeEntity pipe) {
+                Map<Direction, LazyOptional<IItemHandler>> wrapperForSide = new HashMap<>();
+                for (Direction side : Direction.values()) {
+                    wrapperForSide.put(side, LazyOptional.of(() -> new ForgeItemPipeWrapper(pipe, side)));
+                }
+                event.addCapability(MiscUtil.resourceLocation("item_pipe"), new ICapabilityProvider() {
+                    @Override
+                    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+                        if (cap == ForgeCapabilities.ITEM_HANDLER && side != null) {
+                            return wrapperForSide.get(side).cast();
+                        }
+                        return LazyOptional.empty();
+                    }
+                });
+                event.addListener(() -> wrapperForSide.forEach((direction, lazyOptional) -> lazyOptional.invalidate()));
+            } else if (event.getObject() instanceof FluidPipeEntity pipe) {
                 Map<Direction, LazyOptional<IFluidHandler>> wrapperForSide = new HashMap<>();
                 for (Direction side : Direction.values()) {
                     wrapperForSide.put(side, LazyOptional.of(() -> new ForgeFluidPipeWrapper(pipe, side)));

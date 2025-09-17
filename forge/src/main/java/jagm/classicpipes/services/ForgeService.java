@@ -18,8 +18,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,7 +29,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -97,11 +94,6 @@ public class ForgeService implements LoaderService {
                 return itemHandlerOptional.get().getSlots() > 0;
             }
         }
-        // Forge transfer API does not wrap sided containers without block entities, e.g. composters, so they must be handled separately.
-        BlockState state = level.getBlockState(containerPos);
-        if (state.getBlock() instanceof WorldlyContainerHolder containerHolder) {
-            return containerHolder.getContainer(state, level, containerPos).getSlotsForFace(face).length > 0;
-        }
         return false;
     }
 
@@ -116,7 +108,6 @@ public class ForgeService implements LoaderService {
             return true;
         }
         Direction face = item.getTargetDirection().getOpposite();
-        BlockState state = level.getBlockState(containerPos);
         if (blockEntity != null) {
             Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
             if (itemHandlerOptional.isPresent()) {
@@ -130,15 +121,6 @@ public class ForgeService implements LoaderService {
                 }
                 item.setStack(stack);
             }
-        }
-        // Forge transfer API does not wrap sided containers without block entities, e.g. composters, so they must be handled separately.
-        if (state.getBlock() instanceof WorldlyContainerHolder containerHolder) {
-            WorldlyContainer container = containerHolder.getContainer(state, level, containerPos);
-            ItemStack stack = HopperBlockEntity.addItem(null, container, item.getStack(), face);
-            if (stack.isEmpty()) {
-                return true;
-            }
-            item.setStack(stack);
         }
         item.resetProgress(item.getTargetDirection());
         pipe.routeItem(pipeState, item);
@@ -158,30 +140,8 @@ public class ForgeService implements LoaderService {
                 for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
                     ItemStack stack = itemHandler.extractItem(slot, amount, false);
                     if (!stack.isEmpty()) {
-                        pipe.setItem(face.getOpposite().get3DDataValue(), stack);
+                        pipe.setItem(face.getOpposite(), stack);
                         return true;
-                    }
-                }
-            }
-        }
-        // Forge transfer API does not wrap worldly containers without block entities, e.g. composters, so they must be handled separately.
-        BlockState state = level.getBlockState(containerPos);
-        if (state.getBlock() instanceof WorldlyContainerHolder containerHolder) {
-            WorldlyContainer container = containerHolder.getContainer(state, level, containerPos);
-            int[] slots = container.getSlotsForFace(face);
-            for (int i = slots.length - 1; i >= 0; i--) {
-                int slot = slots[i];
-                ItemStack stack = container.getItem(slot);
-                if (!stack.isEmpty() && container.canTakeItemThroughFace(slot, stack, face)) {
-                    int count = stack.getCount();
-                    if (HopperBlockEntity.addItem(container, pipe, container.removeItem(slot, amount), face.getOpposite()).isEmpty()) {
-                        container.setChanged();
-                        return true;
-                    } else {
-                        stack.setCount(count);
-                        if (count == 1) {
-                            container.setItem(slot, stack);
-                        }
                     }
                 }
             }
@@ -232,7 +192,7 @@ public class ForgeService implements LoaderService {
                         ItemStack extracted = itemHandler.extractItem(slot, target.getCount(), false);
                         if (!extracted.isEmpty()) {
                             target.shrink(extracted.getCount());
-                            pipe.setItem(face.getOpposite().get3DDataValue(), extracted);
+                            pipe.setItem(face.getOpposite(), extracted);
                             if (target.isEmpty()) {
                                 return true;
                             }

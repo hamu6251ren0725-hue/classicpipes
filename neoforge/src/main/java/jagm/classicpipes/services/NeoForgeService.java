@@ -136,7 +136,7 @@ public class NeoForgeService implements LoaderService {
             for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
                 ItemStack stack = itemHandler.extractItem(slot, amount, false);
                 if (!stack.isEmpty()) {
-                    pipe.setItem(face.getOpposite().get3DDataValue(), stack);
+                    pipe.setItem(face.getOpposite(), stack);
                     return true;
                 }
             }
@@ -154,7 +154,7 @@ public class NeoForgeService implements LoaderService {
                     ItemStack extracted = itemHandler.extractItem(slot, target.getCount(), false);
                     if (!extracted.isEmpty()) {
                         target.shrink(extracted.getCount());
-                        pipe.setItem(face.getOpposite().get3DDataValue(), extracted);
+                        pipe.setItem(face.getOpposite(), extracted);
                         if (target.isEmpty()) {
                             return true;
                         }

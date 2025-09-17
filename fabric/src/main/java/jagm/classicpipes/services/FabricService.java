@@ -175,7 +175,7 @@ public class FabricService implements LoaderService {
                 }
             }
             if (!stack.isEmpty()) {
-                pipe.setItem(face.getOpposite().get3DDataValue(), stack);
+                pipe.setItem(face.getOpposite(), stack);
                 return true;
             }
         }
@@ -219,7 +219,7 @@ public class FabricService implements LoaderService {
                     int itemsLeft = extracted;
                     while (itemsLeft > 0) {
                         int removed = Math.min(stack.getMaxStackSize(), itemsLeft);
-                        pipe.setItem(face.getOpposite().get3DDataValue(), stack.copyWithCount(removed));
+                        pipe.setItem(face.getOpposite(), stack.copyWithCount(removed));
                         itemsLeft -= removed;
                     }
                 } else {
