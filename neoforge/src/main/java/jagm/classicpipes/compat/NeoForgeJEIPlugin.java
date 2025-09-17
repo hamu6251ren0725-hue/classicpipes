@@ -26,8 +26,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,40 +91,58 @@ public class NeoForgeJEIPlugin implements IModPlugin {
 
             @Override
             public <I> List<Target<I>> getTargetsTyped(FilterScreen filterScreen, ITypedIngredient<I> ingredient, boolean doStart) {
-                ItemStack stack = ingredient.getItemStack().orElse(ItemStack.EMPTY);
-                if (!doStart || stack.isEmpty()) {
-                    return List.of();
-                }
-                Fluid fluid = Services.LOADER_SERVICE.getFluidFromStack(stack);
-                if (filterScreen instanceof FluidFilterScreen<?>) {
-                    if (fluid != null && !fluid.isSame(Fluids.EMPTY)) {
-                        stack = new ItemStack(fluid.getBucket());
-                        if (stack.isEmpty()) {
-                            return List.of();
-                        }
-                    } else {
-                        return List.of();
-                    }
-                }
                 List<Target<I>> validSlots = new ArrayList<>();
-                for (int i = 0; i < filterScreen.filterSlots(); i++) {
-                    Slot slot = filterScreen.getMenu().getSlot(i);
-                    if (slot.container instanceof Filter) {
-                        ItemStack finalStack = stack;
-                        validSlots.add(new Target<>() {
+                if (doStart) {
+                    ItemStack stack = ingredient.getItemStack().orElse(ItemStack.EMPTY);
+                    if (filterScreen instanceof FluidFilterScreen<?>) {
+                        Fluid fluid;
+                        if (ingredient.getIngredient() instanceof FluidStack fluidStack) {
+                            fluid = fluidStack.getFluid();
+                        } else {
+                            fluid = Services.LOADER_SERVICE.getFluidFromStack(stack);
+                        }
+                        if (fluid != null && fluid.getBucket() != Items.AIR) {
+                            for (int i = 0; i < filterScreen.filterSlots(); i++) {
+                                Slot slot = filterScreen.getMenu().getSlot(i);
+                                if (slot.container instanceof Filter) {
+                                    validSlots.add(new Target<>() {
 
-                            @Override
-                            public Rect2i getArea() {
-                                return new Rect2i(filterScreen.filterScreenLeft() + slot.x, filterScreen.filterScreenTop() + slot.y, 16, 16);
+                                        @Override
+                                        public Rect2i getArea() {
+                                            return new Rect2i(filterScreen.filterScreenLeft() + slot.x, filterScreen.filterScreenTop() + slot.y, 16, 16);
+                                        }
+
+                                        @Override
+                                        public void accept(I ingredient) {
+                                            ItemStack bucketStack = new ItemStack(fluid.getBucket());
+                                            slot.set(bucketStack);
+                                            Services.LOADER_SERVICE.sendToServer(new ServerBoundSetFilterPayload(slot.index, bucketStack));
+                                        }
+
+                                    });
+                                }
                             }
+                        }
+                    } else if (!stack.isEmpty()) {
+                        for (int i = 0; i < filterScreen.filterSlots(); i++) {
+                            Slot slot = filterScreen.getMenu().getSlot(i);
+                            if (slot.container instanceof Filter) {
+                                validSlots.add(new Target<>() {
 
-                            @Override
-                            public void accept(I ingredient) {
-                                slot.set(finalStack);
-                                Services.LOADER_SERVICE.sendToServer(new ServerBoundSetFilterPayload(slot.index, finalStack));
+                                    @Override
+                                    public Rect2i getArea() {
+                                        return new Rect2i(filterScreen.filterScreenLeft() + slot.x, filterScreen.filterScreenTop() + slot.y, 16, 16);
+                                    }
+
+                                    @Override
+                                    public void accept(I ingredient) {
+                                        slot.set(stack);
+                                        Services.LOADER_SERVICE.sendToServer(new ServerBoundSetFilterPayload(slot.index, stack));
+                                    }
+
+                                });
                             }
-
-                        });
+                        }
                     }
                 }
                 return validSlots;
