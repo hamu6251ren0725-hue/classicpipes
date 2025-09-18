@@ -148,6 +148,15 @@
   "chat.classicpipes.tag_set_translatable": "Label's tag filter set to %s (%s).",
   "chat.classicpipes.mod_set": "Label's mod filter set to %s.",
   "tag.item.classicpipes.pipes.item": "Item Pipes",
+  "tag.item.classicpipes.pipes.fluid": "Fluid Pipes",
   "tag.item.classicpipes.pipes.networked": "Networked Pipes",
-  "tag.item.c.chests.wooden": "Wooden Chests"
+  "tag.item.c.chests.wooden": "Wooden Chests",
+  "advancements.classicpipes.obtain_pipe.title": "The Pipes are Calling",
+  "advancements.classicpipes.obtain_pipe.description": "Obtain a Pipe",
+  "advancements.classicpipes.request_item.title": "Any Requests?",
+  "advancements.classicpipes.request_item.description": "Use a Request Pipe to withdraw an item from a network",
+  "advancements.classicpipes.autocraft_recipe_pipe.title": "How Perverse",
+  "advancements.classicpipes.autocraft_recipe_pipe.description": "Use a Recipe Pipe to craft a Recipe Pipe",
+  "advancements.classicpipes.autocraft_eight_steps.title": "Master of Logistics",
+  "advancements.classicpipes.autocraft_eight_steps.description": "Request an item requiring at least 8 crafting steps"
 }

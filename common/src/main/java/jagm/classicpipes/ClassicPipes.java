@@ -9,6 +9,7 @@ import jagm.classicpipes.item.TagLabelItem;
 import jagm.classicpipes.network.*;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
+import jagm.classicpipes.util.RequestItemTrigger;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -129,6 +130,8 @@ public class ClassicPipes {
 
     public static final DataComponentType<String> LABEL_COMPONENT = DataComponentType.<String>builder().persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8).build();
     public static final ResourceKey<DataComponentType<?>> LABEL_COMPONENT_KEY = MiscUtil.makeKey(BuiltInRegistries.DATA_COMPONENT_TYPE.key(), "label");
+
+    public static final RequestItemTrigger REQUEST_ITEM_TRIGGER = new RequestItemTrigger();
 
     public static final TagKey<Fluid> THIN_FLUIDS = TagKey.create(Registries.FLUID, MiscUtil.resourceLocation("thin"));
     public static final TagKey<Fluid> THICK_FLUIDS = TagKey.create(Registries.FLUID, MiscUtil.resourceLocation("thick"));

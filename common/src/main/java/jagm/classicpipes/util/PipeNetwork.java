@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
@@ -34,6 +35,7 @@ public class PipeNetwork {
     private final List<Tuple<ProviderPipe, RequestedItem>> queue;
     private final Map<ProviderPipe, List<ItemStack>> takenFromCache;
     private final List<ItemStack> spareItems;
+    private final Set<Item> craftedItemsForAdvancement;
 
     public PipeNetwork(BlockPos pos, SortingMode sortingMode) {
         this.routingPipes = new HashSet<>();
@@ -50,6 +52,7 @@ public class PipeNetwork {
         this.queue = new ArrayList<>();
         this.takenFromCache = new HashMap<>();
         this.spareItems = new ArrayList<>();
+        this.craftedItemsForAdvancement = new HashSet<>();
     }
 
     public PipeNetwork(BlockPos pos) {
@@ -174,6 +177,7 @@ public class PipeNetwork {
                                 this.spareItems.add(stack.copyWithCount(remaining));
                             }
                         }
+                        this.craftedItemsForAdvancement.add(result.getItem());
                     }
                     foundCraftingPipe = true;
                 }
@@ -199,6 +203,7 @@ public class PipeNetwork {
             if (cancelled) {
                 this.queue.forEach(tuple -> this.removeRequestedItem(tuple.b()));
             } else if (player != null) {
+                ClassicPipes.REQUEST_ITEM_TRIGGER.trigger((ServerPlayer) player, stack, this.craftedItemsForAdvancement.size());
                 player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".requested", stack.getCount(), stack.getItemName()).withStyle(ChatFormatting.GREEN), false);
             }
         } else if (partialRequest && missingItem.getCount() < stack.getCount()) {
@@ -218,6 +223,7 @@ public class PipeNetwork {
         this.queue.clear();
         this.takenFromCache.clear();
         this.spareItems.clear();
+        this.craftedItemsForAdvancement.clear();
     }
 
     public void tick(ServerLevel level) {
