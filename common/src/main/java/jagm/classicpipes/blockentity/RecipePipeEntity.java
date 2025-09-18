@@ -98,7 +98,17 @@ public class RecipePipeEntity extends NetworkedPipeEntity implements MenuProvide
     @Override
     public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         super.update(level, state, pos, direction, wasConnected);
-        List<Direction> buttonDirections = this.getDirectionsForButtons(state);
+        this.checkSlotDirections();
+    }
+
+    @Override
+    protected void initialiseNetworking(ServerLevel level, BlockState state, BlockPos pos) {
+        super.initialiseNetworking(level, state, pos);
+        this.checkSlotDirections();
+    }
+
+    private void checkSlotDirections() {
+        List<Direction> buttonDirections = this.getDirectionsForButtons(this.getBlockState());
         if (!buttonDirections.isEmpty()) {
             for (int i = 0; i < this.slotDirections.length; i++) {
                 if (!buttonDirections.contains(this.slotDirections[i])) {
