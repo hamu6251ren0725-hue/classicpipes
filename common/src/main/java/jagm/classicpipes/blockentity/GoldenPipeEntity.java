@@ -13,7 +13,7 @@ public class GoldenPipeEntity extends RoundRobinPipeEntity {
 
     @Override
     public short getTargetSpeed() {
-        return ItemInPipe.DEFAULT_SPEED * 8;
+        return ItemInPipe.SPEED_LIMIT;
     }
 
     @Override
