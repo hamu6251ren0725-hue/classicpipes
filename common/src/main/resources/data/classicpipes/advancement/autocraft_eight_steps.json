@@ -17,7 +17,7 @@
     },
     "icon": {
       "count": 1,
-      "id": "classicpipes:recipe_pipe"
+      "id": "minecraft:crafter"
     },
     "title": {
       "translate": "advancements.classicpipes.autocraft_eight_steps.title"

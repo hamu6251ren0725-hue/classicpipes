@@ -30,9 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class RecipePipeEntity extends NetworkedPipeEntity implements MenuProvider {
 
@@ -158,8 +156,15 @@ public class RecipePipeEntity extends NetworkedPipeEntity implements MenuProvide
                 }
             }
             if (readyToCraft) {
+                Map<Direction, CrafterBlockEntity> crafters = new HashMap<>();
                 for (int slot = 0; slot < 9; slot++) {
                     ItemStack ingredient = this.filter.getItem(slot);
+                    if (crafters.containsKey(this.slotDirections[slot])) {
+                        crafters.get(this.slotDirections[slot]).setSlotState(slot, !ingredient.isEmpty());
+                    } else if (this.getLevel() != null && this.getLevel().getBlockEntity(this.getBlockPos().relative(this.slotDirections[slot])) instanceof CrafterBlockEntity crafter) {
+                        crafters.put(this.slotDirections[slot], crafter);
+                        crafter.setSlotState(slot, !ingredient.isEmpty());
+                    }
                     if (!ingredient.isEmpty()) {
                         this.heldItems.get(slot).shrink(ingredient.getCount());
                         this.queued.add(new ItemInPipe(
