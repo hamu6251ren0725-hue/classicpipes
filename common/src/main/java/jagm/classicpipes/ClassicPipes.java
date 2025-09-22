@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.MapColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,54 +51,54 @@ public class ClassicPipes {
 
     public static final List<Block> TRANSPARENT_BLOCKS = new ArrayList<>();
 
-    public static final Block OAK_PIPE = createWoodenPipe("oak_pipe");
-    public static final Block SPRUCE_PIPE = createWoodenPipe("spruce_pipe");
-    public static final Block BIRCH_PIPE = createWoodenPipe("birch_pipe");
-    public static final Block JUNGLE_PIPE = createWoodenPipe("jungle_pipe");
-    public static final Block ACACIA_PIPE = createWoodenPipe("acacia_pipe");
-    public static final Block DARK_OAK_PIPE = createWoodenPipe("dark_oak_pipe");
-    public static final Block MANGROVE_PIPE = createWoodenPipe("mangrove_pipe");
-    public static final Block CHERRY_PIPE = createWoodenPipe("cherry_pipe");
-    public static final Block PALE_OAK_PIPE = createWoodenPipe("pale_oak_pipe");
-    public static final Block BAMBOO_PIPE = createWoodenPipe("bamboo_pipe");
-    public static final Block CRIMSON_PIPE = createWoodenPipe("crimson_pipe");
-    public static final Block WARPED_PIPE = createWoodenPipe("warped_pipe");
-    public static final Block COPPER_PIPE = createPipe("copper_pipe", CopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("copper_pipe"));
-    public static final Block ADVANCED_COPPER_PIPE = createPipe("advanced_copper_pipe", AdvancedCopperPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("advanced_copper_pipe"));
-    public static final Block IRON_PIPE = createPipe("iron_pipe", IronPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("iron_pipe"));
-    public static final Block LAPIS_PIPE = createPipe("lapis_pipe", LapisPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("lapis_pipe"));
-    public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("golden_pipe"));
-    public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", DiamondPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("diamond_pipe"));
-    public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("flint_pipe"));
-    public static final Block BRICK_PIPE = createPipe("brick_pipe", BrickPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("brick_pipe"));
-    public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("obsidian_pipe"));
-    public static final Block BONE_PIPE = createPipe("bone_pipe", BonePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.BONE_BLOCK).destroyTime(0.25F), translateDesc("bone_pipe"));
-    public static final Block ROUTING_PIPE = createPipe("routing_pipe", NetworkedPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
-    public static final Block PROVIDER_PIPE = createPipe("provider_pipe", ProviderPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("provider_pipe"));
-    public static final Block REQUEST_PIPE = createPipe("request_pipe", RequestPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("request_pipe"));
-    public static final Block STOCKING_PIPE = createPipe("stocking_pipe", StockingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("stocking_pipe"));
-    public static final Block MATCHING_PIPE = createPipe("matching_pipe", MatchingPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("matching_pipe"));
-    public static final Block STORAGE_PIPE = createPipe("storage_pipe", StoragePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("storage_pipe.a"), translateDesc("storage_pipe.b"));
-    public static final Block RECIPE_PIPE = createPipe("recipe_pipe", RecipePipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("recipe_pipe.a"), translateDesc("recipe_pipe.b"));
-    public static final Block OAK_FLUID_PIPE = createWoodenFluidPipe("oak_fluid_pipe");
-    public static final Block SPRUCE_FLUID_PIPE = createWoodenFluidPipe("spruce_fluid_pipe");
-    public static final Block BIRCH_FLUID_PIPE = createWoodenFluidPipe("birch_fluid_pipe");
-    public static final Block JUNGLE_FLUID_PIPE = createWoodenFluidPipe("jungle_fluid_pipe");
-    public static final Block ACACIA_FLUID_PIPE = createWoodenFluidPipe("acacia_fluid_pipe");
-    public static final Block DARK_OAK_FLUID_PIPE = createWoodenFluidPipe("dark_oak_fluid_pipe");
-    public static final Block MANGROVE_FLUID_PIPE = createWoodenFluidPipe("mangrove_fluid_pipe");
-    public static final Block CHERRY_FLUID_PIPE = createWoodenFluidPipe("cherry_fluid_pipe");
-    public static final Block PALE_OAK_FLUID_PIPE = createWoodenFluidPipe("pale_oak_fluid_pipe");
-    public static final Block BAMBOO_FLUID_PIPE = createWoodenFluidPipe("bamboo_fluid_pipe");
-    public static final Block CRIMSON_FLUID_PIPE = createWoodenFluidPipe("crimson_fluid_pipe");
-    public static final Block WARPED_FLUID_PIPE = createWoodenFluidPipe("warped_fluid_pipe");
-    public static final Block COPPER_FLUID_PIPE = createPipe("copper_fluid_pipe", CopperFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("copper_fluid_pipe"));
-    public static final Block ADVANCED_COPPER_FLUID_PIPE = createPipe("advanced_copper_fluid_pipe", AdvancedCopperFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("advanced_copper_fluid_pipe"));
-    public static final Block IRON_FLUID_PIPE = createPipe("iron_fluid_pipe", IronFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER).destroyTime(0.25F), translateDesc("iron_fluid_pipe"));
-    public static final Block LAPIS_FLUID_PIPE = createPipe("lapis_fluid_pipe", LapisFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("lapis_fluid_pipe"));
-    public static final Block DIAMOND_FLUID_PIPE = createPipe("diamond_fluid_pipe", DiamondFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.COPPER_BULB).destroyTime(0.25F), translateDesc("diamond_fluid_pipe"));
-    public static final Block BRICK_FLUID_PIPE = createPipe("brick_fluid_pipe", BrickFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("brick_fluid_pipe"));
-    public static final Block OBSIDIAN_FLUID_PIPE = createPipe("obsidian_fluid_pipe", ObsidianFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).destroyTime(0.25F), translateDesc("obsidian_fluid_pipe"));
+    public static final Block OAK_PIPE = createWoodenPipe("oak_pipe", MapColor.WOOD);
+    public static final Block SPRUCE_PIPE = createWoodenPipe("spruce_pipe", MapColor.PODZOL);
+    public static final Block BIRCH_PIPE = createWoodenPipe("birch_pipe", MapColor.SAND);
+    public static final Block JUNGLE_PIPE = createWoodenPipe("jungle_pipe", MapColor.DIRT);
+    public static final Block ACACIA_PIPE = createWoodenPipe("acacia_pipe", MapColor.COLOR_ORANGE);
+    public static final Block DARK_OAK_PIPE = createWoodenPipe("dark_oak_pipe", MapColor.COLOR_BROWN);
+    public static final Block MANGROVE_PIPE = createWoodenPipe("mangrove_pipe", MapColor.COLOR_RED);
+    public static final Block CHERRY_PIPE = createWoodenPipe("cherry_pipe", MapColor.TERRACOTTA_WHITE);
+    public static final Block PALE_OAK_PIPE = createWoodenPipe("pale_oak_pipe", MapColor.QUARTZ);
+    public static final Block BAMBOO_PIPE = createWoodenPipe("bamboo_pipe", MapColor.COLOR_YELLOW);
+    public static final Block CRIMSON_PIPE = createWoodenPipe("crimson_pipe", MapColor.CRIMSON_STEM);
+    public static final Block WARPED_PIPE = createWoodenPipe("warped_pipe", MapColor.WARPED_STEM);
+    public static final Block COPPER_PIPE = createPipe("copper_pipe", CopperPipeBlock::new, SoundType.COPPER, MapColor.COLOR_ORANGE, 0.25F, translateDesc("copper_pipe"));
+    public static final Block ADVANCED_COPPER_PIPE = createPipe("advanced_copper_pipe", AdvancedCopperPipeBlock::new, SoundType.COPPER, MapColor.COLOR_ORANGE, 0.25F, translateDesc("advanced_copper_pipe"));
+    public static final Block IRON_PIPE = createPipe("iron_pipe", IronPipeBlock::new, SoundType.COPPER, MapColor.METAL, 0.25F, translateDesc("iron_pipe"));
+    public static final Block LAPIS_PIPE = createPipe("lapis_pipe", LapisPipeBlock::new, SoundType.COPPER_BULB, MapColor.LAPIS, 0.25F, translateDesc("lapis_pipe"));
+    public static final Block GOLDEN_PIPE = createPipe("golden_pipe", GoldenPipeBlock::new, SoundType.COPPER, MapColor.GOLD,0.25F, translateDesc("golden_pipe"));
+    public static final Block DIAMOND_PIPE = createPipe("diamond_pipe", DiamondPipeBlock::new, SoundType.COPPER_BULB, MapColor.DIAMOND, 0.25F, translateDesc("diamond_pipe"));
+    public static final Block FLINT_PIPE = createPipe("flint_pipe", FlintPipeBlock::new, SoundType.DECORATED_POT, MapColor.COLOR_GRAY, 0.25F, translateDesc("flint_pipe"));
+    public static final Block BRICK_PIPE = createPipe("brick_pipe", BrickPipeBlock::new, SoundType.DECORATED_POT, MapColor.COLOR_RED, 0.25F, translateDesc("brick_pipe"));
+    public static final Block OBSIDIAN_PIPE = createPipe("obsidian_pipe", ObsidianPipeBlock::new, SoundType.DECORATED_POT, MapColor.COLOR_BLACK, 0.25F, translateDesc("obsidian_pipe"));
+    public static final Block BONE_PIPE = createPipe("bone_pipe", BonePipeBlock::new, SoundType.BONE_BLOCK, MapColor.SAND, 0.25F, translateDesc("bone_pipe"));
+    public static final Block ROUTING_PIPE = createPipe("routing_pipe", NetworkedPipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("routing_pipe.a"), translateDesc("routing_pipe.b"));
+    public static final Block PROVIDER_PIPE = createPipe("provider_pipe", ProviderPipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("provider_pipe"));
+    public static final Block REQUEST_PIPE = createPipe("request_pipe", RequestPipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("request_pipe"));
+    public static final Block STOCKING_PIPE = createPipe("stocking_pipe", StockingPipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("stocking_pipe"));
+    public static final Block MATCHING_PIPE = createPipe("matching_pipe", MatchingPipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("matching_pipe"));
+    public static final Block STORAGE_PIPE = createPipe("storage_pipe", StoragePipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("storage_pipe.a"), translateDesc("storage_pipe.b"));
+    public static final Block RECIPE_PIPE = createPipe("recipe_pipe", RecipePipeBlock::new, SoundType.COPPER, MapColor.COLOR_BLACK, 0.25F, translateDesc("recipe_pipe.a"), translateDesc("recipe_pipe.b"));
+    public static final Block OAK_FLUID_PIPE = createWoodenFluidPipe("oak_fluid_pipe", MapColor.WOOD);
+    public static final Block SPRUCE_FLUID_PIPE = createWoodenFluidPipe("spruce_fluid_pipe", MapColor.PODZOL);
+    public static final Block BIRCH_FLUID_PIPE = createWoodenFluidPipe("birch_fluid_pipe", MapColor.SAND);
+    public static final Block JUNGLE_FLUID_PIPE = createWoodenFluidPipe("jungle_fluid_pipe", MapColor.DIRT);
+    public static final Block ACACIA_FLUID_PIPE = createWoodenFluidPipe("acacia_fluid_pipe", MapColor.COLOR_ORANGE);
+    public static final Block DARK_OAK_FLUID_PIPE = createWoodenFluidPipe("dark_oak_fluid_pipe", MapColor.COLOR_BROWN);
+    public static final Block MANGROVE_FLUID_PIPE = createWoodenFluidPipe("mangrove_fluid_pipe", MapColor.COLOR_RED);
+    public static final Block CHERRY_FLUID_PIPE = createWoodenFluidPipe("cherry_fluid_pipe", MapColor.TERRACOTTA_WHITE);
+    public static final Block PALE_OAK_FLUID_PIPE = createWoodenFluidPipe("pale_oak_fluid_pipe", MapColor.QUARTZ);
+    public static final Block BAMBOO_FLUID_PIPE = createWoodenFluidPipe("bamboo_fluid_pipe", MapColor.COLOR_YELLOW);
+    public static final Block CRIMSON_FLUID_PIPE = createWoodenFluidPipe("crimson_fluid_pipe", MapColor.CRIMSON_STEM);
+    public static final Block WARPED_FLUID_PIPE = createWoodenFluidPipe("warped_fluid_pipe", MapColor.WARPED_STEM);
+    public static final Block COPPER_FLUID_PIPE = createPipe("copper_fluid_pipe", CopperFluidPipeBlock::new, SoundType.COPPER, MapColor.COLOR_ORANGE, 0.25F, translateDesc("copper_fluid_pipe"));
+    public static final Block ADVANCED_COPPER_FLUID_PIPE = createPipe("advanced_copper_fluid_pipe", AdvancedCopperFluidPipeBlock::new, SoundType.COPPER, MapColor.COLOR_ORANGE, 0.25F, translateDesc("advanced_copper_fluid_pipe"));
+    public static final Block IRON_FLUID_PIPE = createPipe("iron_fluid_pipe", IronFluidPipeBlock::new, SoundType.COPPER, MapColor.METAL, 0.25F, translateDesc("iron_fluid_pipe"));
+    public static final Block LAPIS_FLUID_PIPE = createPipe("lapis_fluid_pipe", LapisFluidPipeBlock::new, SoundType.COPPER_BULB, MapColor.LAPIS, 0.25F, translateDesc("lapis_fluid_pipe"));
+    public static final Block DIAMOND_FLUID_PIPE = createPipe("diamond_fluid_pipe", DiamondFluidPipeBlock::new, SoundType.COPPER_BULB, MapColor.DIAMOND, 0.25F, translateDesc("diamond_fluid_pipe"));
+    public static final Block BRICK_FLUID_PIPE = createPipe("brick_fluid_pipe", BrickFluidPipeBlock::new, SoundType.DECORATED_POT, MapColor.COLOR_RED, 0.25F, translateDesc("brick_fluid_pipe"));
+    public static final Block OBSIDIAN_FLUID_PIPE = createPipe("obsidian_fluid_pipe", ObsidianFluidPipeBlock::new, SoundType.DECORATED_POT, MapColor.COLOR_BLACK, 0.25F, translateDesc("obsidian_fluid_pipe"));
 
     public static final BlockEntityType<RoundRobinPipeEntity> BASIC_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(RoundRobinPipeEntity::new, OAK_PIPE, SPRUCE_PIPE, BIRCH_PIPE, JUNGLE_PIPE, ACACIA_PIPE, DARK_OAK_PIPE, MANGROVE_PIPE, CHERRY_PIPE, PALE_OAK_PIPE, BAMBOO_PIPE, CRIMSON_PIPE, WARPED_PIPE, BRICK_PIPE);
     public static final BlockEntityType<GoldenPipeEntity> GOLDEN_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(GoldenPipeEntity::new, GOLDEN_PIPE);
@@ -124,9 +125,9 @@ public class ClassicPipes {
     public static final BlockEntityType<AdvancedCopperPipeEntity> ADVANCED_COPPER_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(AdvancedCopperPipeEntity::new, ADVANCED_COPPER_PIPE);
     public static final BlockEntityType<AdvancedCopperFluidPipeEntity> ADVANCED_COPPER_FLUID_PIPE_ENTITY = Services.LOADER_SERVICE.createBlockEntityType(AdvancedCopperFluidPipeEntity::new, ADVANCED_COPPER_FLUID_PIPE);
 
-    public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, new Item.Properties().stacksTo(1), translateDesc("pipe_slicer"));
-    public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, new Item.Properties().stacksTo(1));
-    public static final Item MOD_LABEL = createItem("mod_label", ModLabelItem::new, new Item.Properties().stacksTo(1));
+    public static final Item PIPE_SLICER = createItem("pipe_slicer", Item::new, 1, false, translateDesc("pipe_slicer"));
+    public static final Item TAG_LABEL = createItem("tag_label", TagLabelItem::new, 1, false);
+    public static final Item MOD_LABEL = createItem("mod_label", ModLabelItem::new, 1, false);
 
     public static final DataComponentType<String> LABEL_COMPONENT = DataComponentType.<String>builder().persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8).build();
     public static final ResourceKey<DataComponentType<?>> LABEL_COMPONENT_KEY = MiscUtil.makeKey(BuiltInRegistries.DATA_COMPONENT_TYPE.key(), "label");
@@ -156,34 +157,41 @@ public class ClassicPipes {
     public static final MenuType<AdvancedCopperPipeMenu> ADVANCED_COPPER_PIPE_MENU = Services.LOADER_SERVICE.createMenuType(AdvancedCopperPipeMenu::new, ClientBoundBoolPayload.STREAM_CODEC);
     public static final MenuType<AdvancedCopperFluidPipeMenu> ADVANCED_COPPER_FLUID_PIPE_MENU = Services.LOADER_SERVICE.createSimpleMenuType(AdvancedCopperFluidPipeMenu::new);
 
-    private static Item createItem(String name, Function<Item.Properties, Item> factory, Item.Properties props, Component... lore) {
+    private static Item createItem(String name, Function<Item.Properties, Item> factory, int stackSize, boolean fashionable, Component... lore) {
+        Item.Properties props = new Item.Properties().setId(MiscUtil.makeKey(Registries.ITEM, name));
+        if (stackSize < 64) {
+            props.stacksTo(stackSize);
+        }
         if (lore.length > 0) {
             props.component(DataComponents.LORE, new ItemLore(List.of(), Arrays.asList(lore)));
         }
-        Item item = factory.apply(props.setId(MiscUtil.makeKey(Registries.ITEM, name)));
+        if (fashionable) {
+            props.equippableUnswappable(EquipmentSlot.HEAD);
+        }
+        Item item = factory.apply(props);
         ITEMS.put(name, item);
         return item;
     }
 
-    private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, boolean fashionable, Component... lore) {
+    private static Block createBlock(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
         Block block = factory.apply(props.setId(MiscUtil.makeKey(Registries.BLOCK, name)));
         BLOCKS.put(name, block);
-        createItem(name, itemProps -> new BlockItem(block, itemProps), fashionable ? new Item.Properties().equippableUnswappable(EquipmentSlot.HEAD) : new Item.Properties(), lore);
+        createItem(name, itemProps -> new BlockItem(block, itemProps), 64, true, lore);
         return block;
     }
 
-    private static Block createPipe(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties props, Component... lore) {
-        Block pipe = createBlock(name, factory, props.noOcclusion(), true, lore);
+    private static Block createPipe(String name, Function<BlockBehaviour.Properties, Block> factory, SoundType sound, MapColor mapColor, float hardness, Component... lore) {
+        Block pipe = createBlock(name, factory, BlockBehaviour.Properties.of().sound(sound).mapColor(mapColor).destroyTime(hardness).noOcclusion(), lore);
         TRANSPARENT_BLOCKS.add(pipe);
         return pipe;
     }
 
-    private static Block createWoodenPipe(String name) {
-        return createPipe(name, WoodenPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING), translateDesc("wooden_pipe"));
+    private static Block createWoodenPipe(String name, MapColor mapColor) {
+        return createPipe(name, WoodenPipeBlock::new, SoundType.SCAFFOLDING, mapColor, 0.0F, translateDesc("wooden_pipe"));
     }
 
-    private static Block createWoodenFluidPipe(String name) {
-        return createPipe(name, WoodenFluidPipeBlock::new, BlockBehaviour.Properties.of().sound(SoundType.SCAFFOLDING), translateDesc("wooden_fluid_pipe"));
+    private static Block createWoodenFluidPipe(String name, MapColor mapColor) {
+        return createPipe(name, WoodenFluidPipeBlock::new, SoundType.SCAFFOLDING, mapColor, 0.0F, translateDesc("wooden_fluid_pipe"));
     }
 
     private static SoundEvent createSoundEvent(String name) {

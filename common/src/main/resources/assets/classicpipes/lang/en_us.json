@@ -20,7 +20,7 @@
   "item.classicpipes.lapis_pipe": "Lapis Pipe",
   "item.classicpipes.obsidian_pipe": "Obsidian Pipe",
   "item.classicpipes.bone_pipe": "Bone Pipe",
-  "item.classicpipes.routing_pipe": "Networked Pipe",
+  "item.classicpipes.routing_pipe": "Networked Routing Pipe",
   "item.classicpipes.provider_pipe": "Networked Provider Pipe",
   "item.classicpipes.request_pipe": "Networked Request Pipe",
   "item.classicpipes.stocking_pipe": "Networked Stocking Pipe",
