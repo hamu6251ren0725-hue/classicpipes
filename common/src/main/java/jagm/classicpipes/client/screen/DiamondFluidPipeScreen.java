@@ -17,7 +17,7 @@ public class DiamondFluidPipeScreen extends FluidFilterScreen<DiamondFluidPipeMe
 
     public DiamondFluidPipeScreen(DiamondFluidPipeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageWidth = 240;
+        this.imageWidth = 176;
         this.imageHeight = 236;
         this.inventoryLabelY = this.imageHeight - 94;
     }
@@ -40,9 +40,9 @@ public class DiamondFluidPipeScreen extends FluidFilterScreen<DiamondFluidPipeMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
-        int i = (this.width - 176) / 2 - 64;
+        int i = (this.width - 176) / 2 - 32;
         int j = (this.height - this.imageHeight) / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth + 32, this.imageHeight, 256, 256);
     }
 
 }
