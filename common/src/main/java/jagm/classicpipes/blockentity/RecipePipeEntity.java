@@ -262,10 +262,9 @@ public class RecipePipeEntity extends NetworkedPipeEntity implements MenuProvide
     @Override
     public void setRemoved() {
         if (this.getLevel() instanceof ServerLevel serverLevel) {
-            // Call super method to avoid dropping held items when unloaded.
             super.disconnect(serverLevel);
         }
-        super.setRemoved();
+        this.remove = true;
     }
 
     @Override
