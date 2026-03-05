@@ -1,18 +1,23 @@
 package jagm.classicpipes.blockentity;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class NeoForgeItemPipeWrapper implements ResourceHandler<ItemResource> {
+public class NeoForgeItemPipeWrapper extends SnapshotJournal<ItemStack> implements ResourceHandler<ItemResource> {
 
     private final ItemPipeEntity pipe;
     private final Direction side;
 
+    private ItemStack itemToInsert;
+
     public NeoForgeItemPipeWrapper(ItemPipeEntity pipe, Direction side) {
         this.pipe = pipe;
         this.side = side;
+        this.itemToInsert = ItemStack.EMPTY;
     }
 
     @Override
@@ -44,7 +49,8 @@ public class NeoForgeItemPipeWrapper implements ResourceHandler<ItemResource> {
     public int insert(int slot, ItemResource itemResource, int amount, TransactionContext transaction) {
         if (this.isValid(slot, itemResource)) {
             int amountToInsert = Math.min(amount, 64);
-            this.pipe.setItem(this.side, itemResource.toStack(amountToInsert));
+            this.updateSnapshots(transaction);
+            this.itemToInsert = itemResource.toStack(amountToInsert);
             return amountToInsert;
         }
         return 0;
@@ -54,4 +60,22 @@ public class NeoForgeItemPipeWrapper implements ResourceHandler<ItemResource> {
     public int extract(int slot, ItemResource itemResource, int amount, TransactionContext transaction) {
         return 0;
     }
+
+    @Override
+    protected ItemStack createSnapshot() {
+        return this.itemToInsert.copy();
+    }
+
+    @Override
+    protected void revertToSnapshot(ItemStack stack) {
+        this.itemToInsert = stack;
+    }
+
+    @Override
+    protected void onRootCommit(ItemStack originalState) {
+        if (!this.itemToInsert.isEmpty()) {
+            this.pipe.setItem(this.side, this.itemToInsert);
+        }
+    }
+
 }

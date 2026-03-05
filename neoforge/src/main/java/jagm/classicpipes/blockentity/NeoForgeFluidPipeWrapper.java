@@ -1,20 +1,27 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.util.FluidInPipe;
+import jagm.classicpipes.util.Tuple;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-public class NeoForgeFluidPipeWrapper implements ResourceHandler<FluidResource> {
+public class NeoForgeFluidPipeWrapper extends SnapshotJournal<Tuple<Fluid, FluidInPipe>> implements ResourceHandler<FluidResource> {
 
     private final FluidPipeEntity pipe;
     private final Direction side;
 
+    private Tuple<Fluid, FluidInPipe> fluidPacketToInsert;
+
     public NeoForgeFluidPipeWrapper(FluidPipeEntity pipe, Direction side) {
         this.pipe = pipe;
         this.side = side;
+        this.fluidPacketToInsert = new Tuple<>(Fluids.EMPTY, null);
     }
 
     @Override
@@ -48,13 +55,8 @@ public class NeoForgeFluidPipeWrapper implements ResourceHandler<FluidResource> 
             return 0;
         } else {
             int amount = Math.min(this.pipe.remainingCapacity(), maxAmount);
-            if (this.pipe.getLevel() instanceof ServerLevel serverLevel) {
-                this.pipe.setFluid(fluidResource.getFluid());
-                FluidInPipe fluidPacket = new FluidInPipe(amount, this.pipe.getTargetSpeed(), (short) 0, this.side, this.side, (short) 0);
-                this.pipe.insertFluidPacket(serverLevel, fluidPacket);
-                serverLevel.sendBlockUpdated(this.pipe.getBlockPos(), this.pipe.getBlockState(), this.pipe.getBlockState(), 2);
-            }
-            this.pipe.setChanged();
+            this.updateSnapshots(transaction);
+            this.fluidPacketToInsert = new Tuple<>(fluidResource.getFluid(), new FluidInPipe(amount, this.pipe.getTargetSpeed(), (short) 0, this.side, this.side, (short) 0));
             return amount;
         }
     }
@@ -63,4 +65,24 @@ public class NeoForgeFluidPipeWrapper implements ResourceHandler<FluidResource> 
     public int extract(int tank, FluidResource fluidResource, int amount, TransactionContext transaction) {
         return 0;
     }
+
+    @Override
+    protected Tuple<Fluid, FluidInPipe> createSnapshot() {
+        return this.fluidPacketToInsert;
+    }
+
+    @Override
+    protected void revertToSnapshot(Tuple<Fluid, FluidInPipe> fluidPacketToInsert) {
+        this.fluidPacketToInsert = fluidPacketToInsert;
+    }
+
+    @Override
+    protected void onRootCommit(Tuple<Fluid, FluidInPipe> originalState) {
+        if (!this.fluidPacketToInsert.a().isSame(Fluids.EMPTY) && this.fluidPacketToInsert.b() != null && this.pipe.getLevel() instanceof ServerLevel serverLevel) {
+            this.pipe.setFluid(fluidPacketToInsert.a());
+            this.pipe.insertFluidPacket(serverLevel, fluidPacketToInsert.b());
+            serverLevel.sendBlockUpdated(this.pipe.getBlockPos(), this.pipe.getBlockState(), this.pipe.getBlockState(), 2);
+        }
+    }
+
 }
