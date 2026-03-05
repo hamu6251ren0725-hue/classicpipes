@@ -313,6 +313,11 @@ public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContai
     }
 
     @Override
+    public int getComparatorOutput() {
+        return Math.min(15, this.getContents().size());
+    }
+
+    @Override
     protected void loadAdditional(ValueInput valueInput) {
         this.clearContent();
         this.networkDistances.clear();
