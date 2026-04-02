@@ -2,13 +2,9 @@ package jagm.classicpipes.services;
 
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ItemPipeEntity;
-import jagm.classicpipes.client.renderer.FluidRenderInfo;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -26,7 +22,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,12 +29,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -338,28 +331,6 @@ public class NeoForgeService implements LoaderService {
             }
         }
         return false;
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
-        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        int tint = fluidInfo.getTintColor(fluidState, level, pos);
-        AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
-        if (texture instanceof TextureAtlas blockAtlas) {
-            return new FluidRenderInfo(tint, blockAtlas.getSprite(fluidInfo.getStillTexture(fluidState, level, pos)));
-        }
-        return new FluidRenderInfo(tint, null);
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState) {
-        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        int tint = fluidInfo.getTintColor();
-        AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
-        if (texture instanceof TextureAtlas blockAtlas) {
-            return new FluidRenderInfo(tint, blockAtlas.getSprite(fluidInfo.getStillTexture()));
-        }
-        return new FluidRenderInfo(tint, null);
     }
 
     @Override

@@ -2,7 +2,7 @@ package jagm.classicpipes.client.screen.widget;
 
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -63,14 +63,14 @@ public class SmallerCheckbox extends AbstractButton {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int x, int y, float partialTicks) {
+    public void extractContents(GuiGraphicsExtractor graphics, int x, int y, float partialTicks) {
         Identifier spriteLocation = this.selected() ? CHECKBOX_SELECTED_SPRITE : CHECKBOX_SPRITE;
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteLocation, this.getX(), this.getY(), SIZE, SIZE, ARGB.white(this.alpha));
-        graphics.drawString(this.font, this.label, this.getX() + SIZE + 2, this.getY() + 3, -12566464, false);
+        graphics.text(this.font, this.label, this.getX() + SIZE + 2, this.getY() + 3, -12566464, false);
     }
 
     public interface OnValueChange {
-        SmallerCheckbox.OnValueChange NOP = (checkbox, value) -> {};
+        SmallerCheckbox.OnValueChange NOP = (_, _) -> {};
         void onValueChange(SmallerCheckbox checkbox, boolean value);
     }
 

@@ -5,16 +5,14 @@ import jagm.classicpipes.block.FluidPipeBlock;
 import jagm.classicpipes.block.PipeBlock;
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ItemPipeEntity;
-import jagm.classicpipes.client.renderer.FluidRenderInfo;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
 import jagm.classicpipes.util.MiscUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
-import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -27,7 +25,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -44,14 +41,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.apache.commons.lang3.function.TriFunction;
 
@@ -70,7 +65,7 @@ public class FabricService implements LoaderService {
 
     @Override
     public <M extends AbstractContainerMenu, D> MenuType<M> createMenuType(TriFunction<Integer, Inventory, D, M> menuSupplier, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
-        return new ExtendedScreenHandlerType<>(menuSupplier::apply, codec);
+        return new ExtendedMenuType<>(menuSupplier::apply, codec);
     }
 
     @Override
@@ -80,7 +75,7 @@ public class FabricService implements LoaderService {
 
     @Override
     public <D> void openMenu(ServerPlayer player, MenuProvider menuProvider, D payload, StreamCodec<RegistryFriendlyByteBuf, D> codec) {
-        player.openMenu(new ExtendedScreenHandlerFactory<D>() {
+        player.openMenu(new ExtendedMenuProvider<D>() {
 
             @Override
             public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
@@ -308,22 +303,6 @@ public class FabricService implements LoaderService {
             }
         }
         return false;
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
-        FluidVariant fluidVariant = FluidVariant.of(fluidState.getType());
-        int tint = FluidVariantRendering.getColor(fluidVariant, level, pos);
-        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidVariant);
-        return new FluidRenderInfo(tint, sprite);
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState) {
-        FluidVariant fluidVariant = FluidVariant.of(fluidState.getType());
-        int tint = FluidVariantRendering.getColor(fluidVariant);
-        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidVariant);
-        return new FluidRenderInfo(tint, sprite);
     }
 
     @Override

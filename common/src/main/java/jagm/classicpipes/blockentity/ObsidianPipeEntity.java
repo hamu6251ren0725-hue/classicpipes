@@ -25,14 +25,14 @@ public class ObsidianPipeEntity extends ItemPipeEntity {
         level.playSound(null, pos, ClassicPipes.OBSIDIAN_PIPE_DESTROY_ITEM, SoundSource.BLOCKS, 0.25F, 4.0F);
         for (int i = 0; i < 4; i++) {
             level.sendParticles(
-                    new ItemParticleOption(ParticleTypes.ITEM, item.getStack()),
+                    new ItemParticleOption(ParticleTypes.ITEM, item.getStack().getItem()),
                     pos.getX() + 0.5F,
                     pos.getY() + 0.5F,
                     pos.getZ() + 0.5F,
                     1,
-                    level.random.nextGaussian() * 0.15,
-                    level.random.nextDouble() * 0.2,
-                    level.random.nextGaussian() * 0.15,
+                    level.getRandom().nextGaussian() * 0.15,
+                    level.getRandom().nextDouble() * 0.2,
+                    level.getRandom().nextGaussian() * 0.15,
                     0.1F
             );
         }

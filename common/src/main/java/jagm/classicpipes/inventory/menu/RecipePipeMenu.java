@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -88,15 +88,15 @@ public class RecipePipeMenu extends FilterMenu {
     }
 
     @Override
-    public void clicked(int index, int button, ClickType clickType, Player player) {
-        if (index >= this.getFilter().getContainerSize() || index < 0 || clickType.equals(ClickType.CLONE)) {
-            super.clicked(index, button, clickType, player);
+    public void clicked(int index, int button, ContainerInput containerInput, Player player) {
+        if (index >= this.getFilter().getContainerSize() || index < 0 || containerInput.equals(ContainerInput.CLONE)) {
+            super.clicked(index, button, containerInput, player);
         } else {
             Slot slot = this.slots.get(index);
             ItemStack stack = slot.getItem();
-            if (clickType == ClickType.QUICK_MOVE) {
+            if (containerInput == ContainerInput.QUICK_MOVE) {
                 slot.set(ItemStack.EMPTY);
-            } else if (clickType == ClickType.PICKUP && (index != 9 || !(this.getCarried().getItem() instanceof LabelItem))) {
+            } else if (containerInput == ContainerInput.PICKUP && (index != 9 || !(this.getCarried().getItem() instanceof LabelItem))) {
                 if (stack.isEmpty()) {
                     slot.set(this.getCarried().copyWithCount(button == 0 ? this.getCarried().getCount() : 1));
                 } else {

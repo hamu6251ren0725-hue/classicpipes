@@ -198,25 +198,25 @@ public class PipeNetwork {
             if (partialRequests) {
                 this.request(level, stack.copyWithCount(amount), requestPos, player, false);
             } else if (player != null) {
-                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.a", stack.getCount(), stack.getItemName()).withStyle(ChatFormatting.RED), false);
+                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.a", stack.getCount(), stack.getItemName()).withStyle(ChatFormatting.RED));
                 for (ItemStack missingStack : requestState.collateMissingStacks()) {
                     if (missingStack.getItem() instanceof TagLabelItem) {
                         String label = missingStack.get(ClassicPipes.LABEL_COMPONENT);
                         if (label != null) {
                             MutableComponent tagTranslation = Component.translatableWithFallback(TagLabelItem.labelToTranslationKey(label), "");
                             if (!tagTranslation.getString().isEmpty()) {
-                                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.translated_tag", missingStack.getCount(), "#" + label, tagTranslation).withStyle(ChatFormatting.YELLOW), false);
+                                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.translated_tag", missingStack.getCount(), "#" + label, tagTranslation).withStyle(ChatFormatting.YELLOW));
                             } else {
-                                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.b", missingStack.getCount(), "#" + label).withStyle(ChatFormatting.YELLOW), false);
+                                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.b", missingStack.getCount(), "#" + label).withStyle(ChatFormatting.YELLOW));
                             }
                         }
                     } else if (missingStack.getItem() instanceof ModLabelItem) {
                         String label = missingStack.get(ClassicPipes.LABEL_COMPONENT);
                         if (label != null) {
-                            player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.mod", missingStack.getCount(), Services.LOADER_SERVICE.getModName(label)).withStyle(ChatFormatting.YELLOW), false);
+                            player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.mod", missingStack.getCount(), Services.LOADER_SERVICE.getModName(label)).withStyle(ChatFormatting.YELLOW));
                         }
                     } else {
-                        player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.b", missingStack.getCount(), missingStack.getItemName()).withStyle(ChatFormatting.YELLOW), false);
+                        player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".missing_item.b", missingStack.getCount(), missingStack.getItemName()).withStyle(ChatFormatting.YELLOW));
                     }
                 }
             }
@@ -245,7 +245,7 @@ public class PipeNetwork {
                             this.requestedItems.removeLast();
                         }
                         if (player != null) {
-                            player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), entry.getKey().getProviderPipePos().toShortString()).withStyle(ChatFormatting.RED), false);
+                            player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".could_not_extract", stack.getCount(), stack.getItemName(), entry.getKey().getProviderPipePos().toShortString()).withStyle(ChatFormatting.RED));
                         }
                         break;
                     }
@@ -257,7 +257,7 @@ public class PipeNetwork {
             if (success && player != null) {
                 player.awardStat(ClassicPipes.ITEMS_REQUESTED_STAT, stack.getCount());
                 ClassicPipes.REQUEST_ITEM_TRIGGER.trigger((ServerPlayer) player, stack, requestState.getUniqueCrafts());
-                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".requested", stack.getCount(), stack.getItemName()).withStyle(ChatFormatting.GREEN), false);
+                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".requested", stack.getCount(), stack.getItemName()).withStyle(ChatFormatting.GREEN));
             }
         }
     }

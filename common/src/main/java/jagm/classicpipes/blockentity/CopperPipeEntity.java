@@ -50,7 +50,7 @@ public class CopperPipeEntity extends RoundRobinPipeEntity {
     }
 
     protected Predicate<ItemStack> filterPredicate() {
-        return stack -> true;
+        return _ -> true;
     }
 
     @Override

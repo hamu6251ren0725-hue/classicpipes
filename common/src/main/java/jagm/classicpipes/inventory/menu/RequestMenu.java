@@ -213,7 +213,7 @@ public class RequestMenu extends AbstractContainerMenu {
             boolean foundTag = false;
             String match = tagMatcher.group();
             search = search.replace(match, "");
-            for (TagKey<Item> tag : stack.getTags().toList()) {
+            for (TagKey<Item> tag : stack.tags().toList()) {
                 String searchedTag = normalise(match.replaceFirst("#", ""));
                 String itemTag = normalise(tag.location().toString());
                 if (itemTag.contains(searchedTag)) {

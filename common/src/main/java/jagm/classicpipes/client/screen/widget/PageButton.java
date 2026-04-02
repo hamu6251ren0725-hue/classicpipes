@@ -1,7 +1,7 @@
 package jagm.classicpipes.client.screen.widget;
 
 import jagm.classicpipes.util.MiscUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
@@ -25,7 +25,7 @@ public class PageButton extends Button {
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         Identifier sprite = this.prev ?
                 (!this.active ? PREV_GREYED : (this.isHovered() ? PREV_SELECT : PREV_NORMAL)) :
                 (!this.active ? NEXT_GREYED : (this.isHovered() ? NEXT_SELECT : NEXT_NORMAL));

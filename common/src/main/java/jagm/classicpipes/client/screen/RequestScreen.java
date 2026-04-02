@@ -8,7 +8,7 @@ import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.SortingMode;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
@@ -41,8 +41,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     private boolean refocus;
 
     public RequestScreen(RequestMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageHeight = 222;
+        super(menu, playerInventory, title, 176, 222);
         this.refocus = false;
     }
 
@@ -60,8 +59,8 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.searchBar.setBordered(false);
         this.searchBar.setResponder(this.menu::setSearch);
         this.searchBar.setEditable(true);
-        this.prev_page = new PageButton(this.width / 2 - 48 - 8, this.topPos + 180, true, false, button -> this.changePage(-1));
-        this.next_page = new PageButton(this.width / 2 + 48, this.topPos + 180, false, this.menu.getMaxPage() > 0, button -> this.changePage(1));
+        this.prev_page = new PageButton(this.width / 2 - 48 - 8, this.topPos + 180, true, false, _ -> this.changePage(-1));
+        this.next_page = new PageButton(this.width / 2 + 48, this.topPos + 180, false, this.menu.getMaxPage() > 0, _ -> this.changePage(1));
         this.sort_type = Button.builder(this.menu.getSortingMode().getType(), this::changeSortType).bounds(this.width / 2 - 25, this.topPos + 198, 50, 16).build();
         this.sort_direction = Button.builder(this.menu.getSortingMode().getDirection(), this::changeSortDirection).bounds(this.width / 2 + 27, this.topPos + 198, 50, 16).build();
 
@@ -70,27 +69,27 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.addRenderableWidget(this.searchBar);
         this.addRenderableWidget(this.prev_page);
         this.addRenderableWidget(this.next_page);
-        this.addRenderableWidget(new ImageButton(this.leftPos + this.imageWidth - 12, this.topPos + 5, 7, 7, X_BUTTON, button -> this.onClose()));
+        this.addRenderableWidget(new ImageButton(this.leftPos + this.imageWidth - 12, this.topPos + 5, 7, 7, X_BUTTON, _ -> this.onClose()));
 
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         this.updatePageButtons();
-        this.renderContents(graphics, mouseX, mouseY, partialTicks);
-        this.renderTooltip(graphics, mouseX, mouseY);
+        this.extractContents(graphics, mouseX, mouseY, partialTicks);
+        this.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderContents(graphics, mouseX, mouseY, partialTicks);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractContents(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().pushMatrix();
         graphics.pose().translate((float) this.leftPos, (float) this.topPos);
         this.hoveredSlot = this.getHoveredSlot(mouseX, mouseY);
         if (this.hoveredSlot != null && this.hoveredSlot.isHighlightable()) {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, this.hoveredSlot.x - 4, this.hoveredSlot.y - 4, 24, 24);
         }
-        this.renderSlots(graphics, mouseX, mouseY);
+        this.extractSlots(graphics, mouseX, mouseY);
         if (this.hoveredSlot != null && this.hoveredSlot.isHighlightable()) {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, this.hoveredSlot.x - 4, this.hoveredSlot.y - 4, 24, 24);
         }
@@ -110,44 +109,44 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     @Override
-    protected void renderSlots(GuiGraphics graphics, int x, int y) {
+    protected void extractSlots(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         for (Slot slot : this.menu.displaySlots) {
             if (slot.isActive()) {
-                this.renderSlot(graphics, slot, x, y);
+                this.extractSlot(graphics, slot, mouseX, mouseY);
             }
         }
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float f, int x, int y) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
         Component pageIndicator = Component.translatable("widget." + ClassicPipes.MOD_ID + ".page", this.menu.getPage() + 1, this.menu.getMaxPage() + 1);
-        graphics.drawString(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
+        graphics.text(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
         Component sortBy = Component.translatable("widget." + ClassicPipes.MOD_ID + ".sort_by");
-        graphics.drawString(this.font, sortBy, this.imageWidth / 2 - 29 - this.font.width(sortBy), 202, -12566464, false);
+        graphics.text(this.font, sortBy, this.imageWidth / 2 - 29 - this.font.width(sortBy), 202, -12566464, false);
     }
 
     @Override
-    protected void renderSlot(GuiGraphics graphics, Slot slot, int x, int y) {
+    protected void extractSlot(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY) {
         ItemStack stack = slot.getItem();
         int seed = slot.x + slot.y * this.imageWidth;
-        graphics.renderItem(stack, slot.x, slot.y, seed);
+        graphics.item(stack, slot.x, slot.y, seed);
         if (!stack.isEmpty()) {
             graphics.pose().pushMatrix();
-            this.renderItemBar(graphics, stack, slot.x, slot.y);
-            this.renderItemCount(graphics, this.font, stack, slot.x, slot.y, this.menu.itemCraftable(stack));
+            this.extractItemBar(graphics, stack, slot.x, slot.y);
+            this.extractItemCount(graphics, this.font, stack, slot.x, slot.y, this.menu.itemCraftable(stack));
             graphics.pose().popMatrix();
         }
     }
 
-    private void renderItemBar(GuiGraphics graphics, ItemStack stack, int x, int y) {
+    private void extractItemBar(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y) {
         if (stack.isBarVisible()) {
             int i = x + 2;
             int j = y + 13;
@@ -156,7 +155,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         }
     }
 
-    private void renderItemCount(GuiGraphics graphics, Font font, ItemStack stack, int x, int y, boolean craftable) {
+    private void extractItemCount(GuiGraphicsExtractor graphics, Font font, ItemStack stack, int x, int y, boolean craftable) {
         int count = stack.getCount() - (craftable ? 1 : 0);
         String s = stringForCount(count);
         int colour = colourForCount(count);
@@ -171,7 +170,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         graphics.pose().pushMatrix();
         graphics.pose().translate(x + slotOffset, y + slotOffset);
         graphics.pose().scale(countScale);
-        graphics.drawString(font, s, -font.width(s), -8, colour, true);
+        graphics.text(font, s, -font.width(s), -8, colour, true);
         graphics.pose().popMatrix();
     }
 

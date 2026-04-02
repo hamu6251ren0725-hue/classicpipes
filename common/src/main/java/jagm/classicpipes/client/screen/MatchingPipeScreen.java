@@ -5,7 +5,7 @@ import jagm.classicpipes.inventory.menu.MatchingPipeMenu;
 import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -18,8 +18,7 @@ public class MatchingPipeScreen extends AbstractContainerScreen<MatchingPipeMenu
     private static final Identifier BACKGROUND = MiscUtil.identifier("textures/gui/container/matching_pipe.png");
 
     public MatchingPipeScreen(MatchingPipeMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageHeight = 148;
+        super(menu, playerInventory, title, 176, 148);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -37,13 +36,13 @@ public class MatchingPipeScreen extends AbstractContainerScreen<MatchingPipeMenu
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        this.renderTooltip(graphics, mouseX, mouseY);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+        this.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);

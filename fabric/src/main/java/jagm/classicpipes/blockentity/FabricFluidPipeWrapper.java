@@ -38,7 +38,7 @@ public class FabricFluidPipeWrapper implements Storage<FluidVariant>, StorageVie
             return 0L;
         } else {
             long amount = Math.min(this.pipe.remainingCapacity() * FabricEntrypoint.FLUID_CONVERSION_RATE, maxAmount);
-            transaction.addCloseCallback((closingTransaction, result) -> {
+            transaction.addCloseCallback((_, result) -> {
                 if (result.wasCommitted()) {
                     if (this.pipe.getLevel() instanceof ServerLevel serverLevel) {
                         this.pipe.setFluid(fluidVariant.getFluid());

@@ -4,18 +4,20 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import jagm.classicpipes.block.FluidPipeBlock;
 import jagm.classicpipes.blockentity.FluidPipeEntity;
-import jagm.classicpipes.services.Services;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -37,20 +39,24 @@ public class FluidPipeRenderer implements BlockEntityRenderer<FluidPipeEntity, F
     @Override
     public void extractRenderState(FluidPipeEntity pipe, FluidPipeRenderState pipeState, float partialTicks, Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(pipe, pipeState, partialTicks, cameraPos, breakProgress);
-        FluidRenderInfo fluidInfo = Services.LOADER_SERVICE.getFluidRenderInfo(pipe.getFluid().defaultFluidState(), pipe.getLevel(), pipe.getBlockPos());
-        boolean[] pipeDirections = new boolean[6];
-        for (int i = 0; i < 6; i++) {
-            pipeDirections[i] = pipe.getBlockState().getValue(FluidPipeBlock.PROPERTY_BY_DIRECTION.get(Direction.from3DDataValue(i)));
+        if (pipe.getLevel() instanceof ClientLevel clientLevel) {
+            FluidModel fluidModel = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(pipe.getFluid().defaultFluidState());
+            int tint = fluidModel.tintSource() == null ? -1 : fluidModel.tintSource().colorInWorld(Blocks.AIR.defaultBlockState(), clientLevel, pipe.getBlockPos());
+            TextureAtlasSprite sprite = fluidModel.flowingMaterial().sprite();
+            boolean[] pipeDirections = new boolean[6];
+            for (int i = 0; i < 6; i++) {
+                pipeDirections[i] = pipe.getBlockState().getValue(FluidPipeBlock.PROPERTY_BY_DIRECTION.get(Direction.from3DDataValue(i)));
+            }
+            float width = pipe.lastRenderWidth + (pipe.targetRenderWidth - pipe.lastRenderWidth) * partialTicks;
+            pipeState.initialise(tint, sprite, width, pipe.skipRenderingSide, pipeDirections);
         }
-        float width = pipe.lastRenderWidth + (pipe.targetRenderWidth - pipe.lastRenderWidth) * partialTicks;
-        pipeState.initialise(fluidInfo, width, pipe.skipRenderingSide, pipeDirections);
     }
 
     @Override
     public void submit(FluidPipeRenderState pipeState, PoseStack poses, SubmitNodeCollector queue, CameraRenderState cameraState) {
         poses.pushPose();
         if (pipeState.width() > 0.01F) {
-            TextureAtlasSprite fluidSprite = pipeState.fluidInfo().sprite() == null ? Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(Blocks.WATER.defaultBlockState()) : pipeState.fluidInfo().sprite();
+            TextureAtlasSprite fluidSprite = pipeState.sprite() == null ? Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(Fluids.WATER.defaultFluidState()).stillMaterial().sprite() : pipeState.sprite();
             queue.submitCustomGeometry(poses, RenderTypes.text(fluidSprite.atlasLocation()), ((pose, vertexBuffer) -> {
                 Matrix4f matrix = pose.pose();
                 float start = 0.5F - pipeState.width() / 2;
@@ -63,17 +69,17 @@ public class FluidPipeRenderer implements BlockEntityRenderer<FluidPipeEntity, F
                         Arrays.fill(renderSides, true);
                         renderSides[direction.getOpposite().get3DDataValue()] = false;
                         switch (direction) {
-                            case UP -> this.renderFluidCuboid(vertexBuffer, matrix, start, end, start, end, 1.0F, end, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, renderSides);
-                            case DOWN -> this.renderFluidCuboid(vertexBuffer, matrix, start, 0.0F, start, end, start, end, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, renderSides);
-                            case EAST -> this.renderFluidCuboid(vertexBuffer, matrix, end, start, start, 1.0F, end, end, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, renderSides);
-                            case WEST -> this.renderFluidCuboid(vertexBuffer, matrix, 0.0F, start, start, start, end, end, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, renderSides);
-                            case SOUTH -> this.renderFluidCuboid(vertexBuffer, matrix, start, start, end, end, end, 1.0F, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, renderSides);
-                            case NORTH -> this.renderFluidCuboid(vertexBuffer, matrix, start, start, 0.0F, end, end, start, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, renderSides);
+                            case UP -> this.renderFluidCuboid(vertexBuffer, matrix, start, end, start, end, 1.0F, end, fluidSprite, pipeState.tint(), pipeState.lightCoords, renderSides);
+                            case DOWN -> this.renderFluidCuboid(vertexBuffer, matrix, start, 0.0F, start, end, start, end, fluidSprite, pipeState.tint(), pipeState.lightCoords, renderSides);
+                            case EAST -> this.renderFluidCuboid(vertexBuffer, matrix, end, start, start, 1.0F, end, end, fluidSprite, pipeState.tint(), pipeState.lightCoords, renderSides);
+                            case WEST -> this.renderFluidCuboid(vertexBuffer, matrix, 0.0F, start, start, start, end, end, fluidSprite, pipeState.tint(), pipeState.lightCoords, renderSides);
+                            case SOUTH -> this.renderFluidCuboid(vertexBuffer, matrix, start, start, end, end, end, 1.0F, fluidSprite, pipeState.tint(), pipeState.lightCoords, renderSides);
+                            case NORTH -> this.renderFluidCuboid(vertexBuffer, matrix, start, start, 0.0F, end, end, start, fluidSprite, pipeState.tint(), pipeState.lightCoords, renderSides);
                         }
                     }
                 }
                 if (renderMiddle) {
-                    this.renderFluidCuboid(vertexBuffer, matrix, start, start, start, end, end, end, fluidSprite, pipeState.fluidInfo().tint(), pipeState.lightCoords, pipeState.middleSides());
+                    this.renderFluidCuboid(vertexBuffer, matrix, start, start, start, end, end, end, fluidSprite, pipeState.tint(), pipeState.lightCoords, pipeState.middleSides());
                 }
             }));
         }
@@ -136,20 +142,26 @@ public class FluidPipeRenderer implements BlockEntityRenderer<FluidPipeEntity, F
 
     public static class FluidPipeRenderState extends BlockEntityRenderState {
 
-        private FluidRenderInfo fluidInfo;
+        private int tint;
+        private TextureAtlasSprite sprite;
         private float width;
         private boolean[] middleSides;
         private boolean[] pipeDirections;
 
-        public void initialise(FluidRenderInfo fluidInfo, float width, boolean[] middleSides, boolean[] pipeDirections) {
-            this.fluidInfo = fluidInfo;
+        public void initialise(int tint, TextureAtlasSprite sprite, float width, boolean[] middleSides, boolean[] pipeDirections) {
+            this.tint = tint;
+            this.sprite = sprite;
             this.width = width;
             this.middleSides = middleSides;
             this.pipeDirections = pipeDirections;
         }
 
-        public FluidRenderInfo fluidInfo() {
-            return this.fluidInfo;
+        public int tint() {
+            return this.tint;
+        }
+
+        public TextureAtlasSprite sprite() {
+            return this.sprite;
         }
 
         public float width() {

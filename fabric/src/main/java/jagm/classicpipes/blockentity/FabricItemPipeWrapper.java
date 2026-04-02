@@ -33,7 +33,7 @@ public class FabricItemPipeWrapper implements Storage<ItemVariant>, StorageView<
     public long insert(ItemVariant itemVariant, long amount, TransactionContext transaction) {
         if (this.supportsInsertion()) {
             int amountToInsert = (int) Math.min(amount, 64);
-            transaction.addCloseCallback((closingTransaction, result) -> {
+            transaction.addCloseCallback((_, result) -> {
                 if (result.wasCommitted()) {
                     this.pipe.setItem(this.side, itemVariant.toStack(amountToInsert));
                 }

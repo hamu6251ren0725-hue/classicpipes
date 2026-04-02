@@ -3,7 +3,6 @@ package jagm.classicpipes.util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
 
 public class FluidInPipe {
 
@@ -46,18 +45,6 @@ public class FluidInPipe {
         }
         this.progress += this.speed;
         this.age++;
-    }
-
-    public Vec3 getDebugRenderPosition(float partialTicks){
-        float p = (float) this.progress / ItemInPipe.PIPE_LENGTH + partialTicks * (float) this.speed / ItemInPipe.PIPE_LENGTH;
-        float q = 1.0F - p;
-        boolean h = p < 0.5F;
-        Direction d = h ? this.fromDirection : this.targetDirection;
-        return new Vec3(
-                d == Direction.WEST ? (h ? p : q) : (d == Direction.EAST ? (h ? q : p) : 0.5F),
-                d == Direction.DOWN ? (h ? p : q) : (d == Direction.UP ? (h ? q : p) : 0.5F),
-                d == Direction.NORTH ? (h ? p : q) : (d == Direction.SOUTH ? (h ? q : p) : 0.5F)
-        );
     }
 
     public void resetProgress(Direction direction) {

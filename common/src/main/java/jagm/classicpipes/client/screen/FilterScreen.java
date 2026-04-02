@@ -4,7 +4,7 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.inventory.menu.FilterMenu;
 import jagm.classicpipes.item.TagLabelItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -28,8 +28,8 @@ public abstract class FilterScreen<T extends FilterMenu> extends AbstractContain
     private final Map<String, List<Item>> tagCache;
     private short tick;
 
-    public FilterScreen(T menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+    public FilterScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
+        super(menu, playerInventory, title, imageWidth, imageHeight);
         Level level = Minecraft.getInstance().level;
         if (level != null) {
             this.itemRegistry = level.registryAccess().lookupOrThrow(Registries.ITEM);
@@ -53,7 +53,7 @@ public abstract class FilterScreen<T extends FilterMenu> extends AbstractContain
     }
 
     @Override
-    protected void renderSlot(GuiGraphics graphics, Slot slot, int mouseX, int mouseY) {
+    protected void extractSlot(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY) {
         ItemStack stack = slot.getItem();
         String label = stack.get(ClassicPipes.LABEL_COMPONENT);
         if (slot.index < this.filterSlots() && stack.getItem() instanceof TagLabelItem && label != null && this.itemRegistry != null) {
@@ -68,13 +68,13 @@ public abstract class FilterScreen<T extends FilterMenu> extends AbstractContain
             }
             int seed = slot.x + slot.y * this.imageWidth;
             ItemStack stackToRender = itemList.isEmpty() ? stack : new ItemStack(itemList.get((this.tick / 20) % itemList.size()));
-            graphics.renderItem(stackToRender, slot.x, slot.y, seed);
-            graphics.renderItemDecorations(this.font, stack, slot.x, slot.y, null);
+            graphics.item(stackToRender, slot.x, slot.y, seed);
+            graphics.itemDecorations(this.font, stack, slot.x, slot.y, null);
             graphics.pose().pushMatrix();
-            graphics.drawString(this.font, "#", slot.x, slot.y, -256, true);
+            graphics.text(this.font, "#", slot.x, slot.y, -256, true);
             graphics.pose().popMatrix();
         } else {
-            super.renderSlot(graphics, slot, mouseX, mouseY);
+            super.extractSlot(graphics, slot, mouseX, mouseY);
         }
     }
 
