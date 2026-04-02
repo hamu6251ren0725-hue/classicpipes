@@ -39,7 +39,10 @@ import net.minecraft.world.level.material.MapColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class ClassicPipes {
@@ -51,8 +54,6 @@ public class ClassicPipes {
     public static final Map<String, Item> ITEMS = new LinkedHashMap<>();
     public static final Map<String, Block> BLOCKS = new LinkedHashMap<>();
     public static final Map<String, SoundEvent> SOUNDS = new LinkedHashMap<>();
-
-    public static final List<Block> TRANSPARENT_BLOCKS = new ArrayList<>();
 
     public static final Block OAK_PIPE = createWoodenPipe("oak_pipe", MapColor.WOOD);
     public static final Block SPRUCE_PIPE = createWoodenPipe("spruce_pipe", MapColor.PODZOL);
@@ -192,9 +193,7 @@ public class ClassicPipes {
     }
 
     private static Block createPipe(String name, Function<BlockBehaviour.Properties, Block> factory, SoundType sound, MapColor mapColor, float hardness, Component... lore) {
-        Block pipe = createBlock(name, factory, BlockBehaviour.Properties.of().sound(sound).mapColor(mapColor).destroyTime(hardness).noOcclusion(), lore);
-        TRANSPARENT_BLOCKS.add(pipe);
-        return pipe;
+        return createBlock(name, factory, BlockBehaviour.Properties.of().sound(sound).mapColor(mapColor).destroyTime(hardness).noOcclusion(), lore);
     }
 
     private static Block createWoodenPipe(String name, MapColor mapColor) {
