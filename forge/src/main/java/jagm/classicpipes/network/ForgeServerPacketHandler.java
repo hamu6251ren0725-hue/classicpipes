@@ -21,7 +21,7 @@ public class ForgeServerPacketHandler {
     }
 
     public static <T extends SelfHandler> void registerClientPayload(Class<T> clazz, StreamCodec<RegistryFriendlyByteBuf, T> codec) {
-        INSTANCE.play().clientbound().add(clazz, codec, (payload, context) -> {
+        INSTANCE.play().clientbound().add(clazz, codec, (_, context) -> {
             context.setPacketHandled(true);
         });
     }
