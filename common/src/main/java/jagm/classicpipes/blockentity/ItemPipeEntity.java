@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public abstract class ItemPipeEntity extends PipeEntity {
+public abstract class ItemPipeEntity extends PipeEntity implements WorldlyContainer {
 
     protected final List<ItemInPipe> contents;
     protected final List<ItemInPipe> queued;
@@ -105,6 +106,8 @@ public abstract class ItemPipeEntity extends PipeEntity {
                         item.resetProgress(item.getTargetDirection().getOpposite());
                         nextPipe.insertPipeItem(level, item);
                         iterator.remove();
+                    } else if (item.getProgress() >= ItemInPipe.PIPE_LENGTH * 2) {
+                        iterator.remove();
                     }
                 }
             }
@@ -139,7 +142,7 @@ public abstract class ItemPipeEntity extends PipeEntity {
     }
 
     @Override
-    public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
+    protected void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         if (!this.isEmpty()) {
             ListIterator<ItemInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
@@ -310,6 +313,11 @@ public abstract class ItemPipeEntity extends PipeEntity {
     }
 
     @Override
+    public int getComparatorOutput() {
+        return Math.min(15, this.getContents().size());
+    }
+
+    @Override
     protected void loadAdditional(ValueInput valueInput) {
         this.clearContent();
         this.networkDistances.clear();
@@ -339,21 +347,59 @@ public abstract class ItemPipeEntity extends PipeEntity {
         }
     }
 
+    @Override
     public void clearContent() {
         this.contents.clear();
     }
 
+    @Override
+    public int getContainerSize() {
+        return 6;
+    }
+
+    @Override
     public boolean isEmpty() {
         return this.contents.isEmpty();
     }
 
+    @Override
+    public ItemStack getItem(int slot) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeItem(int slot, int amount) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int slot) {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+        this.setItem(Direction.from3DDataValue(slot), stack);
+    }
+
+    @Override
     public boolean stillValid(Player player) {
         return Container.stillValidBlockEntity(this, player);
     }
 
     @Override
-    public int getComparatorOutput() {
-        return Math.min(15, this.getContents().size());
+    public int[] getSlotsForFace(Direction direction) {
+        return new int[] {direction.get3DDataValue()};
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        return this.isPipeConnected(this.getBlockState(), direction) && slot == direction.get3DDataValue();
+    }
+
+    @Override
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction direction) {
+        return false;
     }
 
 }

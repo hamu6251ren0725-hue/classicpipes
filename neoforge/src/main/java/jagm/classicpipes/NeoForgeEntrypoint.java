@@ -16,6 +16,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -35,82 +36,83 @@ public class NeoForgeEntrypoint {
         @SubscribeEvent
         public static void onRegister(RegisterEvent event) {
 
-            event.register(Registries.BLOCK, helper -> ClassicPipes.BLOCKS.forEach((name, block) -> helper.register(MiscUtil.resourceLocation(name), block)));
-            event.register(Registries.ITEM, helper -> ClassicPipes.ITEMS.forEach((name, item) -> helper.register(MiscUtil.resourceLocation(name), item)));
-            event.register(Registries.SOUND_EVENT, helper -> ClassicPipes.SOUNDS.forEach((name, soundEvent) -> helper.register(MiscUtil.resourceLocation(name), soundEvent)));
+            event.register(Registries.BLOCK, helper -> ClassicPipes.BLOCKS.forEach((name, block) -> helper.register(MiscUtil.identifier(name), block)));
+            event.register(Registries.ITEM, helper -> ClassicPipes.ITEMS.forEach((name, item) -> helper.register(MiscUtil.identifier(name), item)));
+            event.register(Registries.SOUND_EVENT, helper -> ClassicPipes.SOUNDS.forEach((name, soundEvent) -> helper.register(MiscUtil.identifier(name), soundEvent)));
             event.register(Registries.CREATIVE_MODE_TAB, helper -> helper.register(ClassicPipes.PIPES_TAB_KEY, ClassicPipes.PIPES_TAB));
             event.register(Registries.DATA_COMPONENT_TYPE, helper -> helper.register(ClassicPipes.LABEL_COMPONENT_KEY, ClassicPipes.LABEL_COMPONENT));
-            event.register(Registries.TRIGGER_TYPE, helper -> helper.register(MiscUtil.resourceLocation("request_item"), ClassicPipes.REQUEST_ITEM_TRIGGER));
+            event.register(Registries.TRIGGER_TYPE, helper -> helper.register(MiscUtil.identifier("request_item"), ClassicPipes.REQUEST_ITEM_TRIGGER));
+            event.register(Registries.CUSTOM_STAT, helper -> helper.register(ClassicPipes.ITEMS_REQUESTED_STAT, ClassicPipes.ITEMS_REQUESTED_STAT));
 
             event.register(Registries.BLOCK_ENTITY_TYPE, helper -> {
-                helper.register(MiscUtil.resourceLocation("basic_pipe"), ClassicPipes.BASIC_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("copper_pipe"), ClassicPipes.COPPER_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("iron_pipe"), ClassicPipes.IRON_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("flint_pipe"), ClassicPipes.FLINT_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("lapis_pipe"), ClassicPipes.LAPIS_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("obsidian_pipe"), ClassicPipes.OBSIDIAN_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("bone_pipe"), ClassicPipes.BONE_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("request_pipe"), ClassicPipes.REQUEST_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("fluid_pipe"), ClassicPipes.FLUID_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("copper_fluid_pipe"), ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("iron_fluid_pipe"), ClassicPipes.IRON_FLUID_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("lapis_fluid_pipe"), ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("obsidian_fluid_pipe"), ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("advanced_copper_pipe"), ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY);
-                helper.register(MiscUtil.resourceLocation("advanced_copper_fluid_pipe"), ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("basic_pipe"), ClassicPipes.BASIC_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("golden_pipe"), ClassicPipes.GOLDEN_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("copper_pipe"), ClassicPipes.COPPER_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("iron_pipe"), ClassicPipes.IRON_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("flint_pipe"), ClassicPipes.FLINT_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("lapis_pipe"), ClassicPipes.LAPIS_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("obsidian_pipe"), ClassicPipes.OBSIDIAN_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("bone_pipe"), ClassicPipes.BONE_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("routing_pipe"), ClassicPipes.ROUTING_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("provider_pipe"), ClassicPipes.PROVIDER_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("request_pipe"), ClassicPipes.REQUEST_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("stocking_pipe"), ClassicPipes.STOCKING_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("matching_pipe"), ClassicPipes.MATCHING_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("storage_pipe"), ClassicPipes.STORAGE_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("recipe_pipe"), ClassicPipes.RECIPE_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("fluid_pipe"), ClassicPipes.FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("copper_fluid_pipe"), ClassicPipes.COPPER_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("iron_fluid_pipe"), ClassicPipes.IRON_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("lapis_fluid_pipe"), ClassicPipes.LAPIS_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("obsidian_fluid_pipe"), ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("advanced_copper_pipe"), ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY);
+                helper.register(MiscUtil.identifier("advanced_copper_fluid_pipe"), ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY);
             });
 
             event.register(Registries.MENU, helper -> {
-                helper.register(MiscUtil.resourceLocation("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("routing_pipe"), ClassicPipes.ROUTING_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("provider_pipe"), ClassicPipes.PROVIDER_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("request"), ClassicPipes.REQUEST_MENU);
-                helper.register(MiscUtil.resourceLocation("stocking_pipe"), ClassicPipes.STOCKING_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("matching_pipe"), ClassicPipes.MATCHING_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("storage_pipe"), ClassicPipes.STORAGE_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("recipe_pipe"), ClassicPipes.RECIPE_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("advanced_copper_pipe"), ClassicPipes.ADVANCED_COPPER_PIPE_MENU);
-                helper.register(MiscUtil.resourceLocation("advanced_copper_fluid_pipe"), ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU);
+                helper.register(MiscUtil.identifier("diamond_pipe"), ClassicPipes.DIAMOND_PIPE_MENU);
+                helper.register(MiscUtil.identifier("routing_pipe"), ClassicPipes.ROUTING_PIPE_MENU);
+                helper.register(MiscUtil.identifier("provider_pipe"), ClassicPipes.PROVIDER_PIPE_MENU);
+                helper.register(MiscUtil.identifier("request"), ClassicPipes.REQUEST_MENU);
+                helper.register(MiscUtil.identifier("stocking_pipe"), ClassicPipes.STOCKING_PIPE_MENU);
+                helper.register(MiscUtil.identifier("matching_pipe"), ClassicPipes.MATCHING_PIPE_MENU);
+                helper.register(MiscUtil.identifier("storage_pipe"), ClassicPipes.STORAGE_PIPE_MENU);
+                helper.register(MiscUtil.identifier("recipe_pipe"), ClassicPipes.RECIPE_PIPE_MENU);
+                helper.register(MiscUtil.identifier("diamond_fluid_pipe"), ClassicPipes.DIAMOND_FLUID_PIPE_MENU);
+                helper.register(MiscUtil.identifier("advanced_copper_pipe"), ClassicPipes.ADVANCED_COPPER_PIPE_MENU);
+                helper.register(MiscUtil.identifier("advanced_copper_fluid_pipe"), ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_MENU);
             });
 
         }
 
         @SubscribeEvent
         public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.BASIC_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.GOLDEN_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.COPPER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.IRON_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.DIAMOND_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.FLINT_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.LAPIS_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.OBSIDIAN_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.BONE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.ROUTING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.PROVIDER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.REQUEST_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.STOCKING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.MATCHING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.STORAGE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.RECIPE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.IRON_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
-            event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.BASIC_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.GOLDEN_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.COPPER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.IRON_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.DIAMOND_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.FLINT_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.LAPIS_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.OBSIDIAN_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.BONE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.ROUTING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.PROVIDER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.REQUEST_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.STOCKING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.MATCHING_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.STORAGE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.RECIPE_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Item.BLOCK, ClassicPipes.ADVANCED_COPPER_PIPE_ENTITY, NeoForgeItemPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.IRON_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.LAPIS_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.DIAMOND_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.OBSIDIAN_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
+            event.registerBlockEntity(Capabilities.Fluid.BLOCK, ClassicPipes.ADVANCED_COPPER_FLUID_PIPE_ENTITY, NeoForgeFluidPipeWrapper::new);
         }
 
         @SubscribeEvent
@@ -125,7 +127,13 @@ public class NeoForgeEntrypoint {
             registerServerPayload(registrar, ServerBoundSlotDirectionPayload.TYPE, ServerBoundSlotDirectionPayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundTransferRecipePayload.TYPE, ServerBoundTransferRecipePayload.STREAM_CODEC);
             registerServerPayload(registrar, ServerBoundSetFilterPayload.TYPE, ServerBoundSetFilterPayload.STREAM_CODEC);
+            registerServerPayload(registrar, ServerBoundBlockingModePayload.TYPE, ServerBoundBlockingModePayload.STREAM_CODEC);
             registerClientPayload(registrar, ClientBoundItemListPayload.TYPE, ClientBoundItemListPayload.STREAM_CODEC);
+        }
+
+        @SubscribeEvent
+        public static void onCommonSetup(FMLCommonSetupEvent event) {
+            event.enqueueWork(ClassicPipes::createStats);
         }
 
         private static <T extends SelfHandler> void registerServerPayload(PayloadRegistrar registrar, CustomPacketPayload.Type<T> type, StreamCodec<RegistryFriendlyByteBuf, T> codec) {

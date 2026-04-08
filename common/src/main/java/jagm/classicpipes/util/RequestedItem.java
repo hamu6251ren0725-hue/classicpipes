@@ -35,9 +35,9 @@ public class RequestedItem {
     }
 
     public void sendMessage(ServerLevel level, Component component) {
-        List<ServerPlayer> players = level.getPlayers(player -> player.getName().getString().equals(this.playerName));
+        List<ServerPlayer> players = level.getPlayers(player -> player.getPlainTextName().equals(this.playerName));
         if (!players.isEmpty()) {
-            players.getFirst().displayClientMessage(component, false);
+            players.getFirst().sendSystemMessage(component);
         }
     }
 

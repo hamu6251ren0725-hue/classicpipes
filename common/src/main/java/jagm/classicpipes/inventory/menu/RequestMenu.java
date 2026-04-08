@@ -107,11 +107,26 @@ public class RequestMenu extends AbstractContainerMenu {
         int display = this.toDisplay.getContainerSize();
         List<Tuple<ItemStack, Boolean>> matchingItems = new ArrayList<>();
         Iterator<Tuple<ItemStack, Boolean>> iterator = this.networkItems.listIterator();
+        String searchCopy = this.search;
+        Matcher modMatcher = MOD_LOOKUP.matcher(searchCopy);
+        Matcher tagMatcher = TAG_LOOKUP.matcher(searchCopy);
+        String searchedMod = "";
+        if (modMatcher.find()) {
+            String match = modMatcher.group();
+            searchCopy = searchCopy.replace(match, "");
+            searchedMod = normalise(match.replaceFirst("@", ""));
+        }
+        List<String> searchedTags = new ArrayList<>();
+        while (tagMatcher.find()) {
+            String match = tagMatcher.group();
+            searchCopy = searchCopy.replace(match, "");
+            searchedTags.add(normalise(match.replaceFirst("#", "")));
+        }
         while (iterator.hasNext()) {
             Tuple<ItemStack, Boolean> tuple = iterator.next();
             if (tuple.a().isEmpty()) {
                 iterator.remove();
-            } else if (this.search.isEmpty() || itemMatchesSearch(tuple.a(), this.search)) {
+            } else if (this.search.isEmpty() || itemMatchesSearch(tuple.a(), normalise(searchCopy), searchedMod, searchedTags)) {
                 matchingItems.add(tuple);
             }
         }
@@ -196,25 +211,17 @@ public class RequestMenu extends AbstractContainerMenu {
         return this.craftableCache.get(stack);
     }
 
-    private static boolean itemMatchesSearch(ItemStack stack, String search) {
-        Matcher modMatcher = MOD_LOOKUP.matcher(search);
-        if (modMatcher.find()) {
-            String match = modMatcher.group();
-            search = search.replace(match, "");
-            String searchedMod = normalise(match.replaceFirst("@", ""));
+    private static boolean itemMatchesSearch(ItemStack stack, String search, String searchedMod, List<String> searchedTags) {
+        if (!searchedMod.isEmpty()) {
             String itemModID = MiscUtil.modFromItem(stack);
             String itemModName = normalise(Services.LOADER_SERVICE.getModName(itemModID));
             if (!normalise(itemModID).contains(searchedMod) && !itemModName.contains(searchedMod)) {
                 return false;
             }
         }
-        Matcher tagMatcher = TAG_LOOKUP.matcher(search);
-        while (tagMatcher.find()) {
+        for (String searchedTag : searchedTags) {
             boolean foundTag = false;
-            String match = tagMatcher.group();
-            search = search.replace(match, "");
-            for (TagKey<Item> tag : stack.getTags().toList()) {
-                String searchedTag = normalise(match.replaceFirst("#", ""));
+            for (TagKey<Item> tag : stack.tags().toList()) {
                 String itemTag = normalise(tag.location().toString());
                 if (itemTag.contains(searchedTag)) {
                     foundTag = true;
@@ -225,13 +232,13 @@ public class RequestMenu extends AbstractContainerMenu {
                 return false;
             }
         }
-        search = normalise(search);
+        String customName = normalise(stack.getHoverName().getString());
         String itemName = normalise(stack.getItemName().getString());
-        return itemName.contains(search);
+        return itemName.contains(search) || customName.contains(search);
     }
 
     private static String normalise(String s) {
-        return s.toLowerCase().replaceAll("[^a-z0-9]", "");
+        return s.toLowerCase().replaceAll("[\\p{Punct}\\s]", "");
     }
 
 }

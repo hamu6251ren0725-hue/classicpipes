@@ -2,10 +2,14 @@ package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.StockingPipeBlock;
+import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.FilterContainer;
 import jagm.classicpipes.inventory.menu.StockingPipeMenu;
+import jagm.classicpipes.item.LabelItem;
 import jagm.classicpipes.services.Services;
+import jagm.classicpipes.util.FacingOrNone;
 import jagm.classicpipes.util.ItemInPipe;
+import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.RequestedItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -41,7 +45,7 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     @Override
     public void tickServer(ServerLevel level, BlockPos pos, BlockState state) {
         super.tickServer(level, pos, state);
-        if (!this.cacheInitialised) {
+        if (!this.cacheInitialised && !state.getValue(StockingPipeBlock.FACING).equals(FacingOrNone.NONE)) {
             this.updateCache(level);
             this.cacheInitialised = true;
         }
@@ -56,68 +60,65 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
                 if (stack.isEmpty()) {
                     continue;
                 }
-                boolean matched = false;
-                for (ItemStack filterStack : filterItems) {
-                    if (ItemStack.isSameItemSameComponents(stack, filterStack)) {
-                        filterStack.grow(stack.getCount());
-                        matched = true;
-                        break;
-                    }
-                }
-                if (!matched) {
-                    filterItems.add(stack.copy());
-                }
+                MiscUtil.mergeStackIntoList(filterItems, stack.copy());
             }
-            if (!filterItems.isEmpty()) {
-                List<ItemStack> containerItems = Services.LOADER_SERVICE.getContainerItems(level, this.getBlockPos().relative(facing), facing.getOpposite());
+            BlockPos containerPos = this.getBlockPos().relative(facing);
+            if (!filterItems.isEmpty() && Services.LOADER_SERVICE.canAccessContainer(level, containerPos, facing.getOpposite())) {
+                List<ItemStack> containerItems = Services.LOADER_SERVICE.getContainerItems(level, containerPos, facing.getOpposite());
                 for (ItemStack filterStack : filterItems) {
-                    boolean matched = false;
+                    int amountFound = 0;
+                    boolean isLabel = filterStack.getItem() instanceof LabelItem;
                     for (ItemStack containerStack : containerItems) {
-                        if (ItemStack.isSameItemSameComponents(filterStack, containerStack)) {
-                            matched = true;
-                            int missing = filterStack.getCount() - containerStack.getCount();
-                            if (missing > 0) {
-                                this.missingItemsCache.add(containerStack.copyWithCount(missing));
+                        if (isLabel) {
+                            if (((LabelItem) filterStack.getItem()).itemMatches(filterStack, containerStack)) {
+                                amountFound += containerStack.getCount();
                             }
+                        } else if (ItemStack.isSameItemSameComponents(filterStack, containerStack)) {
+                            amountFound += containerStack.getCount();
                             break;
                         }
                     }
-                    if (!matched) {
-                        this.missingItemsCache.add(filterStack);
+                    if (amountFound < filterStack.getCount()) {
+                        this.missingItemsCache.add(filterStack.copyWithCount(filterStack.getCount() - amountFound));
                     }
                 }
+                if (this.activeStocking) {
+                    this.tryRequests(level);
+                }
             }
-        }
-        if (this.activeStocking) {
-            this.tryRequests(level);
         }
     }
 
     public void updateCache() {
-        if (this.getLevel() instanceof ServerLevel serverLevel) {
-            this.updateCache(serverLevel);
-        }
+        this.cacheInitialised = false;
     }
 
     public void tryRequests(ServerLevel level) {
         if (this.hasNetwork()) {
             for (ItemStack stack : this.missingItemsCache) {
-                int alreadyRequested = 0;
-                for (ItemInPipe item : this.contents) {
-                    if (ItemStack.isSameItemSameComponents(stack, item.getStack())) {
-                        alreadyRequested += item.getStack().getCount();
-                    }
-                }
-                for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
-                    if (requestedItem.matches(stack) && requestedItem.getDestination().equals(this.getBlockPos())) {
-                        alreadyRequested += requestedItem.getAmountRemaining();
-                    }
-                }
+                int alreadyRequested = this.getAlreadyRequested(stack);
                 if (alreadyRequested < stack.getCount()) {
                     this.getNetwork().request(level, stack.copyWithCount(stack.getCount() - alreadyRequested), this.getBlockPos(), null, true);
                 }
             }
         }
+    }
+
+    public int getAlreadyRequested(ItemStack stack) {
+        boolean isLabel = stack.getItem() instanceof LabelItem;
+        int alreadyRequested = 0;
+        for (ItemInPipe item : this.contents) {
+            ItemStack pipeStack = item.getStack();
+            if (ItemStack.isSameItemSameComponents(stack, pipeStack) || isLabel && ((LabelItem) stack.getItem()).itemMatches(stack, pipeStack)) {
+                alreadyRequested += pipeStack.getCount();
+            }
+        }
+        for (RequestedItem requestedItem : this.getNetwork().getRequestedItems()) {
+            if (requestedItem.getDestination().equals(this.getBlockPos()) && (requestedItem.matches(stack) || isLabel && ((LabelItem) stack.getItem()).itemMatches(stack, requestedItem.getStack()))) {
+                alreadyRequested += requestedItem.getAmountRemaining();
+            }
+        }
+        return alreadyRequested;
     }
 
     public boolean isActiveStocking() {
@@ -173,6 +174,10 @@ public class StockingPipeEntity extends NetworkedPipeEntity implements MenuProvi
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
         return new StockingPipeMenu(id, playerInventory, this.filter, this.activeStocking);
+    }
+
+    public Filter getFilter() {
+        return this.filter;
     }
 
 }

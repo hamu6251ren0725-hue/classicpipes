@@ -3,6 +3,7 @@ package jagm.classicpipes.blockentity;
 import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.MatchingPipeBlock;
 import jagm.classicpipes.inventory.menu.MatchingPipeMenu;
+import jagm.classicpipes.item.LabelItem;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
 import net.minecraft.core.BlockPos;
@@ -45,25 +46,37 @@ public class MatchingPipeEntity extends NetworkedPipeEntity implements MenuProvi
         super.tickServer(level, pos, state);
     }
 
-    public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
+    private void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
         this.cache.clear();
         this.cannotFit.clear();
         this.cache.addAll(Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite()));
     }
 
     @Override
+    public void updateCache() {
+        this.cacheInitialised = false;
+    }
+
+    @Override
     public boolean matches(ItemStack stack) {
+        if (this.itemCanFit(stack)) {
+            for (ItemStack containerStack : this.cache) {
+                if (containerStack.getItem() instanceof LabelItem labelItem && labelItem.itemMatches(containerStack, stack) || stack.is(containerStack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, containerStack))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean itemCanFit(ItemStack stack) {
         for (ItemStack cannotFitStack : this.cannotFit) {
             if (ItemStack.isSameItemSameComponents(cannotFitStack, stack)) {
                 return false;
             }
         }
-        for (ItemStack containerStack : this.cache) {
-            if (stack.is(containerStack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, containerStack))) {
-                return true;
-            }
-        }
-        return false;
+        return true;
     }
 
     @Override

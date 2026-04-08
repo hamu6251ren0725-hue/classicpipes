@@ -2,13 +2,11 @@ package jagm.classicpipes.services;
 
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ItemPipeEntity;
-import jagm.classicpipes.client.renderer.FluidRenderInfo;
-import jagm.classicpipes.network.ForgePacketHandler;
+import jagm.classicpipes.client.network.ForgeClientPacketHandler;
+import jagm.classicpipes.network.ForgeServerPacketHandler;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -17,23 +15,23 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.fluids.FluidStack;
@@ -50,6 +48,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class ForgeService implements LoaderService {
 
@@ -75,12 +74,12 @@ public class ForgeService implements LoaderService {
 
     @Override
     public void sendToServer(CustomPacketPayload payload) {
-        ForgePacketHandler.sendToServer(payload);
+        ForgeClientPacketHandler.sendToServer(payload);
     }
 
     @Override
     public void sendToClient(ServerPlayer player, CustomPacketPayload payload) {
-        ForgePacketHandler.sendToClient(player, payload);
+        ForgeServerPacketHandler.sendToClient(player, payload);
     }
 
     @Override
@@ -95,7 +94,7 @@ public class ForgeService implements LoaderService {
                 return itemHandlerOptional.get().getSlots() > 0;
             }
         }
-        return false;
+        return MiscUtil.canAccessVanillaContainer(level, blockEntity, level.getBlockState(containerPos), containerPos, face);
     }
 
     @Override
@@ -109,9 +108,11 @@ public class ForgeService implements LoaderService {
             return true;
         }
         Direction face = item.getTargetDirection().getOpposite();
+        boolean hasItemHandler = false;
         if (blockEntity != null) {
             Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
             if (itemHandlerOptional.isPresent()) {
+                hasItemHandler = true;
                 IItemHandler itemHandler = itemHandlerOptional.get();
                 ItemStack stack = item.getStack();
                 for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
@@ -121,6 +122,16 @@ public class ForgeService implements LoaderService {
                     }
                 }
                 item.setStack(stack);
+            }
+        }
+        if (!hasItemHandler) {
+            Container container = MiscUtil.getVanillaContainer(level, blockEntity, level.getBlockState(containerPos), containerPos);
+            if (container != null) {
+                ItemStack remaining = HopperBlockEntity.addItem(null, container, item.getStack(), face);
+                if (remaining.isEmpty()) {
+                    return true;
+                }
+                item.setStack(remaining);
             }
         }
         item.resetProgress(item.getTargetDirection());
@@ -134,9 +145,11 @@ public class ForgeService implements LoaderService {
         if (blockEntity instanceof ItemPipeEntity) {
             return false;
         }
+        boolean hasItemHandler = false;
         if (blockEntity != null) {
             Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
             if (itemHandlerOptional.isPresent()) {
+                hasItemHandler = true;
                 IItemHandler itemHandler = itemHandlerOptional.get();
                 for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
                     if (predicate.test(itemHandler.getStackInSlot(slot))) {
@@ -149,46 +162,65 @@ public class ForgeService implements LoaderService {
                 }
             }
         }
+        if (!hasItemHandler) {
+            Container container = MiscUtil.getVanillaContainer(level, blockEntity, level.getBlockState(containerPos), containerPos);
+            if (container != null) {
+                int[] slots = container instanceof WorldlyContainer worldlyContainer ? worldlyContainer.getSlotsForFace(face) : IntStream.range(0, container.getContainerSize()).toArray();
+                for (int i = slots.length - 1; i >= 0; i--) {
+                    int slot = slots[i];
+                    ItemStack slotStack = container.getItem(slot);
+                    int amountToTake = Math.min(slotStack.getCount(), amount);
+                    ItemStack extracted = slotStack.copyWithCount(amountToTake);
+                    if (predicate.test(slotStack) && !extracted.isEmpty() && MiscUtil.canTakeItemFromVanillaContainer(container, slot, extracted, face)) {
+                        int amountRemaining = slotStack.getCount() - amountToTake;
+                        container.setItem(slot, amountRemaining == 0 ? ItemStack.EMPTY : slotStack.copyWithCount(amountRemaining));
+                        container.setChanged();
+                        pipe.setItem(face.getOpposite(), slotStack.copyWithCount(amountToTake));
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
     public List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
+        List<ItemStack> stacks = new ArrayList<>();
         if (blockEntity != null) {
             Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
             if (itemHandlerOptional.isPresent()) {
                 IItemHandler itemHandler = itemHandlerOptional.get();
-                List<ItemStack> stacks = new ArrayList<>();
-                for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                    ItemStack slotStack = itemHandler.getStackInSlot(slot);
-                    if (slotStack.isEmpty()) {
-                        continue;
-                    }
-                    boolean matched = false;
-                    for (ItemStack stack : stacks) {
-                        if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
-                            stack.setCount(stack.getCount() + slotStack.getCount());
-                            matched = true;
-                            break;
-                        }
-                    }
-                    if (!matched) {
-                        stacks.add(slotStack.copy());
-                    }
+                for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
+                    ItemStack extractable = itemHandler.extractItem(slot, itemHandler.getStackInSlot(slot).getCount(), true);
+                    MiscUtil.mergeStackIntoList(stacks, extractable);
                 }
                 return stacks;
             }
         }
-        return List.of();
+        Container container = MiscUtil.getVanillaContainer(level, level.getBlockState(pos), pos);
+        if (container != null) {
+            int[] slots = container instanceof WorldlyContainer worldlyContainer ? worldlyContainer.getSlotsForFace(face) : IntStream.range(0, container.getContainerSize()).toArray();
+            for (int i = slots.length - 1; i >= 0; i--) {
+                int slot = slots[i];
+                ItemStack extractable = container.getItem(slot);
+                if (MiscUtil.canTakeItemFromVanillaContainer(container, slot, extractable, face)) {
+                    MiscUtil.mergeStackIntoList(stacks, extractable);
+                }
+            }
+        }
+        return stacks;
     }
 
     @Override
     public boolean extractSpecificItem(ItemPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
         BlockEntity blockEntity = level.getBlockEntity(containerPos);
+        ItemStack target = stack.copy();
+        boolean hasItemHandler = false;
         if (blockEntity != null) {
-            ItemStack target = stack.copy();
             Optional<IItemHandler> itemHandlerOptional = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, face).resolve();
             if (itemHandlerOptional.isPresent()) {
+                hasItemHandler = true;
                 IItemHandler itemHandler = itemHandlerOptional.get();
                 for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
                     if (ItemStack.isSameItemSameComponents(stack, itemHandler.getStackInSlot(slot))) {
@@ -204,12 +236,36 @@ public class ForgeService implements LoaderService {
                 }
             }
         }
+        if (!hasItemHandler) {
+            Container container = MiscUtil.getVanillaContainer(level, level.getBlockState(containerPos), containerPos);
+            if (container != null) {
+                int[] slots = container instanceof WorldlyContainer worldlyContainer ? worldlyContainer.getSlotsForFace(face) : IntStream.range(0, container.getContainerSize()).toArray();
+                for (int i = slots.length - 1; i >= 0; i--) {
+                    int slot = slots[i];
+                    ItemStack slotStack = container.getItem(slot);
+                    if (ItemStack.isSameItemSameComponents(target, slotStack)) {
+                        int amountToTake = Math.min(slotStack.getCount(), target.getCount());
+                        ItemStack extracted = slotStack.copyWithCount(amountToTake);
+                        if (!extracted.isEmpty() && MiscUtil.canTakeItemFromVanillaContainer(container, slot, extracted, face)) {
+                            int amountRemaining = slotStack.getCount() - amountToTake;
+                            container.setItem(slot, amountRemaining <= 0 ? ItemStack.EMPTY : slotStack.copyWithCount(amountRemaining));
+                            container.setChanged();
+                            target.shrink(amountToTake);
+                            pipe.setItem(face.getOpposite(), extracted);
+                            if (target.isEmpty()) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
 
     @Override
     public String getModName(String modId) {
-        return ModList.get().getModContainerById(modId).map(ModContainer::getModInfo).map(IModInfo::getDisplayName).orElse(modId);
+        return ModList.getModContainerById(modId).map(ModContainer::getModInfo).map(IModInfo::getDisplayName).orElse(modId);
     }
 
     @Override
@@ -264,22 +320,6 @@ public class ForgeService implements LoaderService {
             }
         }
         return false;
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
-        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        int tint = fluidInfo.getTintColor(fluidState, level, pos);
-        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture(fluidState, level, pos));
-        return new FluidRenderInfo(tint, sprite);
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState) {
-        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        int tint = fluidInfo.getTintColor();
-        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture());
-        return new FluidRenderInfo(tint, sprite);
     }
 
     @Override

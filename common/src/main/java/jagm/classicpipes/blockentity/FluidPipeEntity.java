@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,11 +26,15 @@ public class FluidPipeEntity extends PipeEntity {
 
     public static final int CAPACITY = 1000;
     public static final int MIN_PACKET_SIZE = 20;
+    private static final float MAX_RENDER_WIDTH_CHANGE = 1.0F / 64.0F;
 
     protected Fluid fluid;
     protected final List<FluidInPipe> contents;
     protected final List<FluidInPipe> queued;
     private final Map<FluidInPipe, Long> tickAdded;
+    public float targetRenderWidth;
+    public float lastRenderWidth;
+    public boolean[] skipRenderingSide = new boolean[6];
 
     public FluidPipeEntity(BlockPos pos, BlockState state) {
         this(ClassicPipes.FLUID_PIPE_ENTITY, pos, state);
@@ -41,6 +46,7 @@ public class FluidPipeEntity extends PipeEntity {
         this.queued = new ArrayList<>();
         this.tickAdded = new HashMap<>();
         this.fluid = Fluids.WATER;
+        Arrays.fill(this.skipRenderingSide, true);
     }
 
     @Override
@@ -106,10 +112,16 @@ public class FluidPipeEntity extends PipeEntity {
 
     @Override
     public void tickClient(Level level, BlockPos pos) {
+        this.lastRenderWidth = this.targetRenderWidth;
         if (!this.contents.isEmpty()) {
             ListIterator<FluidInPipe> iterator = this.contents.listIterator();
+            int totalAmount = 0;
+            Arrays.fill(this.skipRenderingSide, true);
             while (iterator.hasNext()) {
                 FluidInPipe fluidPacket = iterator.next();
+                totalAmount += fluidPacket.getAmount();
+                this.skipRenderingSide[fluidPacket.getTargetDirection().get3DDataValue()] = false;
+                this.skipRenderingSide[fluidPacket.getFromDirection().get3DDataValue()] = false;
                 if (this.tickAdded.containsKey(fluidPacket)) {
                     if (this.tickAdded.get(fluidPacket) == level.getGameTime()) {
                         continue;
@@ -127,11 +139,15 @@ public class FluidPipeEntity extends PipeEntity {
                     }
                 }
             }
+            this.targetRenderWidth = Math.min(1.0F, (float) Math.sqrt(totalAmount) / (float) Math.sqrt(FluidPipeEntity.CAPACITY)) * (7.0F / 16.0F);
+        } else {
+            this.targetRenderWidth = 0.0F;
         }
+        this.targetRenderWidth = Math.clamp(this.targetRenderWidth, this.lastRenderWidth - MAX_RENDER_WIDTH_CHANGE, this.lastRenderWidth + MAX_RENDER_WIDTH_CHANGE);
     }
 
     @Override
-    public void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
+    protected void update(ServerLevel level, BlockState state, BlockPos pos, Direction direction, boolean wasConnected) {
         if (!this.contents.isEmpty()) {
             ListIterator<FluidInPipe> iterator = this.contents.listIterator();
             while (iterator.hasNext()) {
@@ -161,7 +177,7 @@ public class FluidPipeEntity extends PipeEntity {
         FluidState fluidState = this.fluid.defaultFluidState();
         if (fluidState.is(ClassicPipes.THIN_FLUIDS)) {
             return ItemInPipe.DEFAULT_SPEED * 4;
-        } else if (fluidState.is(ClassicPipes.THICK_FLUIDS) && this.level != null && !this.level.dimensionType().ultraWarm()) {
+        } else if (fluidState.is(ClassicPipes.THICK_FLUIDS) && this.level != null && !this.level.environmentAttributes().getDimensionValue(EnvironmentAttributes.FAST_LAVA)) {
             return ItemInPipe.DEFAULT_SPEED;
         } else {
             return ItemInPipe.DEFAULT_SPEED * 2;

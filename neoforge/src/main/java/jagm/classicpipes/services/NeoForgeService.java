@@ -2,12 +2,9 @@ package jagm.classicpipes.services;
 
 import jagm.classicpipes.blockentity.FluidPipeEntity;
 import jagm.classicpipes.blockentity.ItemPipeEntity;
-import jagm.classicpipes.client.renderer.FluidRenderInfo;
 import jagm.classicpipes.util.FluidInPipe;
 import jagm.classicpipes.util.ItemInPipe;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,32 +13,34 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforgespi.language.IModInfo;
 import org.apache.commons.lang3.function.TriFunction;
 
@@ -50,6 +49,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class NeoForgeService implements LoaderService {
 
@@ -90,11 +90,12 @@ public class NeoForgeService implements LoaderService {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, state, blockEntity, face);
+        ResourceHandler<ItemResource> itemHandler = level.getCapability(Capabilities.Item.BLOCK, containerPos, state, blockEntity, face);
         if (itemHandler != null) {
-            return itemHandler.getSlots() > 0;
+            return itemHandler.size() > 0;
+        } else {
+            return MiscUtil.canAccessVanillaContainer(level, blockEntity, state, containerPos, face);
         }
-        return false;
     }
 
     @Override
@@ -109,16 +110,29 @@ public class NeoForgeService implements LoaderService {
         }
         Direction face = item.getTargetDirection().getOpposite();
         BlockState state = level.getBlockState(containerPos);
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, state, blockEntity, face);
+        ResourceHandler<ItemResource> itemHandler = level.getCapability(Capabilities.Item.BLOCK, containerPos, state, blockEntity, face);
         if (itemHandler != null) {
             ItemStack stack = item.getStack();
-            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                stack = itemHandler.insertItem(slot, stack, false);
-                if (stack.isEmpty()) {
-                    return true;
+            try (Transaction transaction = Transaction.open(null)) {
+                for (int slot = 0; slot < itemHandler.size(); slot++) {
+                    stack.shrink(itemHandler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction));
+                    if (stack.isEmpty()) {
+                        transaction.commit();
+                        return true;
+                    }
                 }
+                transaction.commit();
             }
             item.setStack(stack);
+        } else {
+            Container container = MiscUtil.getVanillaContainer(level, blockEntity, level.getBlockState(containerPos), containerPos);
+            if (container != null) {
+                ItemStack remaining = HopperBlockEntity.addItem(null, container, item.getStack(), face);
+                if (remaining.isEmpty()) {
+                    return true;
+                }
+                item.setStack(remaining);
+            }
         }
         item.resetProgress(item.getTargetDirection());
         pipe.routeItem(pipeState, item);
@@ -132,13 +146,38 @@ public class NeoForgeService implements LoaderService {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, state, blockEntity, face);
+        ResourceHandler<ItemResource> itemHandler = level.getCapability(Capabilities.Item.BLOCK, containerPos, state, blockEntity, face);
         if (itemHandler != null) {
-            for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
-                if (predicate.test(itemHandler.getStackInSlot(slot))) {
-                    ItemStack stack = itemHandler.extractItem(slot, amount, false);
-                    if (!stack.isEmpty()) {
-                        pipe.setItem(face.getOpposite(), stack);
+            try (Transaction transaction = Transaction.open(null)) {
+                for (int slot = itemHandler.size() - 1; slot >= 0; slot--) {
+                    ItemResource itemResource = itemHandler.getResource(slot);
+                    if (!itemResource.isEmpty()) {
+                        int amountToExtract = Math.min(amount, itemResource.getMaxStackSize());
+                        if (predicate.test(itemResource.toStack(amountToExtract))) {
+                            ItemStack extracted = itemResource.toStack(itemHandler.extract(slot, itemResource, amountToExtract, transaction));
+                            if (!extracted.isEmpty()) {
+                                pipe.setItem(face.getOpposite(), extracted);
+                                transaction.commit();
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Container container = MiscUtil.getVanillaContainer(level, blockEntity, level.getBlockState(containerPos), containerPos);
+            if (container != null) {
+                int[] slots = container instanceof WorldlyContainer worldlyContainer ? worldlyContainer.getSlotsForFace(face) : IntStream.range(0, container.getContainerSize()).toArray();
+                for (int i = slots.length - 1; i >= 0; i--) {
+                    int slot = slots[i];
+                    ItemStack slotStack = container.getItem(slot);
+                    int amountToTake = Math.min(slotStack.getCount(), amount);
+                    ItemStack extracted = slotStack.copyWithCount(amountToTake);
+                    if (predicate.test(slotStack) && !extracted.isEmpty() && MiscUtil.canTakeItemFromVanillaContainer(container, slot, extracted, face)) {
+                        int amountRemaining = slotStack.getCount() - amountToTake;
+                        container.setItem(slot, amountRemaining == 0 ? ItemStack.EMPTY : slotStack.copyWithCount(amountRemaining));
+                        container.setChanged();
+                        pipe.setItem(face.getOpposite(), slotStack.copyWithCount(amountToTake));
                         return true;
                     }
                 }
@@ -150,16 +189,43 @@ public class NeoForgeService implements LoaderService {
     @Override
     public boolean extractSpecificItem(ItemPipeEntity pipe, ServerLevel level, BlockPos containerPos, Direction face, ItemStack stack) {
         ItemStack target = stack.copy();
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, containerPos, face);
+        ResourceHandler<ItemResource> itemHandler = level.getCapability(Capabilities.Item.BLOCK, containerPos, face);
         if (itemHandler != null) {
-            for (int slot = itemHandler.getSlots() - 1; slot >= 0; slot--) {
-                if (ItemStack.isSameItemSameComponents(target, itemHandler.getStackInSlot(slot))) {
-                    ItemStack extracted = itemHandler.extractItem(slot, target.getCount(), false);
-                    if (!extracted.isEmpty()) {
-                        target.shrink(extracted.getCount());
-                        pipe.setItem(face.getOpposite(), extracted);
-                        if (target.isEmpty()) {
-                            return true;
+            try (Transaction transaction = Transaction.open(null)) {
+                for (int slot = itemHandler.size() - 1; slot >= 0; slot--) {
+                    ItemResource itemResource = itemHandler.getResource(slot);
+                    if (!itemResource.isEmpty() && itemResource.matches(target)) {
+                        ItemStack extracted = itemResource.toStack(itemHandler.extract(slot, itemResource, target.getCount(), transaction));
+                        if (!extracted.isEmpty()) {
+                            target.shrink(extracted.getCount());
+                            pipe.setItem(face.getOpposite(), extracted);
+                            if (target.isEmpty()) {
+                                transaction.commit();
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Container container = MiscUtil.getVanillaContainer(level, level.getBlockState(containerPos), containerPos);
+            if (container != null) {
+                int[] slots = container instanceof WorldlyContainer worldlyContainer ? worldlyContainer.getSlotsForFace(face) : IntStream.range(0, container.getContainerSize()).toArray();
+                for (int i = slots.length - 1; i >= 0; i--) {
+                    int slot = slots[i];
+                    ItemStack slotStack = container.getItem(slot);
+                    if (ItemStack.isSameItemSameComponents(target, slotStack)) {
+                        int amountToTake = Math.min(slotStack.getCount(), target.getCount());
+                        ItemStack extracted = slotStack.copyWithCount(amountToTake);
+                        if (!extracted.isEmpty() && MiscUtil.canTakeItemFromVanillaContainer(container, slot, extracted, face)) {
+                            int amountRemaining = slotStack.getCount() - amountToTake;
+                            container.setItem(slot, amountRemaining <= 0 ? ItemStack.EMPTY : slotStack.copyWithCount(amountRemaining));
+                            container.setChanged();
+                            target.shrink(amountToTake);
+                            pipe.setItem(face.getOpposite(), extracted);
+                            if (target.isEmpty()) {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -169,29 +235,32 @@ public class NeoForgeService implements LoaderService {
     }
 
     public List<ItemStack> getContainerItems(ServerLevel level, BlockPos pos, Direction face) {
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face);
+        ResourceHandler<ItemResource> itemHandler = level.getCapability(Capabilities.Item.BLOCK, pos, face);
+        List<ItemStack> stacks = new ArrayList<>();
         if (itemHandler != null) {
-            List<ItemStack> stacks = new ArrayList<>();
-            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                ItemStack slotStack = itemHandler.getStackInSlot(slot);
-                if (slotStack.isEmpty()) {
-                    continue;
-                }
-                boolean matched = false;
-                for (ItemStack stack : stacks) {
-                    if (ItemStack.isSameItemSameComponents(stack, slotStack)) {
-                        stack.setCount(stack.getCount() + slotStack.getCount());
-                        matched = true;
-                        break;
+            try (Transaction transaction = Transaction.open(null)) {
+                for (int slot = itemHandler.size() - 1; slot >= 0; slot--) {
+                    ItemResource itemResource = itemHandler.getResource(slot);
+                    if (!itemResource.isEmpty()) {
+                        int extractable = itemHandler.extract(slot, itemResource, itemHandler.getAmountAsInt(slot), transaction);
+                        MiscUtil.mergeStackIntoList(stacks, itemResource.toStack(extractable));
                     }
                 }
-                if (!matched) {
-                    stacks.add(slotStack.copy());
+            }
+        } else {
+            Container container = MiscUtil.getVanillaContainer(level, level.getBlockState(pos), pos);
+            if (container != null) {
+                int[] slots = container instanceof WorldlyContainer worldlyContainer ? worldlyContainer.getSlotsForFace(face) : IntStream.range(0, container.getContainerSize()).toArray();
+                for (int i = slots.length - 1; i >= 0; i--) {
+                    int slot = slots[i];
+                    ItemStack extractable = container.getItem(slot);
+                    if (MiscUtil.canTakeItemFromVanillaContainer(container, slot, extractable, face)) {
+                        MiscUtil.mergeStackIntoList(stacks, extractable);
+                    }
                 }
             }
-            return stacks;
         }
-        return List.of();
+        return stacks;
     }
 
     @Override
@@ -203,13 +272,16 @@ public class NeoForgeService implements LoaderService {
     public boolean handleFluidInsertion(FluidPipeEntity pipe, ServerLevel level, BlockPos pipePos, BlockState pipeState, BlockEntity containerEntity, BlockPos containerPos, Fluid fluid, FluidInPipe fluidPacket) {
         Direction face = fluidPacket.getTargetDirection().getOpposite();
         BlockState state = level.getBlockState(containerPos);
-        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, containerEntity, face);
+        ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, containerPos, state, containerEntity, face);
         if (fluidHandler != null) {
-            int amountFilled = fluidHandler.fill(new FluidStack(fluid, fluidPacket.getAmount()), IFluidHandler.FluidAction.EXECUTE);
-            if (amountFilled >= fluidPacket.getAmount()) {
-                return true;
+            try (Transaction transaction = Transaction.open(null)) {
+                int amountFilled = fluidHandler.insert(FluidResource.of(fluid), fluidPacket.getAmount(), transaction);
+                transaction.commit();
+                if (amountFilled >= fluidPacket.getAmount()) {
+                    return true;
+                }
+                fluidPacket.setAmount(fluidPacket.getAmount() - amountFilled);
             }
-            fluidPacket.setAmount(fluidPacket.getAmount() - amountFilled);
         }
         return false;
     }
@@ -221,9 +293,9 @@ public class NeoForgeService implements LoaderService {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
-        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
+        ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, containerPos, state, blockEntity, face);
         if (fluidHandler != null) {
-            return fluidHandler.getTanks() > 0;
+            return fluidHandler.size() > 0;
         }
         return false;
     }
@@ -235,15 +307,25 @@ public class NeoForgeService implements LoaderService {
             return false;
         }
         BlockState state = level.getBlockState(containerPos);
-        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, containerPos, state, blockEntity, face);
+        ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, containerPos, state, blockEntity, face);
         if (fluidHandler != null) {
             int amountToDrain = Math.min(amount, pipe.remainingCapacity());
-            Fluid fluid = pipe.isEmpty() ? fluidHandler.drain(amountToDrain, IFluidHandler.FluidAction.SIMULATE).getFluid() : pipe.getFluid();
-            if (predicate.test(fluid)) {
-                FluidStack drainedStack = pipe.isEmpty() ? fluidHandler.drain(amountToDrain, IFluidHandler.FluidAction.EXECUTE) : fluidHandler.drain(new FluidStack(pipe.getFluid(), amountToDrain), IFluidHandler.FluidAction.EXECUTE);
-                if (!drainedStack.isEmpty()) {
-                    pipe.setFluid(drainedStack.getFluid());
-                    pipe.insertFluidPacket(level, new FluidInPipe(drainedStack.getAmount(), pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
+            Fluid fluid = pipe.getFluid() != null ? pipe.getFluid() : Fluids.WATER;
+            if (pipe.isEmpty()) {
+                for (int tank = 0; tank < fluidHandler.size(); tank++) {
+                    FluidResource fluidResource = fluidHandler.getResource(tank);
+                    if (!fluidResource.isEmpty() && predicate.test(fluidResource.getFluid())) {
+                        fluid = fluidResource.getFluid();
+                        break;
+                    }
+                }
+            }
+            try (Transaction transaction = Transaction.open(null)) {
+                int amountExtracted = fluidHandler.extract(FluidResource.of(fluid), amountToDrain, transaction);
+                if (amountExtracted > 0) {
+                    pipe.setFluid(fluid);
+                    pipe.insertFluidPacket(level, new FluidInPipe(amountExtracted, pipe.getTargetSpeed(), (short) 0, face.getOpposite(), face.getOpposite(), (short) 0));
+                    transaction.commit();
                     return true;
                 }
             }
@@ -252,27 +334,11 @@ public class NeoForgeService implements LoaderService {
     }
 
     @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState, BlockAndTintGetter level, BlockPos pos) {
-        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        int tint = fluidInfo.getTintColor(fluidState, level, pos);
-        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture(fluidState, level, pos));
-        return new FluidRenderInfo(tint, sprite);
-    }
-
-    @Override
-    public FluidRenderInfo getFluidRenderInfo(FluidState fluidState) {
-        IClientFluidTypeExtensions fluidInfo = IClientFluidTypeExtensions.of(fluidState);
-        int tint = fluidInfo.getTintColor();
-        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidInfo.getStillTexture());
-        return new FluidRenderInfo(tint, sprite);
-    }
-
-    @Override
     public Fluid getFluidFromStack(ItemStack stack) {
         Fluid fluid = null;
-        IFluidHandler fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        ResourceHandler<FluidResource> fluidHandler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
         if (fluidHandler != null) {
-            fluid = fluidHandler.getFluidInTank(0).getFluid();
+            fluid = fluidHandler.getResource(0).getFluid();
         } else if (stack.getItem() instanceof BucketItem bucket) {
             fluid = bucket.content;
         }

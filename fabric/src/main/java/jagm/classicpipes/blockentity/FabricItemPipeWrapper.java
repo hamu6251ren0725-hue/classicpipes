@@ -21,7 +21,7 @@ public class FabricItemPipeWrapper implements Storage<ItemVariant>, StorageView<
 
     @Override
     public boolean supportsInsertion() {
-        return this.pipe.isPipeConnected(this.pipe.getBlockState(), this.side);
+        return this.side != null && this.pipe.isPipeConnected(this.pipe.getBlockState(), this.side);
     }
 
     @Override
@@ -33,8 +33,10 @@ public class FabricItemPipeWrapper implements Storage<ItemVariant>, StorageView<
     public long insert(ItemVariant itemVariant, long amount, TransactionContext transaction) {
         if (this.supportsInsertion()) {
             int amountToInsert = (int) Math.min(amount, 64);
-            transaction.addCloseCallback((closingTransaction, result) -> {
-                this.pipe.setItem(this.side, itemVariant.toStack(amountToInsert));
+            transaction.addCloseCallback((_, result) -> {
+                if (result.wasCommitted()) {
+                    this.pipe.setItem(this.side, itemVariant.toStack(amountToInsert));
+                }
             });
             return amountToInsert;
         }

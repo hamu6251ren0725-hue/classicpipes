@@ -4,6 +4,7 @@ import jagm.classicpipes.ClassicPipes;
 import jagm.classicpipes.block.MatchingPipeBlock;
 import jagm.classicpipes.block.ProviderPipeBlock;
 import jagm.classicpipes.inventory.menu.StoragePipeMenu;
+import jagm.classicpipes.item.LabelItem;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.FacingOrNone;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvider, ProviderPipe, MatchingPipe {
@@ -28,20 +28,20 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
     private boolean defaultRoute;
     private boolean matchComponents;
     private boolean leaveOne;
-    private final List<ItemStack> cache;
+    private final List<ItemStack> providerCache;
+    private final List<ItemStack> matchingCache;
     private boolean cacheInitialised;
     private final List<ItemStack> cannotFit;
-    private long lastCached;
 
     public StoragePipeEntity(BlockPos pos, BlockState state) {
         super(ClassicPipes.STORAGE_PIPE_ENTITY, pos, state);
         this.defaultRoute = false;
         this.matchComponents = false;
         this.leaveOne = false;
-        this.cache = new ArrayList<>();
+        this.providerCache = new ArrayList<>();
+        this.matchingCache = new ArrayList<>();
         this.cacheInitialised = false;
         this.cannotFit = new ArrayList<>();
-        this.lastCached = 0;
     }
 
     @Override
@@ -53,29 +53,28 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
         super.tickServer(level, pos, state);
     }
 
-    @Override
-    public void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
-        long time = level.getGameTime();
-        if (this.lastCached != time) {
-            this.lastCached = time;
-            this.cache.clear();
-            this.cannotFit.clear();
-            List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
-            Iterator<ItemStack> iterator = stacks.iterator();
-            while (iterator.hasNext()) {
-                ItemStack stack = iterator.next();
-                if (this.shouldLeaveOne()) {
-                    stack.shrink(1);
-                    if (stack.isEmpty()) {
-                        iterator.remove();
-                    }
-                }
+    private void updateCache(ServerLevel level, BlockPos pos, Direction facing) {
+        this.providerCache.clear();
+        this.matchingCache.clear();
+        this.cannotFit.clear();
+        List<ItemStack> stacks = Services.LOADER_SERVICE.getContainerItems(level, pos.relative(facing), facing.getOpposite());
+        for (ItemStack stack : stacks) {
+            this.matchingCache.add(stack.copy());
+            if (this.shouldLeaveOne()) {
+                stack.shrink(1);
             }
-            this.cache.addAll(stacks);
-            if (this.hasNetwork()) {
-                this.getNetwork().cacheUpdated();
+            if (!stack.isEmpty() && !(stack.getItem() instanceof LabelItem)) {
+                this.providerCache.add(stack);
             }
         }
+        if (this.hasNetwork()) {
+            this.getNetwork().cacheUpdated();
+        }
+    }
+
+    @Override
+    public void updateCache() {
+        this.cacheInitialised = false;
     }
 
     @Override
@@ -85,17 +84,24 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     @Override
     public boolean matches(ItemStack stack) {
+        if (this.itemCanFit(stack)) {
+            for (ItemStack containerStack : this.matchingCache) {
+                if (containerStack.getItem() instanceof LabelItem labelItem && labelItem.itemMatches(containerStack, stack) || stack.is(containerStack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, containerStack))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean itemCanFit(ItemStack stack) {
         for (ItemStack cannotFitStack : this.cannotFit) {
             if (ItemStack.isSameItemSameComponents(cannotFitStack, stack)) {
                 return false;
             }
         }
-        for (ItemStack containerStack : this.cache) {
-            if (stack.is(containerStack.getItem()) && (!this.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, containerStack))) {
-                return true;
-            }
-        }
-        return false;
+        return true;
     }
 
     @Override
@@ -133,8 +139,8 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
     public void setLeaveOne(boolean leaveOne) {
         this.leaveOne = leaveOne;
         Direction facing = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
-        if (this.getLevel() instanceof ServerLevel serverLevel && facing != null) {
-            this.updateCache(serverLevel, this.getBlockPos(), facing);
+        if (this.getLevel() instanceof ServerLevel && facing != null) {
+            this.updateCache();
         }
     }
 
@@ -171,7 +177,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
 
     @Override
     public List<ItemStack> getCache() {
-        return this.cache;
+        return this.providerCache;
     }
 
     @Override
@@ -179,7 +185,7 @@ public class StoragePipeEntity extends NetworkedPipeEntity implements MenuProvid
         Direction facing = this.getBlockState().getValue(ProviderPipeBlock.FACING).getDirection();
         if (facing != null) {
             boolean extracted = Services.LOADER_SERVICE.extractSpecificItem(this, level, this.getBlockPos().relative(facing), facing.getOpposite(), stack.copy());
-            this.updateCache(level, this.getBlockPos(), facing);
+            this.updateCache();
             return extracted;
         }
         return false;

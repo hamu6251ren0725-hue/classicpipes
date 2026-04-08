@@ -1,6 +1,8 @@
 package jagm.classicpipes.blockentity;
 
+import jagm.classicpipes.block.ContainerAdjacentNetworkedPipeBlock;
 import jagm.classicpipes.block.NetworkedPipeBlock;
+import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -119,12 +121,15 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 for (StockingPipeEntity stockingPipe : this.network.getStockingPipes()) {
                     for (ItemStack stack : stockingPipe.getMissingItemsCache()) {
                         if (stack.is(item.getStack().getItem()) && (!stockingPipe.shouldMatchComponents() || ItemStack.isSameItemSameComponents(stack, item.getStack()))) {
-                            int surplus = item.getStack().getCount() - stack.getCount();
-                            if (surplus > 0) {
-                                spareItems.add(item.copyWithCount(surplus));
-                                item.getStack().setCount(stack.getCount());
+                            int alreadyRequested = stockingPipe.getAlreadyRequested(stack);
+                            if (alreadyRequested < stack.getCount()) {
+                                int surplus = item.getStack().getCount() - stack.getCount() + alreadyRequested;
+                                if (surplus > 0) {
+                                    spareItems.add(item.copyWithCount(surplus));
+                                    item.getStack().setCount(stack.getCount() - alreadyRequested);
+                                }
+                                validTargets.add(stockingPipe);
                             }
-                            validTargets.add(stockingPipe);
                             break;
                         }
                     }
@@ -138,20 +143,40 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 }
             }
             if (validTargets.isEmpty()) {
+                Map<Filter.MatchingResult, List<RoutingPipeEntity>> matchPriority = new HashMap<>();
+                matchPriority.put(Filter.MatchingResult.ITEM, new ArrayList<>());
+                matchPriority.put(Filter.MatchingResult.TAG, new ArrayList<>());
+                matchPriority.put(Filter.MatchingResult.MOD, new ArrayList<>());
                 for (RoutingPipeEntity routingPipe : this.network.getRoutingPipes()) {
-                    if (routingPipe.canRouteItemHere(item.getStack())) {
-                        validTargets.add(routingPipe);
+                    Filter.MatchingResult result = routingPipe.canRouteItemHere(item.getStack());
+                    if (result.matches) {
+                        matchPriority.get(result).add(routingPipe);
                     }
+                }
+                if (!matchPriority.get(Filter.MatchingResult.ITEM).isEmpty()) {
+                    validTargets.addAll(matchPriority.get(Filter.MatchingResult.ITEM));
+                } else if (!matchPriority.get(Filter.MatchingResult.TAG).isEmpty()) {
+                    validTargets.addAll(matchPriority.get(Filter.MatchingResult.TAG));
+                } else if (!matchPriority.get(Filter.MatchingResult.MOD).isEmpty()) {
+                    validTargets.addAll(matchPriority.get(Filter.MatchingResult.MOD));
                 }
             }
             if (validTargets.isEmpty()) {
-                validTargets.addAll(this.network.getDefaultRoutes());
+                for (NetworkedPipeEntity defaultRoutePipe : this.network.getDefaultRoutes()) {
+                    if (!(defaultRoutePipe instanceof MatchingPipe matchingPipe) || matchingPipe.itemCanFit(item.getStack())) {
+                        validTargets.add(defaultRoutePipe);
+                    }
+                }
             }
             if (validTargets.contains(this) && state.getBlock() instanceof NetworkedPipeBlock networkedBlock) {
                 List<Direction> validDirections = new ArrayList<>();
-                for (Direction direction : Direction.values()) {
-                    if (this.isPipeConnected(state, direction) && !networkedBlock.isLinked(state, direction)) {
-                        validDirections.add(direction);
+                if (networkedBlock instanceof ContainerAdjacentNetworkedPipeBlock && state.getValue(ContainerAdjacentNetworkedPipeBlock.FACING) != FacingOrNone.NONE) {
+                    validDirections.add(state.getValue(ContainerAdjacentNetworkedPipeBlock.FACING).getDirection());
+                } else {
+                    for (Direction direction : Direction.values()) {
+                        if (this.isPipeConnected(state, direction) && !networkedBlock.isLinked(state, direction)) {
+                            validDirections.add(direction);
+                        }
                     }
                 }
                 if (validDirections.isEmpty() || this instanceof RecipePipeEntity) {
@@ -177,7 +202,7 @@ public abstract class NetworkedPipeEntity extends RoundRobinPipeEntity {
                 this.schedulePath(serverLevel, item, validTargets.get(serverLevel.getRandom().nextInt(validTargets.size())));
                 this.checkRoutingSchedule(item);
             } else {
-                super.routeItem(state, item);
+                item.setEjecting(true);
             }
             for (ItemInPipe spareItem : spareItems) {
                 this.queued.add(spareItem);

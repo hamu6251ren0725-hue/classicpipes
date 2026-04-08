@@ -1,6 +1,7 @@
 package jagm.classicpipes.blockentity;
 
 import jagm.classicpipes.ClassicPipes;
+import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.inventory.container.SingleItemFilterContainer;
 import jagm.classicpipes.inventory.menu.AdvancedCopperPipeMenu;
 import jagm.classicpipes.util.ItemInPipe;
@@ -34,7 +35,7 @@ public class AdvancedCopperPipeEntity extends CopperPipeEntity implements MenuPr
 
     @Override
     protected Predicate<ItemStack> filterPredicate() {
-        return stack -> this.filter.isEmpty() || this.filter.matches(stack);
+        return stack -> this.filter.isEmpty() || this.filter.matches(stack).matches;
     }
 
     @Override
@@ -83,6 +84,10 @@ public class AdvancedCopperPipeEntity extends CopperPipeEntity implements MenuPr
             }
         }
         valueOutput.putBoolean("match_components", this.filter.shouldMatchComponents());
+    }
+
+    public Filter getFilter() {
+        return this.filter;
     }
 
 }

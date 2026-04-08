@@ -3,7 +3,7 @@ package jagm.classicpipes.inventory.menu;
 import jagm.classicpipes.inventory.container.Filter;
 import jagm.classicpipes.services.Services;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -16,13 +16,13 @@ public abstract class FluidFilterMenu extends FilterMenu {
     }
 
     @Override
-    public void clicked(int index, int button, ClickType clickType, Player player) {
-        if (index >= this.getFilter().getContainerSize() || index < 0 || clickType.equals(ClickType.CLONE)) {
-            super.clicked(index, button, clickType, player);
+    public void clicked(int index, int button, ContainerInput containerInput, Player player) {
+        if (index >= this.getFilter().getContainerSize() || index < 0 || containerInput.equals(ContainerInput.CLONE)) {
+            super.clicked(index, button, containerInput, player);
         } else {
             Slot slot = this.slots.get(index);
-            if ((clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE) && (button == 0 || button == 1)) {
-                if (this.getCarried().isEmpty() || clickType == ClickType.QUICK_MOVE) {
+            if ((containerInput == ContainerInput.PICKUP || containerInput == ContainerInput.QUICK_MOVE) && (button == 0 || button == 1)) {
+                if (this.getCarried().isEmpty() || containerInput == ContainerInput.QUICK_MOVE) {
                     slot.remove(1);
                     slot.setChanged();
                 } else {

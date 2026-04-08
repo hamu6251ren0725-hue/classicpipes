@@ -18,8 +18,8 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class AdvancedCopperPipeBlock extends CopperPipeBlock {
 
-    public AdvancedCopperPipeBlock(Properties properties) {
-        super(properties);
+    public AdvancedCopperPipeBlock(Properties properties, boolean inverted) {
+        super(properties, inverted);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class AdvancedCopperPipeBlock extends CopperPipeBlock {
             Services.LOADER_SERVICE.openMenu(
                     (ServerPlayer) player,
                     pipe,
-                    new ClientBoundBoolPayload(pipe.shouldMatchComponents()),
+                    new ClientBoundBoolPayload(pipe.getFilter().getItemStacksForPayload(), pipe.shouldMatchComponents()),
                     ClientBoundBoolPayload.STREAM_CODEC
             );
         }

@@ -8,15 +8,17 @@ import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import jagm.classicpipes.util.SortingMode;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -26,10 +28,10 @@ import java.util.Iterator;
 
 public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
 
-    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/request.png");
-    private static final WidgetSprites X_BUTTON = new WidgetSprites(MiscUtil.resourceLocation("widget/x"), MiscUtil.resourceLocation("widget/x_hovered"));
-    private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
-    private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
+    private static final Identifier BACKGROUND = MiscUtil.identifier("textures/gui/container/request.png");
+    private static final WidgetSprites X_BUTTON = new WidgetSprites(MiscUtil.identifier("widget/x"), MiscUtil.identifier("widget/x_hovered"));
+    private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_back");
+    private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_front");
 
     private EditBox searchBar;
     private PageButton prev_page;
@@ -39,8 +41,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     private boolean refocus;
 
     public RequestScreen(RequestMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageHeight = 222;
+        super(menu, playerInventory, title, 176, 222);
         this.refocus = false;
     }
 
@@ -58,8 +59,8 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.searchBar.setBordered(false);
         this.searchBar.setResponder(this.menu::setSearch);
         this.searchBar.setEditable(true);
-        this.prev_page = new PageButton(this.width / 2 - 32 - 8, this.topPos + 180, true, false, button -> this.changePage(-1));
-        this.next_page = new PageButton(this.width / 2 + 32, this.topPos + 180, false, this.menu.getMaxPage() > 0, button -> this.changePage(1));
+        this.prev_page = new PageButton(this.width / 2 - 48 - 8, this.topPos + 180, true, false, _ -> this.changePage(-1));
+        this.next_page = new PageButton(this.width / 2 + 48, this.topPos + 180, false, this.menu.getMaxPage() > 0, _ -> this.changePage(1));
         this.sort_type = Button.builder(this.menu.getSortingMode().getType(), this::changeSortType).bounds(this.width / 2 - 25, this.topPos + 198, 50, 16).build();
         this.sort_direction = Button.builder(this.menu.getSortingMode().getDirection(), this::changeSortDirection).bounds(this.width / 2 + 27, this.topPos + 198, 50, 16).build();
 
@@ -68,27 +69,27 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         this.addRenderableWidget(this.searchBar);
         this.addRenderableWidget(this.prev_page);
         this.addRenderableWidget(this.next_page);
-        this.addRenderableWidget(new ImageButton(this.leftPos + this.imageWidth - 12, this.topPos + 5, 7, 7, X_BUTTON, button -> this.onClose()));
+        this.addRenderableWidget(new ImageButton(this.leftPos + this.imageWidth - 12, this.topPos + 5, 7, 7, X_BUTTON, _ -> this.onClose()));
 
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         this.updatePageButtons();
-        this.renderContents(graphics, mouseX, mouseY, partialTicks);
-        this.renderTooltip(graphics, mouseX, mouseY);
+        this.extractContents(graphics, mouseX, mouseY, partialTicks);
+        this.extractTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    public void renderContents(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        super.renderContents(graphics, mouseX, mouseY, partialTicks);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractContents(graphics, mouseX, mouseY, partialTicks);
         graphics.pose().pushMatrix();
         graphics.pose().translate((float) this.leftPos, (float) this.topPos);
         this.hoveredSlot = this.getHoveredSlot(mouseX, mouseY);
         if (this.hoveredSlot != null && this.hoveredSlot.isHighlightable()) {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, this.hoveredSlot.x - 4, this.hoveredSlot.y - 4, 24, 24);
         }
-        this.renderSlots(graphics);
+        this.extractSlots(graphics, mouseX, mouseY);
         if (this.hoveredSlot != null && this.hoveredSlot.isHighlightable()) {
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, this.hoveredSlot.x - 4, this.hoveredSlot.y - 4, 24, 24);
         }
@@ -96,56 +97,56 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     private Slot getHoveredSlot(double mouseX, double mouseY) {
-        Iterator<Slot> var5 = this.menu.displaySlots.iterator();
+        Iterator<Slot> iterator = this.menu.displaySlots.iterator();
         Slot slot;
         do {
-            if (!var5.hasNext()) {
+            if (!iterator.hasNext()) {
                 return null;
             }
-            slot = var5.next();
-        } while(!slot.isActive() || !this.isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY));
+            slot = iterator.next();
+        } while (!slot.isActive() || !this.isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY));
         return slot;
     }
 
     @Override
-    protected void renderSlots(GuiGraphics graphics) {
+    protected void extractSlots(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         for (Slot slot : this.menu.displaySlots) {
             if (slot.isActive()) {
-                this.renderSlot(graphics, slot);
+                this.extractSlot(graphics, slot, mouseX, mouseY);
             }
         }
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float f, int x, int y) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, -12566464, false);
         Component pageIndicator = Component.translatable("widget." + ClassicPipes.MOD_ID + ".page", this.menu.getPage() + 1, this.menu.getMaxPage() + 1);
-        graphics.drawString(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
+        graphics.text(this.font, pageIndicator, (this.imageWidth - this.font.width(pageIndicator)) / 2, 182, -12566464, false);
         Component sortBy = Component.translatable("widget." + ClassicPipes.MOD_ID + ".sort_by");
-        graphics.drawString(this.font, sortBy, this.imageWidth / 2 - 29 - this.font.width(sortBy), 202, -12566464, false);
+        graphics.text(this.font, sortBy, this.imageWidth / 2 - 29 - this.font.width(sortBy), 202, -12566464, false);
     }
 
     @Override
-    protected void renderSlot(GuiGraphics graphics, Slot slot) {
+    protected void extractSlot(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY) {
         ItemStack stack = slot.getItem();
         int seed = slot.x + slot.y * this.imageWidth;
-        graphics.renderItem(stack, slot.x, slot.y, seed);
+        graphics.item(stack, slot.x, slot.y, seed);
         if (!stack.isEmpty()) {
             graphics.pose().pushMatrix();
-            this.renderItemBar(graphics, stack, slot.x, slot.y);
-            this.renderItemCount(graphics, this.font, stack, slot.x, slot.y, this.menu.itemCraftable(stack));
+            this.extractItemBar(graphics, stack, slot.x, slot.y);
+            this.extractItemCount(graphics, this.font, stack, slot.x, slot.y, this.menu.itemCraftable(stack));
             graphics.pose().popMatrix();
         }
     }
 
-    private void renderItemBar(GuiGraphics graphics, ItemStack stack, int x, int y) {
+    private void extractItemBar(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y) {
         if (stack.isBarVisible()) {
             int i = x + 2;
             int j = y + 13;
@@ -154,24 +155,22 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
         }
     }
 
-    private void renderItemCount(GuiGraphics graphics, Font font, ItemStack stack, int x, int y, boolean craftable) {
+    private void extractItemCount(GuiGraphicsExtractor graphics, Font font, ItemStack stack, int x, int y, boolean craftable) {
         int count = stack.getCount() - (craftable ? 1 : 0);
         String s = stringForCount(count);
         int colour = colourForCount(count);
         float countScale = 1.0F;
-        if (this.minecraft != null) {
-            final int guiScale = this.minecraft.getWindow().getGuiScale();
-            int numerator = guiScale;
-            while (font.width(s) * countScale > 16 && numerator > 1) {
-                numerator--;
-                countScale = (float) numerator / guiScale;
-            }
+        final int guiScale = this.minecraft.getWindow().getGuiScale();
+        int numerator = guiScale;
+        while (font.width(s) * countScale > 16 && numerator > 1) {
+            numerator--;
+            countScale = (float) numerator / guiScale;
         }
         int slotOffset = countScale == 1.0F ? 17 : 16;
         graphics.pose().pushMatrix();
         graphics.pose().translate(x + slotOffset, y + slotOffset);
         graphics.pose().scale(countScale);
-        graphics.drawString(font, s, -font.width(s), -8, colour, true);
+        graphics.text(font, s, -font.width(s), -8, colour, true);
         graphics.pose().popMatrix();
     }
 
@@ -200,25 +199,26 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        Slot slot = this.getHoveredSlot(mouseX, mouseY);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        this.setFocused(null);
+        Slot slot = this.getHoveredSlot(event.x(), event.y());
         if (slot != null) {
             ItemStack toRequest = slot.getItem();
             if (!toRequest.isEmpty()) {
                 boolean craftable = this.menu.itemCraftable(toRequest);
-                if (hasShiftDown() || button == 1) {
-                    int amount = hasShiftDown() ? Math.min(toRequest.getCount() - (craftable ? 1 : 0), toRequest.getMaxStackSize()) : 1;
+                if (event.hasShiftDown() || event.button() == 1) {
+                    int amount = event.hasShiftDown() ? Math.min(toRequest.getCount() - (craftable ? 1 : 0), toRequest.getMaxStackSize()) : 1;
                     if (amount > 0) {
                         Services.LOADER_SERVICE.sendToServer(new ServerBoundRequestPayload(toRequest.copyWithCount(amount), this.menu.getRequestPos()));
                         toRequest.shrink(amount);
                         this.menu.update();
                     }
-                } else if (this.minecraft != null) {
+                } else {
                     this.minecraft.setScreen(new RequestAmountScreen(toRequest, this, craftable));
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
@@ -227,11 +227,11 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
+    public boolean keyPressed(KeyEvent event) {
+        if (event.input() == 256 && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
         }
-        return this.searchBar.keyPressed(keyCode, scanCode, modifiers) || this.searchBar.canConsumeInput() || super.keyPressed(keyCode, scanCode, modifiers);
+        return this.searchBar.keyPressed(event) || this.searchBar.canConsumeInput() || super.keyPressed(event);
     }
 
     @Override
@@ -255,7 +255,7 @@ public class RequestScreen extends AbstractContainerScreen<RequestMenu> {
     }
 
     private void changeSortType(Button button) {
-        SortingMode nextMode = hasShiftDown() ? this.menu.getSortingMode().prevType() : this.menu.getSortingMode().nextType();
+        SortingMode nextMode = this.minecraft.hasShiftDown() ? this.menu.getSortingMode().prevType() : this.menu.getSortingMode().nextType();
         this.sort_type.setMessage(nextMode.getType());
         this.sort_direction.setMessage(nextMode.getDirection());
         this.menu.setSortingMode(nextMode);

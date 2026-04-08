@@ -7,22 +7,20 @@ import jagm.classicpipes.network.ServerBoundMatchComponentsPayload;
 import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class DiamondPipeScreen extends FilterScreen<DiamondPipeMenu> {
 
-    private static final ResourceLocation BACKGROUND = MiscUtil.resourceLocation("textures/gui/container/diamond_pipe.png");
+    private static final Identifier BACKGROUND = MiscUtil.identifier("textures/gui/container/diamond_pipe.png");
 
     public DiamondPipeScreen(DiamondPipeMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 236;
+        super(menu, playerInventory, title, 176, 236);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
@@ -41,17 +39,17 @@ public class DiamondPipeScreen extends FilterScreen<DiamondPipeMenu> {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, float f) {
-        super.render(graphics, x, y, f);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int x, int y, float f) {
+        super.extractRenderState(graphics, x, y, f);
         for (int i = 0; i < 6; i++) {
             Component text = Component.translatable("direction." + ClassicPipes.MOD_ID + "." + Direction.from3DDataValue(i).name().toLowerCase()).withStyle(ChatFormatting.BLACK);
-            graphics.drawString(this.font, text, this.leftPos - 30 + (35 - this.font.width(text)) / 2, this.topPos + 22 + 18 * i, -12566464, false);
+            graphics.text(this.font, text, this.leftPos - 30 + (35 - this.font.width(text)) / 2, this.topPos + 22 + 18 * i, -12566464, false);
         }
-        this.renderTooltip(graphics, x, y);
+        this.extractTooltip(graphics, x, y);
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float f, int x, int y) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         int i = (this.width - 176) / 2 - 32;
         int j = (this.height - this.imageHeight) / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0.0F, 0.0F, this.imageWidth + 32, this.imageHeight, 256, 256);

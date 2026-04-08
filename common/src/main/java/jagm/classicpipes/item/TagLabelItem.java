@@ -4,6 +4,7 @@ import jagm.classicpipes.ClassicPipes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,16 +29,16 @@ public class TagLabelItem extends LabelItem {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack targetStack = player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
         List<String> tags = new ArrayList<>();
-        for (TagKey<Item> tagKey : targetStack.getTags().toList()) {
+        for (TagKey<Item> tagKey : targetStack.tags().toList()) {
             tags.add(tagKey.location().toString());
         }
         if (targetStack.isEmpty()) {
             if (level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".nothing_in_offhand"), false);
+                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".nothing_in_offhand"));
             }
         } else if (tags.isEmpty()) {
             if (level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".no_tags_in_hand"), false);
+                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".no_tags_in_hand"));
             }
         } else {
             ItemStack labelStack = player.getItemInHand(hand);
@@ -45,7 +46,7 @@ public class TagLabelItem extends LabelItem {
             if (currentTag == null || !tags.contains(currentTag)) {
                 labelStack.set(ClassicPipes.LABEL_COMPONENT, tags.getFirst());
                 if (level.isClientSide()) {
-                    player.displayClientMessage(tagSetMessage(tags.getFirst()), false);
+                    player.sendSystemMessage(tagSetMessage(tags.getFirst()));
                 }
             } else {
                 for (int i = 0; i < tags.size(); i++) {
@@ -53,13 +54,14 @@ public class TagLabelItem extends LabelItem {
                         String tag = tags.get((i + 1) % tags.size());
                         labelStack.set(ClassicPipes.LABEL_COMPONENT, tag);
                         if (level.isClientSide()) {
-                            player.displayClientMessage(tagSetMessage(tag), false);
+                            player.sendSystemMessage(tagSetMessage(tag));
                         }
                         break;
                     }
                 }
             }
         }
+        player.awardStat(Stats.ITEM_USED.get(this));
         return InteractionResult.SUCCESS;
     }
 
@@ -72,7 +74,7 @@ public class TagLabelItem extends LabelItem {
         }
     }
 
-    private static String labelToTranslationKey(String label) {
+    public static String labelToTranslationKey(String label) {
         String[] split = label.split(":");
         if (split.length < 2) {
             return "tag.item.minecraft." + label.replace("/", ".");
@@ -99,7 +101,7 @@ public class TagLabelItem extends LabelItem {
     public boolean itemMatches(ItemStack tagStack, ItemStack compareStack) {
         String tag = tagStack.get(ClassicPipes.LABEL_COMPONENT);
         if (tag != null) {
-            for (TagKey<Item> tagKey : compareStack.getTags().toList()) {
+            for (TagKey<Item> tagKey : compareStack.tags().toList()) {
                 if (tag.equals(tagKey.location().toString())) {
                     return true;
                 }

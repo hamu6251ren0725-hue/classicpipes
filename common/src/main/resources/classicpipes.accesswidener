@@ -1,0 +1,2 @@
+classTweaker v1 official
+accessible field net/minecraft/world/item/BucketItem content Lnet/minecraft/world/level/material/Fluid;

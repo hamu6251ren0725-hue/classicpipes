@@ -5,6 +5,7 @@ import jagm.classicpipes.services.Services;
 import jagm.classicpipes.util.MiscUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -26,16 +27,17 @@ public class ModLabelItem extends LabelItem {
         ItemStack targetStack = player.getItemInHand(hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
         if (targetStack.isEmpty()) {
             if (level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".nothing_in_offhand"), false);
+                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".nothing_in_offhand"));
             }
         } else {
             ItemStack labelStack = player.getItemInHand(hand);
             String mod = MiscUtil.modFromItem(targetStack);
             labelStack.set(ClassicPipes.LABEL_COMPONENT, mod);
             if (level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".mod_set", Component.literal(Services.LOADER_SERVICE.getModName(mod)).withStyle(ChatFormatting.LIGHT_PURPLE)), false);
+                player.sendSystemMessage(Component.translatable("chat." + ClassicPipes.MOD_ID + ".mod_set", Component.literal(Services.LOADER_SERVICE.getModName(mod)).withStyle(ChatFormatting.LIGHT_PURPLE)));
             }
         }
+        player.awardStat(Stats.ITEM_USED.get(this));
         return InteractionResult.SUCCESS;
     }
 
